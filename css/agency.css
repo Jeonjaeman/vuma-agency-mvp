@@ -227,15 +227,15 @@ svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke
 
 /* 열 머리로 거르기 — JS 는 table[data-filter] 값만 바꾼다 */
 .grid[data-filter] tbody tr:not(.team){display:none}
-.grid[data-filter="apply"] tbody tr.has-apply,
-.grid[data-filter="select"] tbody tr.has-select,
-.grid[data-filter="prep"] tbody tr.has-prep,
-.grid[data-filter="review"] tbody tr.has-review,
-.grid[data-filter="nudge"] tbody tr.has-nudge,
-.grid[data-filter="pay"] tbody tr.has-pay,
-.grid[data-filter="point"] tbody tr.has-point,
-.grid[data-filter="owner"] tbody tr.has-owner,
-.grid[data-filter="late"] tbody tr.has-late{display:table-row}
+.grid[data-filter="apply"] tbody tr:not(.camp).has-apply,
+.grid[data-filter="select"] tbody tr:not(.camp).has-select,
+.grid[data-filter="prep"] tbody tr:not(.camp).has-prep,
+.grid[data-filter="review"] tbody tr:not(.camp).has-review,
+.grid[data-filter="nudge"] tbody tr:not(.camp).has-nudge,
+.grid[data-filter="pay"] tbody tr:not(.camp).has-pay,
+.grid[data-filter="point"] tbody tr:not(.camp).has-point,
+.grid[data-filter="owner"] tbody tr:not(.camp).has-owner,
+.grid[data-filter="late"] tbody tr:not(.camp).has-late{display:table-row}
 .grid[data-filter] .tb-none{display:none}
 .grid[data-filter="apply"] .colh[data-col="apply"],
 .grid[data-filter="select"] .colh[data-col="select"],
@@ -397,3 +397,52 @@ svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke
 	.panel{position:fixed;top:var(--top-h);right:0;bottom:0;width:min(440px,100%);box-shadow:var(--sh-md);transform:translateX(100%);transition:transform .2s}
 	.panel.has-pane{transform:none}
 }
+
+/* ══ [2026-11-09] 캠페인별 영역 — 사용자: "캠페인별 리뷰어가 이 캠페인에 해당한다고 영역을 명확하게" ══
+   패널: 캠페인 = 카드 하나(테두리 + 유형 색 왼쪽 띠 + 유형 색 머리). 머리는 고정 → 리뷰어를 내려 봐도 어느 캠페인인지 보임
+   격자: 업체 행 [캠페인 N ▸] → 아래에 캠페인 줄(칸 = 그 캠페인 건만) */
+.cg-v,.cname:has(.ty-v){--cg:#7346f3;--cg-bg:#f5f1ff}
+.cg-s,.cname:has(.ty-s){--cg:#0077e6;--cg-bg:#edf5ff}
+.cg-p,.cname:has(.ty-p){--cg:#00a06a;--cg-bg:#eaf8f2}
+.cgroup{border:1px solid var(--c-3);border-radius:var(--r-lg);margin:0 0 18px;background:#fff;box-shadow:inset 5px 0 0 var(--cg);overflow:clip;scroll-margin-top:8px}
+.cgroup-h{position:sticky;top:-14px;z-index:2;display:block;margin:0;padding:10px 14px 10px 19px;background:var(--cg-bg);border-bottom:1px solid var(--c-3)}
+.cg-l1{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.cg-name{font-size:15px;letter-spacing:-.01em}
+.cg-l2{display:flex;align-items:center;gap:8px;margin-top:4px;font-size:12px;color:var(--c-9)}
+.cg-l2 em{margin-left:auto;font-style:normal;font-weight:800;color:var(--c-14)}
+.cg-state{font-weight:800;color:var(--cg)}
+.cgroup-b{padding:12px 14px 14px 19px}
+.cgroup-b .item{border-color:var(--c-3);background:#fff}
+.cgroup-b .recruit{margin-top:12px}
+.cgroup:target{outline:2px solid var(--cg);outline-offset:2px}
+/* 패널 맨 위 캠페인 목차 (2개 이상일 때) — 누르면 그 캠페인 영역으로 (앵커) */
+.cindex{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:0 0 14px}
+.cindex>span{font-size:12px;color:var(--c-8);font-weight:700;margin-right:2px}
+.cidx{display:inline-flex;gap:6px;align-items:center;height:30px;padding:0 10px 0 12px;border-radius:var(--r-full);border:1px solid var(--c-3);background:#fff;box-shadow:inset 4px 0 0 var(--cg);font-size:12px;font-weight:700;text-decoration:none;color:var(--c-11)}
+.cidx:hover{border-color:var(--cg)}
+.cidx em{font-style:normal;font-weight:800;color:var(--cg)}
+
+/* 격자 캠페인 줄 */
+.cfold{display:inline-flex;align-items:center;margin-left:8px;height:20px;padding:0 8px;border:1px solid var(--c-4);border-radius:var(--r-full);font-size:11px;font-weight:700;color:var(--c-9);cursor:pointer;background:#fff}
+.cfold input{position:absolute;opacity:0;width:1px;height:1px}
+.cfold::after{content:"▸";margin-left:4px}
+.cfold:has(input:checked){background:var(--c-14);border-color:var(--c-14);color:#fff}
+.cfold:has(input:checked)::after{content:"▾"}
+.cfold:has(input:focus-visible){outline:2px solid var(--ag-main);outline-offset:2px}
+tr.camp{display:none}
+.tb-biz tr.biz:has(.camp-cb:checked) + tr.camp,
+.tb-biz tr.biz:has(.camp-cb:checked) + tr.camp + tr.camp,
+.tb-biz tr.biz:has(.camp-cb:checked) + tr.camp + tr.camp + tr.camp{display:table-row}
+.grid[data-type] tr.camp.t-empty{display:none!important}
+tr.camp th,tr.camp td{height:42px;background:#fcfcfe;border-bottom:1px dashed var(--c-3)}
+.grid tr.camp .cname{padding-left:40px;box-shadow:inset 4px 0 0 var(--cg)}
+.cname::before{content:"";position:absolute;left:24px;top:0;bottom:50%;width:10px;border-left:1px solid var(--c-4);border-bottom:1px solid var(--c-4)}
+.cn-l1{display:flex;align-items:center;gap:5px}
+.cn-l1 b{font-size:12px}
+.cn-l1 .ty,.cn-l1 .chn{font-size:10px;padding:0 5px}
+.cn-l2{display:block;font-size:11px;color:var(--c-8);margin-top:1px}
+tr.camp .tot{font-size:12px;color:var(--c-8)}
+.ccell{width:46px;height:30px}
+.ccell b{font-size:12px}
+.ccell small{font-size:9px}
+.cgroup.is-focus{outline:2px solid var(--cg);outline-offset:2px}

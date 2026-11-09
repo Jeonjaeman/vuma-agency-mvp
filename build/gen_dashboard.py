@@ -58,6 +58,28 @@ TYPE_NAME = {"v": "방문형", "s": "배송형", "p": "기자단"}
 
 def ctype(camp):
     return CAMP_META[camp][0]
+
+
+def ccode(camp):
+    """캠페인 번호(전역 고유) — 칸의 건 목록(data-camps)과 패널 건(li data-camp)을 잇는다"""
+    return CAMPAIGNS.index(camp)
+
+
+# 캠페인 상태 = 그 캠페인에 걸린 이슈로 추정 (기획서 4장, 체험 단계는 유형별 이름)
+STATE_ORDER = [("apply", "모집 중"), ("select", "선정 중"), ("prep", None), ("review", "리뷰 중"),
+               ("nudge", "리뷰 중"), ("pay", "정산 중"), ("late", "기한 지남")]
+PREP_STATE = {"v": "체험 중", "s": "배송·체험 중", "p": "원고 작성 중"}
+
+
+def camp_state(b, camp):
+    for key, label in STATE_ORDER:
+        it = b["issues"].get(key)
+        if it and any(c == camp for c, _d in it["items"]):
+            return label or PREP_STATE[ctype(camp)]
+    return "진행 중"
+
+
+CUR = {"bid": "", "key": ""}   # 패널을 만드는 동안 지금 업체·이슈 (캠페인 영역 id 용)
 REVIEWERS = ["맛집탐방러", "하늘빛일상", "도토리기록", "서울먹방일기", "주말산책", "봄날의리뷰",
              "카페투어링", "육아맘일기", "뷰티로그", "운동하는곰", "여행가방", "소소한하루"]
 CHANNELS = [("블로그", "방문자"), ("인스타", "팔로워"), ("유튜브", "구독자"), ("클립", "팔로워")]
@@ -171,7 +193,7 @@ def cell_html(b, key):
     # [2026-11-09] 기한이 섞인 칸만 아래 막대(빨강·주황·회색 비율). 색만으로 뜻을 전하지 않게 title·aria 에 글자로도
     bar = mixbar_html(dues) if len(set(dues)) > 1 else ""
     return (f'<td class="c"><button type="button" class="cell {due_class(it["due"])}" data-cell="{cid}"{own} '
-            f'data-n="{it["n"]}" data-dues="{",".join(map(str, dues))}" data-types="{",".join(ctype(c) for c, _d in it["items"])}" title="{mix}" '
+            f'data-n="{it["n"]}" data-dues="{",".join(map(str, dues))}" data-types="{",".join(ctype(c) for c, _d in it["items"])}" data-camps="{",".join(str(ccode(c)) for c, _d in it["items"])}" title="{mix}" '
             f'aria-label="{esc(b["name"])} {ISSUE_NAME[key]} {it["n"]}건 · {mix}">'
             f'<b>{it["n"]}</b><small>{due_label(it["due"])}</small>{bar}</button></td>')
 
@@ -186,6 +208,35 @@ def has_classes(keys):
     return " ".join(f"has-{k}" for k in keys)
 
 
+def camp_rows(b):
+    """[2026-11-09] 업체 행 아래 캠페인 줄 — 기본 접힘, 업체 이름 옆 [캠페인 N ▸] 체크박스로 펼침(CSS)
+      칸 = 그 캠페인 건만. 숫자는 JS 가 업체 칸의 건 목록에서 다시 센다(처리·유형 칩 반영)"""
+    rows = []
+    for c in b["camps"]:
+        ty, ch = CAMP_META[c]
+        code = ccode(c)
+        cells, keys, dues = [], [], []
+        for k, _lab in ISSUES:
+            it = b["issues"].get(k)
+            mine = [d for x, d in it["items"] if x == c] if it else []
+            if not mine:
+                cells.append('<td class="c"><span class="dot" aria-hidden="true">·</span></td>')
+                continue
+            keys.append(k)
+            dues += mine
+            m = min(mine)
+            cells.append(f'<td class="c"><button type="button" class="cell ccell {due_class(m)}" data-of="{b["id"]}-{k}" '
+                         f'data-camp="{code}" aria-label="{esc(c)} {ISSUE_NAME[k]} {len(mine)}건">'
+                         f'<b>{len(mine)}</b><small>{due_label(m)}</small></button></td>')
+        nxt = f' · 다음 기한 {due_label(min(dues))}' if dues else ""
+        rows.append(f'<tr class="camp {has_classes(keys)}" data-of-biz="{b["id"]}">'
+                    f'<th scope="row" class="bizname cname"><span class="cn-l1"><span class="ty ty-{ty}">{TYPE_NAME[ty]}</span>'
+                    f'<span class="chn">{ch}</span><b>{esc(c)}</b></span>'
+                    f'<span class="cn-l2">{camp_state(b, c)}{nxt}</span></th>'
+                    f'<td class="tot">{len(dues) or ""}</td>{"".join(cells)}</tr>')
+    return "".join(rows)
+
+
 def biz_row(b, show_owner=True):
     """[2026-11-09] data-g = 업체의 기한 묶음 → CSS 가 이름 칸 왼쪽 색 선으로 표시(어느 묶음 행인지 스크롤 중에도 보이게)"""
     owner = b["owner"]
@@ -195,10 +246,14 @@ def biz_row(b, show_owner=True):
     cells = "".join(cell_html(b, k) for k, _ in ISSUES)
     gk = group_of(biz_due(b))
     staff_cls = "" if show_owner else " in-staff"
+    cfold = (f'<label class="cfold"><input type="checkbox" class="camp-cb" aria-label="{esc(b["name"])} 캠페인 펼치기">'
+             f'캠페인 {len(b["camps"])}</label>')
     return (f'<tr class="biz{staff_cls} {has_classes(b["issues"].keys())}" data-g="{gk}">'
             f'<th scope="row" class="bizname"><button type="button" class="bizlink" data-biz="{b["id"]}">{esc(b["name"])}</button>'
-            f'{who if show_owner else ""}</th>'
-            f'<td class="tot">{total or ""}</td>{cells}</tr>')
+            f'{who if show_owner else ""}'
+            f'{cfold if show_owner else ""}</th>'
+            f'<td class="tot">{total or ""}</td>{cells}</tr>'
+            + (camp_rows(b) if show_owner else ""))
 
 
 GROUP_DESC = {"late": "기한이 지난 이슈가 있는 업체", "today": "오늘까지 처리할 이슈가 있는 업체",
@@ -314,10 +369,19 @@ def by_campaign(items):
 
 
 def cgroup(camp, due, n, unit, inner):
+    """[2026-11-09] 캠페인 영역 카드 — 사용자: "캠페인별 리뷰어가 이 캠페인에 해당한다고 영역을 명확히"
+      카드 테두리 + 유형 색 왼쪽 띠 + 고정 머리(스크롤해도 어느 캠페인인지 보임) + 안쪽은 그 캠페인 리뷰어만"""
     ty, ch = CAMP_META[camp]
-    return (f'<div class="cgroup" data-type="{ty}"><div class="cgroup-h"><span class="ty ty-{ty}">{TYPE_NAME[ty]}</span>'
-            f'<span class="chn">{ch}</span><b>{esc(camp)}</b>'
-            f'<span class="due {due_class(due)}">{due_label(due)}</span><em>{unit} {n}</em></div>{inner}</div>')
+    b = CUR.get("biz")
+    state = camp_state(b, camp) if b else ""
+    gid = f'cg-{CUR["bid"]}-{CUR["key"]}-{ccode(camp)}'
+    return (f'<section class="cgroup cg-{ty}" id="{gid}" data-type="{ty}" data-camp="{ccode(camp)}" aria-label="{esc(camp)} 캠페인">'
+            f'<header class="cgroup-h"><div class="cg-l1"><span class="ty ty-{ty}">{TYPE_NAME[ty]}</span>'
+            f'<span class="chn">{ch}</span><b class="cg-name">{esc(camp)}</b></div>'
+            f'<div class="cg-l2"><span class="cg-state">{state}</span>'
+            f'<span class="due {due_class(due)}">{due_label(due)}</span><em>{unit} {n}</em></div></header>'
+            f'<div class="cgroup-b">{inner}</div></section>')
+
 
 
 def make_evidence():
@@ -438,7 +502,7 @@ def recruit_box(kind, camp):
 
 def typed(li, camp):
     """건(li)에 캠페인 유형을 붙인다 — 유형 칩으로 거를 때 JS 가 같이 뺀다"""
-    return li.replace("<li ", f'<li data-type="{ctype(camp)}" ', 1)
+    return li.replace("<li ", f'<li data-type="{ctype(camp)}" data-camp="{ccode(camp)}" ', 1)
 
 
 def grouped(it, unit, li_fn, recruit=None):
@@ -537,7 +601,21 @@ def panel_body(key, it):
     }[key]()
 
 
+def camp_index(b, key, it):
+    camps = []
+    for c, _d in it["items"]:
+        if c not in camps:
+            camps.append(c)
+    if len(camps) < 2:
+        return ""
+    links = "".join(
+        f'<a href="#cg-{b["id"]}-{key}-{ccode(c)}" class="cidx cg-{ctype(c)}"><span class="ty ty-{ctype(c)}">{TYPE_NAME[ctype(c)]}</span>'
+        f'{esc(c)} <em>{sum(1 for x, _d in it["items"] if x == c)}</em></a>' for c in camps)
+    return f'<nav class="cindex" aria-label="이 이슈가 걸린 캠페인"><span>캠페인 {len(camps)}개</span>{links}</nav>'
+
+
 def panel(b, key):
+    CUR.update({"bid": b["id"], "key": key, "biz": b})
     it = b["issues"][key]
     owner = b["owner"][1] if b["owner"] else "미담당"
     chips = "".join(
@@ -549,7 +627,7 @@ def panel(b, key):
             f'<h2>{ISSUE_NAME[key]} <em>{it["n"]}건</em> <span class="due js-due {due_class(it["due"])}">{due_label(it["due"])}</span></h2>'
             f'<p class="pane-camp js-mix">{due_mix(it["items"])}</p>'
             f'<div class="pchips" aria-label="이 업체의 다른 이슈">{chips}</div></header>'
-            f'<div class="pane-b">{panel_body(key, it)}</div>'
+            f'<div class="pane-b">{camp_index(b, key, it)}{panel_body(key, it)}</div>'
             f'<footer class="pane-f"><a href="#" class="btn ghost">상세 관리 →</a>'
             f'<button type="button" class="btn primary js-next">다음 ▶</button></footer></section>')
 

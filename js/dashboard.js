@@ -9,6 +9,7 @@
    5) 유형 칩(방문형·배송형·기자단) → 칸 숫자를 그 유형 건만으로 다시 그림
    6) 선정 근거 — 근거 없는 신청자는 블로그 확인 후 [선정]
    7) 추가모집 비용 미리보기
+   8) 캠페인 줄(업체 행 아래) — 숫자는 업체 칸의 건 목록에서 그 캠페인 건만 세어 그린다
    업체별/담당자별 전환, 이슈 없음 펼치기, 빈 묶음 숨김, 추가모집 상자 열기는 CSS·HTML 만으로 처리함. */
 (function () {
 	'use strict';
@@ -36,13 +37,14 @@
 	// 칸의 건 목록 [{d: 기한, t: 유형}] — 유형이 없는 이슈(미담당 등)는 t = ''
 	function readItems(c) {
 		if (!c.dataset.dues) return [];
-		var ds = c.dataset.dues.split(','), ts = (c.dataset.types || '').split(',');
-		return ds.map(function (d, i) { return { d: Number(d), t: ts[i] || '' }; });
+		var ds = c.dataset.dues.split(','), ts = (c.dataset.types || '').split(','), cs = (c.dataset.camps || '').split(',');
+		return ds.map(function (d, i) { return { d: Number(d), t: ts[i] || '', c: cs[i] || '' }; });
 	}
 	function writeItems(c, items) {
 		items.sort(byDue);
 		c.dataset.dues = items.map(function (x) { return x.d; }).join(',');
 		c.dataset.types = items.map(function (x) { return x.t; }).join(',');
+		c.dataset.camps = items.map(function (x) { return x.c; }).join(',');
 	}
 	// 지금 보이는 건 = 유형 칩으로 거른 건
 	function shownItems(c) {
@@ -52,7 +54,7 @@
 
 	// 화면에 보이는(남은) 칸 목록 — 숨겨진 묶음·처리 끝난 칸·유형으로 걸러진 칸은 뺀다
 	function visibleCells() {
-		return Array.prototype.filter.call(grid.querySelectorAll('.cell'), function (el) {
+		return Array.prototype.filter.call(grid.querySelectorAll('.cell:not(.ccell)'), function (el) {
 			return el.offsetParent !== null && !el.classList.contains('done') && !el.classList.contains('t-zero');
 		});
 	}
@@ -129,13 +131,32 @@
 		return items.length;
 	}
 
+	// 8) 캠페인 줄 칸 — 업체 칸(data-of)의 건 중 이 캠페인(data-camp) 건만
+	function renderCCell(cc) {
+		var base = grid.querySelector('.tb-biz [data-cell="' + cc.dataset.of + '"]');
+		var items = base ? shownItems(base).filter(function (x) { return x.c === cc.dataset.camp; }) : [];
+		cc.classList.remove('is-hot', 'is-soon', 'is-later', 'done', 't-zero');
+		if (!items.length) {
+			var anyLeft = base && readItems(base).some(function (x) { return x.c === cc.dataset.camp; });
+			cc.classList.add(anyLeft ? 't-zero' : 'done');
+			cc.querySelector('b').textContent = 0;
+			cc.querySelector('small').textContent = anyLeft ? '다른 유형' : '처리';
+			return 0;
+		}
+		items.sort(byDue);
+		cc.classList.add(dueClass(items[0].d));
+		cc.querySelector('b').textContent = items.length;
+		cc.querySelector('small').textContent = dueLabel(items[0].d);
+		return items.length;
+	}
+
 	// 합계 행 · 담당자 머리 · 업체 행 합계를 칸에서 다시 센다 (유형 칩이 바뀌어도 맞게)
 	function recount() {
 		var sums = {};
 		function add(k, n) { sums[k] = (sums[k] || 0) + n; }
 		grid.querySelectorAll('.tb-biz tr.biz').forEach(function (row) {
 			var rowTot = 0;
-			row.querySelectorAll('.cell').forEach(function (c) {
+			row.querySelectorAll('.cell:not(.ccell)').forEach(function (c) {
 				var n = c.classList.contains('done') || c.classList.contains('t-zero') ? 0 : shownItems(c).length;
 				var key = c.dataset.cell.split('-')[1];
 				rowTot += n;
@@ -156,6 +177,12 @@
 			el.textContent = n || '·';
 			el.classList.toggle('zero', !n);
 		});
+		grid.querySelectorAll('tr.camp').forEach(function (r) {
+			var n = 0;
+			r.querySelectorAll('.ccell').forEach(function (cc) { n += renderCCell(cc); });
+			r.querySelector('.tot').textContent = n || '';
+			r.classList.toggle('t-empty', n === 0);
+		});
 		// 묶음 머리의 "N곳"
 		grid.querySelectorAll('.tb-biz tr.grp').forEach(function (h) {
 			var n = 0, r = h.nextElementSibling;
@@ -169,10 +196,20 @@
 	// 업체 행을 남은 이슈의 가장 급한 기한에 맞는 묶음으로 옮김 (업체별 보기만)
 	function minOf(row) {
 		var ds = [];
-		row.querySelectorAll('.cell:not(.done)').forEach(function (c) { readItems(c).forEach(function (x) { ds.push(x.d); }); });
+		row.querySelectorAll('.cell:not(.ccell):not(.done)').forEach(function (c) { readItems(c).forEach(function (x) { ds.push(x.d); }); });
 		return ds.length ? Math.min.apply(null, ds) : null;
 	}
+	function campRowsOf(row) {
+		var subs = [], n = row.nextElementSibling;
+		while (n && n.classList.contains('camp')) { subs.push(n); n = n.nextElementSibling; }
+		return subs;
+	}
+	function placeAfter(row, subs) {
+		var ref = row;
+		subs.forEach(function (s) { ref.parentNode.insertBefore(s, ref.nextElementSibling); ref = s; });
+	}
 	function regroup(row) {
+		var subs = campRowsOf(row);
 		var min = minOf(row);
 		var g = dueGroup(min);
 		row.dataset.min = min === null ? 99 : min;
@@ -182,12 +219,15 @@
 		if (g === 'none') {
 			row.classList.add('quiet');
 			grid.querySelector('.tb-none').appendChild(row);
+			placeAfter(row, subs);
 			return;
 		}
 		var head = grid.querySelector('.tb-biz tr.grp[data-g="' + g + '"]');
 		var at = head.nextElementSibling;
-		while (at && at.classList.contains('biz') && (at === row || (at.dataset.min ? Number(at.dataset.min) : (minOf(at) === null ? 99 : minOf(at))) <= min)) at = at.nextElementSibling;
+		// 같은 묶음 안에서 급한 순 자리 — 캠페인 줄은 앞 업체에 딸린 것이므로 건너뛴다
+		while (at && (at.classList.contains('camp') || (at.classList.contains('biz') && (at === row || (at.dataset.min ? Number(at.dataset.min) : (minOf(at) === null ? 99 : minOf(at))) <= min)))) at = at.nextElementSibling;
 		head.parentNode.insertBefore(row, at);
+		placeAfter(row, subs);
 	}
 
 	// 3) 처리 반영 — removes = [{d, t}] 한 건씩 뺀다. 남은 건수(전체)를 돌려줌
@@ -197,7 +237,7 @@
 		cells.forEach(function (c) {
 			left = readItems(c);
 			removes.forEach(function (r) {
-				var i = left.findIndex(function (x) { return x.d === r.d && (!r.t || x.t === r.t); });
+				var i = left.findIndex(function (x) { return x.d === r.d && (!r.t || x.t === r.t) && (!r.c || x.c === r.c); });
 				if (i > -1) left.splice(i, 1);
 			});
 			writeItems(c, left);
@@ -224,7 +264,7 @@
 		recount();
 		return left.length;
 	}
-	function itemOf(li) { return { d: Number(li.dataset.due), t: li.dataset.type || '' }; }
+	function itemOf(li) { return { d: Number(li.dataset.due), t: li.dataset.type || '', c: li.dataset.camp || '' }; }
 
 	/* [2026-11-09] 이슈를 다 처리해도 패널을 자동으로 넘기지 않는다
 	     사용자: "완료되면 자동으로 급한 일정으로 패널이 바뀌어 매니저가 혼란스러울 수 있다"
@@ -287,7 +327,8 @@
 		typeFilter = btn.dataset.type;
 		document.querySelectorAll('.tchip').forEach(function (b) { b.classList.toggle('on', b === btn); });
 		if (typeFilter) grid.dataset.type = typeFilter; else delete grid.dataset.type;
-		grid.querySelectorAll('.cell').forEach(renderCell);
+		grid.querySelectorAll('.cell:not(.ccell)').forEach(renderCell);
+		grid.querySelectorAll('.ccell').forEach(renderCCell);
 		// 패널 안에서도 다른 유형 캠페인 묶음은 흐리게
 		panel.querySelectorAll('.cgroup').forEach(function (g) { g.classList.toggle('t-off', !!typeFilter && g.dataset.type !== typeFilter); });
 		recount();
@@ -370,10 +411,17 @@
 		if (blog) { e.preventDefault(); return checkBlog(blog); }
 		var t = e.target.closest('button');
 		if (!t) return;
+		if (t.matches('.ccell')) {
+			mode = 'grid';
+			openPane(t.dataset.of);
+			var area = document.getElementById('cg-' + t.dataset.of + '-' + t.dataset.camp);
+			if (area) { area.scrollIntoView({ block: 'start' }); area.classList.add('is-focus'); setTimeout(function () { area.classList.remove('is-focus'); }, 1200); }
+			return;
+		}
 		if (t.matches('.cell')) { mode = 'grid'; return openPane(t.dataset.cell); }
 		if (t.matches('.bizlink')) {
 			// 업체명 = 그 업체의 가장 급한 칸부터, [다음]은 같은 업체 안에서
-			var cells = Array.prototype.slice.call(t.closest('tr').querySelectorAll('.cell:not(.done):not(.t-zero)'));
+			var cells = Array.prototype.slice.call(t.closest('tr').querySelectorAll('.cell:not(.ccell):not(.done):not(.t-zero)'));
 			cells.sort(function (a, b) { return shownItems(a)[0].d - shownItems(b)[0].d; });
 			if (cells[0]) { mode = 'biz'; openPane(cells[0].dataset.cell); }
 			return;
