@@ -381,6 +381,9 @@ svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke
 .item.is-done .item-main,.item.is-done .checks{opacity:.5}
 .done-tag{font-size:12px;font-weight:700;color:#00744d;background:var(--ag-success-light);padding:4px 10px;border-radius:var(--r-full)}
 .done-tag button{border:0;background:none;color:var(--c-9);text-decoration:underline;font-size:11px;cursor:pointer;margin-left:6px}
+/* 이슈를 다 처리했을 때 — 패널은 그대로, 안내만 (자동 이동 없음) */
+.pane-fin{margin:0 0 12px;padding:10px 12px;border-radius:var(--r-md);background:var(--ag-success-light);color:#00744d;font-size:13px;font-weight:700}
+.js-next.is-ready{box-shadow:0 0 0 3px rgba(115,70,243,.25)}
 .pane-f{display:flex;justify-content:space-between;align-items:center;padding:12px 20px;border-top:1px solid var(--c-3);background:#fff}
 
 /* ── 좁은 화면 ───────────────────────── */

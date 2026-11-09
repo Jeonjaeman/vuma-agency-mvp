@@ -5,7 +5,7 @@
    3) 처리 버튼 → 카드에 "처리됨" 표시, 칸·합계 다시 세기 (시안이라 저장 없음)
       칸 하나에 기한·유형이 다른 건이 섞여 있다(data-dues · data-types, 같은 순서).
       처리한 건을 빼고 칸 글자·색 = 남은 건 중 가장 급한 기한, 업체 행도 맞는 묶음으로 옮긴다.
-   4) [다음 ▶] → 보이는 격자 순서대로 다음 칸 열기
+   4) [다음 ▶] → 보이는 격자 순서대로 다음 칸 열기 (처리를 다 해도 자동으로 넘어가지 않음 — 사람이 누를 때만)
    5) 유형 칩(방문형·배송형·기자단) → 칸 숫자를 그 유형 건만으로 다시 그림
    6) 선정 근거 — 근거 없는 신청자는 블로그 확인 후 [선정]
    7) 추가모집 비용 미리보기
@@ -226,6 +226,20 @@
 	}
 	function itemOf(li) { return { d: Number(li.dataset.due), t: li.dataset.type || '' }; }
 
+	/* [2026-11-09] 이슈를 다 처리해도 패널을 자동으로 넘기지 않는다
+	     사용자: "완료되면 자동으로 급한 일정으로 패널이 바뀌어 매니저가 혼란스러울 수 있다"
+	     → 그 자리에 "처리 완료" 안내만 띄우고, 다음으로 갈지는 사람이 [다음 ▶]으로 정한다. */
+	function finished(pane) {
+		if (pane.querySelector('.pane-fin')) return;
+		var fin = document.createElement('p');
+		fin.className = 'pane-fin';
+		fin.setAttribute('role', 'status');
+		fin.textContent = '✓ 이 이슈를 모두 처리했습니다. 다음 이슈로 가려면 아래 [다음 ▶]을 누르세요.';
+		pane.querySelector('.pane-b').prepend(fin);
+		pane.querySelector('.pane-b').scrollTop = 0;
+		pane.querySelector('.js-next').classList.add('is-ready');
+	}
+
 	function doneTag(text) {
 		var tag = document.createElement('span');
 		tag.className = 'done-tag';
@@ -265,7 +279,7 @@
 			item.classList.add('is-done');
 			left = update(id, [itemOf(item)]);
 		}
-		if (left === 0) setTimeout(next, 600);      // 이 이슈를 다 처리하면 다음 칸으로
+		if (left === 0) finished(pane);
 	}
 
 	// 5) 유형 칩
@@ -346,7 +360,7 @@
 		if (btn.dataset.kind === 'add' && !btn.dataset.short) {
 			var left = update(pane.dataset.panel, readItems(grid.querySelector('[data-cell="' + pane.dataset.panel + '"]')));
 			pane.querySelectorAll('.acts:not(.rc-b .acts)').forEach(function (a) { a.remove(); });
-			if (left === 0) setTimeout(next, 900);
+			if (left === 0) finished(pane);
 		}
 	}
 
