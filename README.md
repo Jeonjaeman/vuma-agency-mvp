@@ -1,6 +1,6 @@
 # 대행사 사이트 MVP (로컬 시안)
 
-기준: `..\기획\대행사사이트_기획서_v0.4.md` (현재 시안 **v0.4**) · 레퍼런스: `..\UI레퍼런스\선정레퍼런스\README.md`
+기준: `..\기획\대행사사이트_기획서_v0.5.md` (현재 시안 **v0.5**) · 레퍼런스: `..\UI레퍼런스\선정레퍼런스\README.md`
 
 | 파일 | 내용 |
 |---|---|
@@ -8,14 +8,15 @@
 | `build/gen_dashboard.py` | 더미 데이터(업체 30 · 직원 6명/2팀 + 팀 없는 담당자 1명 · 미담당 2곳)로 위 HTML을 만드는 스크립트(시드 고정) |
 | `css/agency.css` | 공통 스타일(뷰마 토큰 `--ag-*`/`--c-*`) |
 | `js/dashboard.js` | 꼭 필요한 동작만(패널 전환 · 열 거르기 · 처리 표시 · 다음 · 수시 알림) |
+| `schedule.html` · `biz.html` | 일정 · 업체 화면(v0.5) — `build/gen_pages.py` 로 생성, `css/pages.css` · `js/pages.js` |
 | `build/alerts.py` | 수시 알림 더미·알림 패널·알림 띠 (v0.4) |
 | `versions/` | 지난 버전 보관본 + 버전 목록. 변경 내용은 `CHANGELOG.md` |
 
-다시 만들기: `python -I build/gen_dashboard.py`
+다시 만들기: `python -I build/gen_dashboard.py` · `python -I build/gen_pages.py`
 
 ## 버전 관리
-- 버전 하나 = git 태그(`v0.4`) = 지난 버전 보관 폴더(`versions/v0.3/`) = 기획서 파일(`..\기획\대행사사이트_기획서_v0.4.md`)
-- 새 버전을 시작할 때: ①지금 배포본에 태그가 있는지 확인 ②`git archive <이전태그> dashboard.html css js | tar -x -C versions/<이전태그>` 로 보관 ③`build/gen_dashboard.py` 의 `VERSION` 올림 ④`CHANGELOG.md`·`versions/index.html` 에 한 칸 추가 ⑤커밋 후 새 태그
+- 버전 하나 = git 태그(`v0.5`) = 지난 버전 보관 폴더(`versions/v0.4/`) = 기획서 파일(`..\기획\대행사사이트_기획서_v0.5.md`)
+- 새 버전을 시작할 때: ①지금 배포본에 태그가 있는지 확인 ②`git archive <이전태그> *.html css js | tar -x -C versions/<이전태그>`(v0.5부터 화면이 여러 개) 로 보관 ③`build/gen_dashboard.py` 의 `VERSION` 올림 ④`CHANGELOG.md`·`versions/index.html` 에 한 칸 추가 ⑤커밋 후 새 태그
 - 보관 폴더는 고치지 않는다(그때 모습 그대로 비교용)
 
 ## 시안에서 해 볼 수 있는 것

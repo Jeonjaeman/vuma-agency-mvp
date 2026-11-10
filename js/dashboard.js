@@ -541,6 +541,19 @@
 	}, 4000);
 	recountAlerts();
 
+	// [2026-11-10 v0.5] 다른 화면에서 바로 오기 — 일정·업체 화면의 이슈 칩
+	//   #open=b3-review → 그 칸을 연다 / #biz=b3 → 그 업체의 가장 급한 칸부터(다음 = 같은 업체 안에서)
+	(function deepLink() {
+		var h = location.hash;
+		var mo = h.match(/^#open=(b\d+-[a-z]+)/);
+		if (mo && panel.querySelector('[data-panel="' + mo[1] + '"]')) { mode = 'biz'; return openPane(mo[1]); }
+		var mb = h.match(/^#biz=(b\d+)/);
+		if (mb) {
+			var link = grid.querySelector('.tb-biz .bizlink[data-biz="' + mb[1] + '"]');
+			if (link) link.click();
+		}
+	})();
+
 	// 이벤트 하나로 묶어서 처리 (위임)
 	document.addEventListener('click', function (e) {
 		var card = e.target.closest('.alert.is-new');

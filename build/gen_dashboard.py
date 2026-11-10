@@ -13,7 +13,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))   # -I 로 돌려도 같은 폴더 모듈을 찾게
 import alerts  # noqa: E402  [2026-11-10] 수시 알림 (v0.4)
 
-VERSION = "v0.4"   # 시안 버전 — mvp/CHANGELOG.md · git 태그와 맞춘다
+VERSION = "v0.5"   # 시안 버전 — mvp/CHANGELOG.md · git 태그와 맞춘다
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "dashboard.html"
@@ -656,17 +656,25 @@ def ico(name):
     return f'<svg viewBox="0 0 24 24" aria-hidden="true">{ICON[name]}</svg>'
 
 
-def sidebar(issue_total):
-    items = [("dash", "대시보드", True, issue_total), ("cal", "일정", False, None), None,
-             ("biz", "업체", False, None), ("camp", "캠페인", False, None), ("rep", "보고서", False, None),
-             ("pay", "정산", False, None), ("team", "팀", False, None), ("set", "설정", False, None)]
+# [2026-11-10 v0.5] 화면 주소 — 아직 없는 화면은 '#'(준비 중)
+NAV_HREF = {"dash": "dashboard.html", "cal": "schedule.html", "biz": "biz.html"}
+
+
+def sidebar(issue_total, active="dash"):
+    """사이드바 — 일정·업체 화면(gen_pages.py)도 같이 쓴다. active = 지금 화면"""
+    items = [("dash", "대시보드", issue_total), ("cal", "일정", None), None,
+             ("biz", "업체", None), ("camp", "캠페인", None), ("rep", "보고서", None),
+             ("pay", "정산", None), ("team", "팀", None), ("set", "설정", None)]
     lis = []
     for it in items:
         if it is None:
             lis.append('<li class="nav-sep">상세 관리</li>')
             continue
-        k, label, on, badge = it
-        lis.append(f'<li><a href="#" class="nav{" on" if on else ""}"{" aria-current=page" if on else ""}>{ico(k)}<span>{label}</span>'
+        k, label, badge = it
+        on = k == active
+        href = NAV_HREF.get(k, "#")
+        soon = "" if k in NAV_HREF else ' title="준비 중인 화면" aria-disabled="true"'
+        lis.append(f'<li><a href="{href}"{soon} class="nav{" on" if on else ""}{"" if k in NAV_HREF else " soon"}"{" aria-current=page" if on else ""}>{ico(k)}<span>{label}</span>'
                    f'{f"<b class=nav-badge>{badge}</b>" if badge else ""}</a></li>')
     return (f'<aside class="side"><div class="brand"><span class="logo">V</span><b>뷰마 대행사</b><a class="ver" href="versions/" title="이전 버전 보기">{VERSION} 시안</a></div>'
             f'<button type="button" class="agency">애니라인 마케팅 <span>▾</span></button>'
@@ -719,7 +727,7 @@ def build():
 <link rel="stylesheet" href="css/agency.css">
 </head>
 <body>
-<!-- [2026-11-10] 대행사 대시보드 시안 {VERSION} — 기획서 v0.4 6-3 · 6-11. gen_dashboard.py 로 생성(직접 수정 금지) -->
+<!-- [2026-11-10] 대행사 대시보드 시안 {VERSION} — 기획서 v0.5 6-3 · 6-11. gen_dashboard.py 로 생성(직접 수정 금지) -->
 <div class="shell">
 {sidebar(total_issue)}
 <div class="main">
