@@ -9,6 +9,7 @@
    5) 유형 칩(방문형·배송형·기자단) → 칸 숫자를 그 유형 건만으로 다시 그림
    6) 선정 근거 — 근거 없는 신청자는 블로그 확인 후 [선정]
    7) 추가모집 비용 미리보기
+   9) [v0.4] 수시 알림 — 받은 알림 띠·알림 패널·업체 알림 점·토스트·[처리]/[나중에] (읽기만으로는 안 사라짐)
    8) 캠페인 줄(업체 행 아래) — 숫자는 업체 칸의 건 목록에서 그 캠페인 건만 세어 그린다
    업체별/담당자별 전환, 이슈 없음 펼치기, 빈 묶음 숨김, 추가모집 상자 열기는 CSS·HTML 만으로 처리함. */
 (function () {
@@ -405,12 +406,164 @@
 		}
 	}
 
+	// ── 9) 수시 알림 [2026-11-10 v0.4] ─────────────────────────────
+	//   순차 흐름(격자)과 따로 오는 일. 즉시·확인 등급은 [처리] 또는 [나중에]를 눌러야 목록에서 빠진다.
+	var alPane = panel.querySelector('[data-panel="alerts"]');
+	var KIND_NAME = { cancel: '취소 요청', report: '신고 접수', payfail: '지급 실패', deleted: '리뷰 삭제·비공개', msg: '쪽지·문의', rereview: '리뷰 재등록', assigned: '담당 배정', paid: '입금 완료', charged: '충전 완료' };
+	var baseTitle = document.title;
+
+	function openAlerts() { return Array.prototype.slice.call(alPane.querySelectorAll('.js-al-list .alert:not([hidden])')); }
+	function kindsText(list) {
+		var seen = {};
+		list.forEach(function (a) { seen[a.dataset.kind] = (seen[a.dataset.kind] || 0) + 1; });
+		return Object.keys(seen).sort(function (a, b) { return seen[b] - seen[a]; }).slice(0, 2)
+			.map(function (k) { return KIND_NAME[k] + ' ' + seen[k]; }).join(' · ');
+	}
+	function setText(sel, txt) { document.querySelectorAll(sel).forEach(function (el) { el.textContent = txt; }); }
+
+	// 숫자 다시 세기 — 띠 · 패널 칩 · 종 · 탭 제목 · 업체 알림 점
+	function recountAlerts() {
+		var open = openAlerts();
+		var by = { u: [], c: [], i: [] };
+		open.forEach(function (a) { by[a.dataset.lv].push(a); });
+		setText('.js-ab-u', by.u.length); setText('.js-ab-c', by.c.length); setText('.js-ab-i', by.i.length);
+		setText('.js-ab-ukinds', kindsText(by.u)); setText('.js-ab-ckinds', kindsText(by.c));
+		setText('.js-alv-all', open.length); setText('.js-alv-u', by.u.length); setText('.js-alv-c', by.c.length); setText('.js-alv-i', by.i.length);
+		setText('.js-al-open', (by.u.length + by.c.length) + '건');
+		document.querySelector('.alertbar').classList.toggle('has-u', by.u.length > 0);
+		var need = by.u.length + by.c.length;          // 처리해야 하는 것만 센다(참고 제외)
+		var bell = document.querySelector('.bell i');
+		bell.textContent = need; bell.hidden = !need;
+		document.title = (need ? '(' + need + ') ' : '') + baseTitle;
+		// 업체 알림 점: 즉시·확인 건수, 즉시가 있으면 빨강
+		var perBiz = {};
+		by.u.concat(by.c).forEach(function (a) {
+			var b = perBiz[a.dataset.biz] || (perBiz[a.dataset.biz] = { n: 0, u: false });
+			b.n++; if (a.dataset.lv === 'u') b.u = true;
+		});
+		grid.querySelectorAll('.adot').forEach(function (d) {
+			var b = perBiz[d.dataset.abiz];
+			d.hidden = !b;
+			d.classList.toggle('lv-u', !!(b && b.u));
+			d.querySelector('em').textContent = b ? b.n : '';
+			d.setAttribute('aria-label', b ? '처리할 알림 ' + b.n + '건' : '');
+			d.closest('tr').classList.toggle('has-alert', !!b);
+		});
+		alPane.querySelector('.js-al-later summary em').textContent = alPane.querySelectorAll('.js-al-later .alert').length;
+		alPane.querySelector('.js-al-done summary em').textContent = alPane.querySelectorAll('.js-al-done .alert').length;
+	}
+
+	// 알림 패널 열기 — lv = 등급 거르기('' 전체), biz = 업체 하나만
+	function setAlertLevel(lv) {
+		alPane.dataset.lv = lv;
+		alPane.querySelectorAll('.alv').forEach(function (b) { b.classList.toggle('on', b.dataset.alv === lv); });
+	}
+	function showAlerts(lv, biz) {
+		panel.querySelectorAll('.pane').forEach(function (p) { p.hidden = true; });
+		panel.querySelector('.pane-done').hidden = true;
+		alPane.hidden = false;
+		panel.classList.add('has-pane');
+		grid.querySelectorAll('.cell.sel').forEach(function (c) { c.classList.remove('sel'); });
+		current = null;
+		setAlertLevel(lv || '');
+		alPane.dataset.biz = biz || '';
+		alPane.querySelectorAll('.alert').forEach(function (a) { a.classList.toggle('f-out', !!biz && a.dataset.biz !== biz); });
+		var note = alPane.querySelector('.al-bizf');
+		note.hidden = !biz;
+		if (biz) note.querySelector('.js-al-bizname').textContent = grid.querySelector('.bizlink[data-biz="' + biz + '"]').textContent;
+	}
+	function closeAlerts() {
+		alPane.hidden = true;
+		panel.classList.remove('has-pane');
+	}
+
+	// 처리 / 나중에 — 카드를 아래 접힌 묶음으로 옮긴다
+	function alertDone(btn) {
+		var a = btn.closest('.alert');
+		a.querySelector('.al-acts').replaceWith(doneTag(btn.dataset.adone));
+		a.classList.remove('is-new', 'is-snoozed');
+		a.classList.add('is-done');
+		alPane.querySelector('.js-al-done .al-list').prepend(a);
+		recountAlerts();
+		if (btn.classList.contains('js-al-go') && a.dataset.go) openPane(a.dataset.go);
+	}
+	function alertSnooze(btn) {
+		var a = btn.closest('.alert');
+		a.classList.remove('is-new');
+		a.classList.add('is-snoozed');
+		var old = a.querySelector('.al-sz');
+		if (old) old.remove();
+		var sz = document.createElement('p');
+		sz.className = 'al-sz';
+		sz.textContent = btn.dataset.snooze;
+		a.querySelector('.al-acts').before(sz);
+		btn.closest('details').open = false;
+		alPane.querySelector('.js-al-later .al-list').prepend(a);
+		recountAlerts();
+	}
+
+	// 토스트 — 즉시 등급은 사람이 닫을 때까지 남는다 (DOM 으로 만든다 — 글자는 textContent)
+	function el(tag, cls, text) {
+		var n = document.createElement(tag);
+		if (cls) n.className = cls;
+		if (text) n.textContent = text;
+		return n;
+	}
+	function toast(a) {
+		var urgent = a.dataset.lv === 'u';
+		var box = el('div', 'toast' + (urgent ? ' lv-u' : ''));
+		box.setAttribute('role', urgent ? 'alert' : 'status');
+		box.appendChild(el('span', 'lvb lv-' + a.dataset.lv, urgent ? '즉시' : '확인'));
+		var p = el('p');
+		p.appendChild(el('b', '', KIND_NAME[a.dataset.kind]));
+		p.appendChild(el('span', '', ' · ' + a.querySelector('.al-biz').textContent));
+		box.appendChild(p);
+		var open = el('button', 'btn sm primary js-toast-open', '보기');
+		open.type = 'button';
+		var x = el('button', 't-x', '✕');
+		x.type = 'button';
+		x.setAttribute('aria-label', '닫기');
+		box.appendChild(open);
+		box.appendChild(x);
+		document.querySelector('.toasts').appendChild(box);
+		if (!urgent) setTimeout(function () { box.remove(); }, 6000);
+	}
+
+	// 시연: 화면을 연 뒤 잠시 후 새 취소 요청이 들어온다
+	setTimeout(function () {
+		var demo = alPane.querySelector('.alert[data-demo]');
+		if (!demo) return;
+		demo.hidden = false;
+		demo.removeAttribute('data-demo');
+		alPane.querySelector('.js-al-list').prepend(demo);
+		recountAlerts();
+		toast(demo);
+	}, 4000);
+	recountAlerts();
+
 	// 이벤트 하나로 묶어서 처리 (위임)
 	document.addEventListener('click', function (e) {
+		var card = e.target.closest('.alert.is-new');
+		if (card) card.classList.remove('is-new');      // 읽음 표시만 — 목록에서는 안 빠진다
 		var blog = e.target.closest('a.js-blog');
 		if (blog) { e.preventDefault(); return checkBlog(blog); }
 		var t = e.target.closest('button');
 		if (!t) return;
+		if (t.matches('[data-open-alerts]')) return showAlerts(t.dataset.openAlerts, '');
+		if (t.matches('.adot')) return showAlerts('', t.dataset.abiz);
+		if (t.matches('.alv')) return setAlertLevel(t.dataset.alv);
+		if (t.matches('.js-al-allbiz')) return showAlerts(alPane.dataset.lv, '');
+		if (t.matches('.js-close-alerts')) return closeAlerts();
+		if (t.matches('[data-adone]')) return alertDone(t);
+		if (t.matches('[data-snooze]')) return alertSnooze(t);
+		if (t.matches('.js-toast-open')) { t.closest('.toast').remove(); return showAlerts('', ''); }
+		if (t.matches('.t-x')) return t.closest('.toast').remove();
+		if (t.matches('.js-afilter')) {
+			var on = !grid.dataset.alert;
+			if (on) grid.dataset.alert = '1'; else delete grid.dataset.alert;
+			t.classList.toggle('on', on);
+			return;
+		}
 		if (t.matches('.ccell')) {
 			mode = 'grid';
 			openPane(t.dataset.of);

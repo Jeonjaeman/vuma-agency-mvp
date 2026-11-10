@@ -446,3 +446,92 @@ tr.camp .tot{font-size:12px;color:var(--c-8)}
 .ccell b{font-size:12px}
 .ccell small{font-size:9px}
 .cgroup.is-focus{outline:2px solid var(--cg);outline-offset:2px}
+
+/* ══ [2026-11-10 v0.4] 수시 알림 — 순차 흐름(격자)과 따로, 놓치지 않게 ══
+   등급: 즉시(빨강) · 확인(파랑) · 참고(회색). 즉시·확인은 [처리]/[나중에] 전까지 목록에 남는다. */
+.lvb{font-size:11px;font-weight:800;padding:1px 7px;border-radius:var(--r-sm);white-space:nowrap}
+.lvb.lv-u{background:var(--ag-danger);color:#fff}
+.lvb.lv-c{background:var(--ag-info);color:#fff}
+.lvb.lv-i{background:var(--c-3);color:var(--c-11)}
+.ver{margin-left:auto;font-size:11px;color:var(--ag-main);font-weight:700;text-decoration:none;background:var(--ag-main-light);padding:1px 8px;border-radius:var(--r-full)}
+.ver:hover{text-decoration:underline}
+
+/* 받은 알림 띠 — 격자 위 고정 자리 */
+.alertbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:8px 10px 8px 14px;margin:0 0 12px;border:1px solid var(--c-3);border-radius:var(--r-lg);background:#fff}
+.alertbar.has-u{border-color:#f3a58f;background:#fff8f6;box-shadow:inset 4px 0 0 var(--ag-danger)}
+.ab-title{font-size:13px;margin-right:4px}
+.ab{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px;border:1px solid var(--c-3);border-radius:var(--r-full);background:#fff;cursor:pointer;font-size:12px}
+.ab:hover{border-color:var(--c-14)}
+.ab em{font-style:normal;font-weight:800;font-size:14px}
+.ab-u em{color:var(--ag-danger)}
+.ab-c em{color:var(--ag-info)}
+.ab-kinds{color:var(--c-9);font-weight:600}
+.ab-kinds:empty{display:none}
+.ab-all{margin-left:auto}
+
+/* 격자: 업체 이름 옆 알림 점 + 거르기 */
+.adot{display:inline-flex;align-items:center;gap:3px;margin-left:6px;height:20px;padding:0 7px;border:0;border-radius:var(--r-full);background:var(--ag-info-light);color:var(--ag-info);font-size:11px;font-weight:800;cursor:pointer}
+.adot[hidden]{display:none}
+.adot i{width:6px;height:6px;border-radius:50%;background:currentColor}
+.adot em{font-style:normal}
+.adot.lv-u{background:var(--ag-danger);color:#fff}
+.adot-i{width:8px;height:8px;border-radius:50%;background:var(--ag-danger);display:inline-block}
+.tchip.js-afilter.on{border-color:var(--ag-danger);box-shadow:inset 0 0 0 1px var(--ag-danger);color:var(--ag-danger)}
+.grid[data-alert] tr.biz:not(.has-alert),
+.grid[data-alert] tr.camp,
+.grid[data-alert] .tb-none{display:none!important}
+
+/* 알림 패널 */
+.alvs{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+.alv{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;border:1px solid var(--c-4);border-radius:var(--r-full);background:#fff;font-size:12px;font-weight:700;cursor:pointer}
+.alv em{font-style:normal}
+.alv.on{border-color:var(--c-14);box-shadow:inset 0 0 0 1px var(--c-14)}
+.al-bizf{margin:10px 0 0;font-size:12px;font-weight:700;color:var(--ag-main)}
+.pane-alert[data-lv="u"] .js-al-list .alert:not(.lv-u),
+.pane-alert[data-lv="c"] .js-al-list .alert:not(.lv-c),
+.pane-alert[data-lv="i"] .js-al-list .alert:not(.lv-i),
+.alert.f-out{display:none}
+.al-morning{margin:0 0 12px;padding:10px 12px;border-radius:var(--r-md);background:var(--ag-warning-light);color:var(--ag-warning);font-size:12px;font-weight:600}
+.al-list{display:flex;flex-direction:column;gap:10px}
+.alert{border:1px solid var(--c-3);border-radius:var(--r-md);padding:12px 14px 12px 17px;background:#fff;box-shadow:inset 4px 0 0 var(--lvc,var(--c-4))}
+.alert.lv-u{--lvc:var(--ag-danger)}
+.alert.lv-c{--lvc:var(--ag-info)}
+.alert.lv-i{--lvc:var(--c-4)}
+.alert.is-new{background:#fffdfa}
+.al-h{display:flex;align-items:center;gap:8px;font-size:13px}
+.al-t{margin-left:auto;font-size:11px;color:var(--c-8)}
+.new-dot{width:8px;height:8px;border-radius:50%;background:var(--ag-danger);display:none}
+.alert.is-new .new-dot{display:inline-block}
+.al-biz{margin:6px 0 2px;font-size:12px;font-weight:700;color:var(--c-11)}
+.al-biz .ty{font-size:10px;padding:0 5px}
+.al-txt{margin:0;font-size:13px;color:var(--c-11)}
+.al-esc{margin:6px 0 0;font-size:11px;color:var(--ag-danger);background:var(--ag-danger-light);padding:4px 8px;border-radius:var(--r-sm)}
+.al-sz{margin:6px 0 0;font-size:11px;font-weight:700;color:var(--ag-warning)}
+.al-acts{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:10px}
+.al-reply{flex:1 1 160px;height:30px;font-size:12px}
+.snooze{position:relative}
+.snooze summary{list-style:none;cursor:pointer;height:30px;padding:0 10px;border:1px dashed var(--c-4);border-radius:var(--r-full);font-size:12px;font-weight:600;color:var(--c-9);display:inline-flex;align-items:center}
+.snooze summary::-webkit-details-marker{display:none}
+.snooze .sz{position:absolute;right:0;top:34px;z-index:5;display:flex;flex-direction:column;gap:4px;padding:8px;background:#fff;border:1px solid var(--c-3);border-radius:var(--r-md);box-shadow:var(--sh-md);min-width:140px}
+.alert.is-done{opacity:.6}
+.alert.is-snoozed{border-style:dashed}
+.al-fold{margin-top:14px}
+.al-fold summary{cursor:pointer;font-size:12px;font-weight:700;color:var(--c-9);padding:6px 0}
+.al-fold summary em{font-style:normal;color:var(--c-14)}
+.al-fold .al-list{margin-top:8px}
+
+/* 토스트 — 오른쪽 아래, 즉시는 닫을 때까지 */
+.toasts{position:fixed;right:20px;bottom:20px;z-index:var(--z-modal);display:flex;flex-direction:column;gap:8px}
+.toast{display:flex;align-items:center;gap:10px;min-width:320px;max-width:440px;padding:12px 12px 12px 16px;background:var(--c-14);color:#fff;border-radius:var(--r-md);box-shadow:var(--sh-md)}
+.toast.lv-u{box-shadow:inset 4px 0 0 var(--ag-danger),var(--sh-md)}
+.toast p{margin:0;flex:1;font-size:13px}
+.toast p span{color:rgba(255,255,255,.75)}
+.t-x{border:0;background:none;color:rgba(255,255,255,.7);cursor:pointer;font-size:14px}
+
+/* [2026-11-10 v0.4] 업체 칸에 알림 점·캠페인 버튼이 붙어 넓어진 만큼 이슈 칸을 줄여 가로 넘침 방지 */
+.grid .c{width:58px}
+.cell{width:50px}
+.grid .tot{width:44px}
+.toolbar .legend{flex-basis:100%;justify-content:flex-end;margin-top:-4px}
+/* 토스트가 패널 아래 [다음] 버튼을 가리지 않게 */
+.toasts{bottom:84px}

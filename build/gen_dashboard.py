@@ -7,7 +7,13 @@
 """
 import html
 import random
+import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))   # -I 로 돌려도 같은 폴더 모듈을 찾게
+import alerts  # noqa: E402  [2026-11-10] 수시 알림 (v0.4)
+
+VERSION = "v0.4"   # 시안 버전 — mvp/CHANGELOG.md · git 태그와 맞춘다
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "dashboard.html"
@@ -250,6 +256,7 @@ def biz_row(b, show_owner=True):
              f'캠페인 {len(b["camps"])}</label>')
     return (f'<tr class="biz{staff_cls} {has_classes(b["issues"].keys())}" data-g="{gk}">'
             f'<th scope="row" class="bizname"><button type="button" class="bizlink" data-biz="{b["id"]}">{esc(b["name"])}</button>'
+            f'<button type="button" class="adot" data-abiz="{b["id"]}" hidden><i aria-hidden="true"></i><em></em></button>'
             f'{who if show_owner else ""}'
             f'{cfold if show_owner else ""}</th>'
             f'<td class="tot">{total or ""}</td>{cells}</tr>'
@@ -661,7 +668,7 @@ def sidebar(issue_total):
         k, label, on, badge = it
         lis.append(f'<li><a href="#" class="nav{" on" if on else ""}"{" aria-current=page" if on else ""}>{ico(k)}<span>{label}</span>'
                    f'{f"<b class=nav-badge>{badge}</b>" if badge else ""}</a></li>')
-    return (f'<aside class="side"><div class="brand"><span class="logo">V</span><b>뷰마 대행사</b><small>이름 미정</small></div>'
+    return (f'<aside class="side"><div class="brand"><span class="logo">V</span><b>뷰마 대행사</b><a class="ver" href="versions/" title="이전 버전 보기">{VERSION} 시안</a></div>'
             f'<button type="button" class="agency">애니라인 마케팅 <span>▾</span></button>'
             f'<nav aria-label="주 메뉴"><ul>{"".join(lis)}</ul></nav>'
             '<div class="side-foot"><p class="bal-l">사용 가능 잔액</p><p class="bal">1,284,500<small>P</small></p>'
@@ -698,18 +705,21 @@ def build():
     heads = "".join(f'<th scope="col" class="c"><button type="button" class="colh" data-col="{k}">{lab}</button></th>'
                     for k, lab in ISSUES)
     panels = "".join(panel(b, k) for b in bizs for k in b["issues"])
+    lead_of = {tname: next((n for _s, n, ld in members if ld), "관리자") for _x, tname, members in TEAMS}
+    al_shown, al_later, al_demo = alerts.make(bizs, CAMP_META, TYPE_NAME, lead_of)
+    panels += alerts.pane(al_shown, al_later, al_demo)
 
     page = f'''<!doctype html>
 <html lang="ko">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>대시보드 · 뷰마 대행사 (시안)</title>
+<title>대시보드 · 뷰마 대행사 ({VERSION} 시안)</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <link rel="stylesheet" href="css/agency.css">
 </head>
 <body>
-<!-- [2026-11-09] 대행사 대시보드 시안 — 기획서 v0.3 6-3. gen_dashboard.py 로 생성(직접 수정 금지) -->
+<!-- [2026-11-10] 대행사 대시보드 시안 {VERSION} — 기획서 v0.4 6-3 · 6-11. gen_dashboard.py 로 생성(직접 수정 금지) -->
 <div class="shell">
 {sidebar(total_issue)}
 <div class="main">
@@ -726,12 +736,16 @@ def build():
 		</div>
 	</div>
 
+	<!-- [2026-11-10] 받은 알림 띠 — 순차 흐름(격자)과 따로, 수시 알림을 항상 같은 자리에 -->
+	{alerts.bar()}
+
 	<!-- [2026-11-09] 업체별/담당자별 전환은 라디오 + CSS (JS 없음) -->
 	<input type="radio" name="view" id="v-biz" class="vr" checked>
 	<input type="radio" name="view" id="v-staff" class="vr">
 	<div class="toolbar">
 		<div class="seg sm"><label for="v-biz">업체별</label><label for="v-staff">담당자별</label></div>
 		{type_chips(bizs)}
+		<button type="button" class="tchip js-afilter"><i class="adot-i" aria-hidden="true"></i>알림 있는 업체만</button>
 		<p class="filter-note" hidden><span class="js-filter-name"></span> 이슈가 있는 업체만 보는 중 <button type="button" class="btn link js-clear">전체 보기</button></p>
 		<ul class="legend" aria-label="칸 색 뜻">
 			<li><i class="is-hot"></i>기한 지남·오늘</li><li><i class="is-soon"></i>3일 내</li><li><i class="is-later"></i>그 외</li><li><i class="mix"></i>기한 섞임(칸 = 가장 급한 기한)</li>
@@ -767,6 +781,7 @@ def build():
 </div>
 </div>
 </div>
+<div class="toasts" aria-live="assertive"></div>
 <script src="js/dashboard.js"></script>
 </body>
 </html>
