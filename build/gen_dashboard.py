@@ -13,7 +13,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))   # -I 로 돌려도 같은 폴더 모듈을 찾게
 import alerts  # noqa: E402  [2026-11-10] 수시 알림 (v0.4)
 
-VERSION = "v0.5"   # 시안 버전 — mvp/CHANGELOG.md · git 태그와 맞춘다
+VERSION = "v0.6"   # 시안 버전 — mvp/CHANGELOG.md · git 태그와 맞춘다
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "dashboard.html"
@@ -361,10 +361,10 @@ def owner_rows():
             '<button type="button" class="btn link" data-done="내가 맡음" data-whole>내가 맡기</button>')
 
 
-def late_rows(it):
+def late_rows(it, b=None):
     return (f'<p class="ctx">모집 마감이 {-it["due"]}일 지났는데 선정 단계로 넘어가지 않았습니다.</p>'
             '<div class="acts wide"><button type="button" class="btn primary" data-done="선정 단계로 넘김" data-whole>이대로 진행</button>'
-            '<a class="btn" href="#">기간 연장 (상세 관리) →</a></div>')
+            f'<a class="btn" href="{detail_href(b, "late", it) if b else "#"}">기간 연장 (상세 관리) →</a></div>')
 
 
 def by_campaign(items):
@@ -604,7 +604,7 @@ def panel_body(key, it):
         "pay": lambda: pay_body(it),
         "point": point_rows,
         "owner": owner_rows,
-        "late": lambda: late_rows(it),
+        "late": lambda: late_rows(it, CUR.get("biz")),
     }[key]()
 
 
@@ -621,6 +621,17 @@ def camp_index(b, key, it):
     return f'<nav class="cindex" aria-label="이 이슈가 걸린 캠페인"><span>캠페인 {len(camps)}개</span>{links}</nav>'
 
 
+# [2026-11-10 v0.6] [상세 관리 →] = 캠페인 페이지의 그 이슈 탭(기획서 6-4 "검수 카드 → 리뷰 탭")
+DETAIL_TAB = {"apply": "app", "select": "app", "prep": "app", "review": "rev", "nudge": "rev", "pay": "pay",
+              "point": "ov", "late": "ov"}
+
+
+def detail_href(b, key, it):
+    if key == "owner":
+        return f'biz.html#biz={b["id"]}'          # 담당자 없음 = 업체 화면에서 배정
+    return f'campaigns.html#c-{b["id"]}-{ccode(it["camp"])}-{DETAIL_TAB[key]}'
+
+
 def panel(b, key):
     CUR.update({"bid": b["id"], "key": key, "biz": b})
     it = b["issues"][key]
@@ -635,7 +646,7 @@ def panel(b, key):
             f'<p class="pane-camp js-mix">{due_mix(it["items"])}</p>'
             f'<div class="pchips" aria-label="이 업체의 다른 이슈">{chips}</div></header>'
             f'<div class="pane-b">{camp_index(b, key, it)}{panel_body(key, it)}</div>'
-            f'<footer class="pane-f"><a href="#" class="btn ghost">상세 관리 →</a>'
+            f'<footer class="pane-f"><a href="{detail_href(b, key, it)}" class="btn ghost">상세 관리 →</a>'
             f'<button type="button" class="btn primary js-next">다음 ▶</button></footer></section>')
 
 
@@ -657,7 +668,7 @@ def ico(name):
 
 
 # [2026-11-10 v0.5] 화면 주소 — 아직 없는 화면은 '#'(준비 중)
-NAV_HREF = {"dash": "dashboard.html", "cal": "schedule.html", "biz": "biz.html"}
+NAV_HREF = {"dash": "dashboard.html", "cal": "schedule.html", "biz": "biz.html", "camp": "campaigns.html"}
 
 
 def sidebar(issue_total, active="dash"):

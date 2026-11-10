@@ -105,7 +105,9 @@ def cp_id(b, camp):
 
 
 # ── 공통 셸 ─────────────────────────────────────────────
-def page(title, active, body, panel, extra_style=""):
+def page(title, active, body, panel, extra_style="", js="pages.js"):
+    """[2026-11-10 v0.6] panel=None 이면 오른쪽 패널 없이 넓게(.work.solo), js = 화면별 동작 파일"""
+    aside = ('' if panel is None else f'<aside class="panel" aria-label="상세" aria-live="polite">\n{panel}\n</aside>')
     return f'''<!doctype html>
 <html lang="ko">
 <head>
@@ -118,20 +120,18 @@ def page(title, active, body, panel, extra_style=""):
 {extra_style}
 </head>
 <body>
-<!-- [2026-11-10] 대행사 {title} 시안 {G.VERSION} — 기획서 v0.5. build/gen_pages.py 로 생성(직접 수정 금지) -->
+<!-- [2026-11-10] 대행사 {title} 시안 {G.VERSION}. build/gen_pages.py 로 생성(직접 수정 금지) -->
 <div class="shell">
 {G.sidebar(TOTAL_ISSUE, active)}
 <div class="main">
 {G.topbar()}
-<div class="work">
+<div class="work{" solo" if panel is None else ""}">
 {body}
-<aside class="panel" aria-label="상세" aria-live="polite">
-{panel}
-</aside>
+{aside}
 </div>
 </div>
 </div>
-<script src="js/pages.js"></script>
+<script src="js/{js}"></script>
 </body>
 </html>
 '''
@@ -239,7 +239,7 @@ def camp_panel(b, camp):
             f'<h3 class="sec-t">이 캠페인에 걸린 이슈</h3><div class="ichips">{chips}</div>'
             f'<p class="note">이슈를 누르면 대시보드의 그 칸이 열립니다 — 처리는 대시보드에서.</p></div>'
             f'<footer class="pane-f"><a href="biz.html#biz={b["id"]}" class="btn ghost">업체 보기 →</a>'
-            f'<a href="#" class="btn">상세 관리 →</a></footer></section>')
+            f'<a href="campaigns.html#c-{cp_id(b, camp)}" class="btn">상세 관리 →</a></footer></section>')
 
 
 def schedule_page():
@@ -373,7 +373,7 @@ def biz_drawer(b):
     cps = "".join(
         f'<li class="cpl cg-{G.ctype(c)}"><div class="cn-l1">{ty_badges(c)}<b>{esc(c)}</b></div>'
         f'<span class="cn-l2">{G.camp_state(b, c)} · 다음 일정 {mdw(min((o for o in camp_dates(b, c).values() if o >= 0), default=0))}</span>'
-        f'<a href="schedule.html" class="lk">일정 →</a></li>' for c in b["camps"])
+        f'<a href="campaigns.html#c-{cp_id(b, c)}" class="lk">상세 →</a></li>' for c in b["camps"])
     r = random.Random(77 + int(bid[1:]))
     use = "".join(f'<tr><td>11/{r.randint(1, 9):02d}</td><td>{esc(r.choice(b["camps"]))}</td><td>{r.choice(["예치", "지급", "추가 리워드", "예치금 복귀"])}</td>'
                   f'<td class="num">{r.choice([-55000, -27500, -11000, 16500]):,}P</td></tr>' for _ in range(5))

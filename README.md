@@ -1,6 +1,6 @@
 # 대행사 사이트 MVP (로컬 시안)
 
-기준: `..\기획\대행사사이트_기획서_v0.5.md` (현재 시안 **v0.5**) · 레퍼런스: `..\UI레퍼런스\선정레퍼런스\README.md`
+기준: `..\기획\대행사사이트_기획서_v0.6.md` (현재 시안 **v0.6**) · 레퍼런스: `..\UI레퍼런스\선정레퍼런스\README.md`
 
 | 파일 | 내용 |
 |---|---|
@@ -9,13 +9,14 @@
 | `css/agency.css` | 공통 스타일(뷰마 토큰 `--ag-*`/`--c-*`) |
 | `js/dashboard.js` | 꼭 필요한 동작만(패널 전환 · 열 거르기 · 처리 표시 · 다음 · 수시 알림) |
 | `schedule.html` · `biz.html` | 일정 · 업체 화면(v0.5) — `build/gen_pages.py` 로 생성, `css/pages.css` · `js/pages.js` |
+| `campaigns.html` · `campaign_new.html` | 캠페인 목록·페이지 · 등록/복제(v0.6) — `build/gen_campaigns.py`(+ `camp_data.py` · `camp_new.py`) 로 생성, `css/campaigns.css` · `js/campaigns.js` · `js/campaign_new.js` |
 | `build/alerts.py` | 수시 알림 더미·알림 패널·알림 띠 (v0.4) |
 | `versions/` | 지난 버전 보관본 + 버전 목록. 변경 내용은 `CHANGELOG.md` |
 
-다시 만들기: `python -I build/gen_dashboard.py` · `python -I build/gen_pages.py`
+다시 만들기: `python -I build/gen_dashboard.py` · `python -I build/gen_pages.py` · `python -I build/gen_campaigns.py`
 
 ## 버전 관리
-- 버전 하나 = git 태그(`v0.5`) = 지난 버전 보관 폴더(`versions/v0.4/`) = 기획서 파일(`..\기획\대행사사이트_기획서_v0.5.md`)
+- 버전 하나 = git 태그(`v0.6`) = 지난 버전 보관 폴더(`versions/v0.5/`) = 기획서 파일(`..\기획\대행사사이트_기획서_v0.6.md`)
 - 새 버전을 시작할 때: ①지금 배포본에 태그가 있는지 확인 ②`git archive <이전태그> *.html css js | tar -x -C versions/<이전태그>`(v0.5부터 화면이 여러 개) 로 보관 ③`build/gen_dashboard.py` 의 `VERSION` 올림 ④`CHANGELOG.md`·`versions/index.html` 에 한 칸 추가 ⑤커밋 후 새 태그
 - 보관 폴더는 고치지 않는다(그때 모습 그대로 비교용)
 
@@ -25,6 +26,9 @@
 - 처리 버튼(선정·승인·지급 확정 등) → 카드 "처리됨", 칸·합계 숫자 감소. 다 처리해도 패널은 그대로("처리 완료" 안내 — 다음은 [다음 ▶]으로)
 - [업체별 | 담당자별] 전환(CSS만) · "이슈 없음" 묶음 펼치기(CSS만)
 - 화면 폭 1100px 이하에서는 패널이 격자 위로 겹쳐 열림
+
+- 캠페인: 목록 줄 → 캠페인 페이지(주소 `#c-...`), 탭 · 신청자 선정/보류 · 검수 승인 표시 · 대시보드 [상세 관리 →] 로 바로 그 탭
+- 등록: [보는 사람] 바꾸기(관리자/담당자) · 인원 30 × 50,000P 로 잔액 부족 분기 · 1단계 [복제해서 만들기]
 
 ## 아직 안 된 것(시안 한계)
 - 보기 범위(내 업체/우리 팀/전체)·업체 범위 버튼은 모양만
