@@ -1,0 +1,122 @@
+/* [2026-11-10 v0.8] 계정 층 6화면(통포인트 · 사용료 · 문자설정 · 패널티 · 대행사 정보 · 고객센터) — build/gen_account.py
+   ops.css 위에 얹는 것만. 거르기 칩 · 증빙 칸 열기 · 기간별 금액 · 충전 계산 = 라디오 + :has()(JS 없음) */
+
+.acc .sec-t{margin:22px 0 10px;font-size:16px}
+.acc .sub-t{margin:16px 0 8px;font-size:14px}
+.acc .tp > .sec-t:first-child{margin-top:4px}
+.addbox{margin:0 0 12px;padding:10px 12px;background:var(--ag-main-bg);font-size:13px;color:var(--c-11)}
+.addbox code{background:#fff;padding:0 4px;border-radius:4px}
+.otable .add-c{background:#faf8ff}
+.otable tr.sumr td{background:#fafafb;font-weight:700}
+.kpi.kact{justify-content:center;align-items:flex-start;gap:8px}
+.kpis.st2{grid-template-columns:repeat(2,minmax(0,1fr));max-width:640px}
+
+/* 입력 묶음 */
+.form-c{display:flex;flex-direction:column;gap:14px;max-width:640px;margin-bottom:14px}
+.btn.wide{align-self:flex-start;min-width:220px}
+.pres{display:flex;gap:6px;flex-wrap:wrap;font-weight:400}
+.pre{display:inline-flex;align-items:center;height:34px;padding:0 12px;border:1px solid var(--c-4);border-radius:var(--r-full);cursor:pointer;font-size:13px}
+.pre input{position:absolute;opacity:0;pointer-events:none}
+.pre:has(input:checked){border-color:var(--ag-main);color:var(--ag-main);background:var(--ag-main-bg);font-weight:700}
+.pre:has(input:focus-visible){outline:2px solid var(--ag-main);outline-offset:2px}
+.amt-in{display:flex;align-items:center;gap:6px;font-weight:700}
+.amt-in input{height:38px;width:260px;border:1px solid var(--c-4);border-radius:var(--r-sm);padding:0 10px}
+.okline{margin:0;font-size:13px}
+.big{margin:0;font-size:15px}
+.big b{font-size:20px;color:var(--ag-main)}
+.terms{display:flex;align-items:center;gap:8px;font-size:13px}
+.terms-t{margin:0;padding-left:18px;font-size:13px;line-height:1.7}
+
+/* 충전 계산 — 고른 금액 버튼의 계산표만 */
+.bd{display:none;grid-template-columns:120px 1fr;gap:6px 12px;margin:0;padding:12px 16px;border-radius:var(--r-md);background:var(--c-2);font-size:13px}
+.bd dt{color:var(--c-8)}
+.bd dd{margin:0;text-align:right}
+.charge:has(input[name=amt][value="10000"]:checked) .bd-10000,.charge:has(input[name=amt][value="50000"]:checked) .bd-50000,
+.charge:has(input[name=amt][value="100000"]:checked) .bd-100000,.charge:has(input[name=amt][value="300000"]:checked) .bd-300000,
+.charge:has(input[name=amt][value="500000"]:checked) .bd-500000{display:grid}
+
+/* 고른 라디오에 따라 칸 열기(증빙 · 다른 계좌) */
+.rc{display:none;flex-direction:column;gap:10px;padding:12px 14px;border:1px solid var(--c-3);border-radius:var(--r-md)}
+.charge:has(input[name=rcpt][value=tax]:checked) .rc-tax,.charge:has(input[name=rcpt][value=cash]:checked) .rc-cash,
+.refund:has(input[name=rfa][value=other]:checked) .rc-other{display:flex}
+
+/* 거르기 칩(포인트 내역 · 자주묻는 질문) */
+.hr{position:absolute;opacity:0;pointer-events:none}
+.fchips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.fchip{display:inline-flex;align-items:center;height:30px;padding:0 12px;border:1px solid var(--c-4);border-radius:var(--r-full);font-size:12px;font-weight:700;color:var(--c-9);cursor:pointer;background:#fff}
+.pf:has(#pf-all:checked) label[for=pf-all],.pf:has(#pf-sms:checked) label[for=pf-sms],.pf:has(#pf-talk:checked) label[for=pf-talk],
+.pf:has(#pf-camp:checked) label[for=pf-camp],.pf:has(#pf-charge:checked) label[for=pf-charge],.pf:has(#pf-refund:checked) label[for=pf-refund],
+.faq:has(#fq-all:checked) label[for=fq-all],.faq:has(#fq-acc:checked) label[for=fq-acc],.faq:has(#fq-camp:checked) label[for=fq-camp],
+.faq:has(#fq-pt:checked) label[for=fq-pt],.faq:has(#fq-rv:checked) label[for=fq-rv],.faq:has(#fq-etc:checked) label[for=fq-etc],
+.faq:has(#fq-ag:checked) label[for=fq-ag]{border-color:var(--ag-main);background:var(--ag-main);color:#fff}
+.hr:focus-visible + .hr{outline:none}
+.pf:has(#pf-sms:checked) tbody tr:not(.k-sms),.pf:has(#pf-talk:checked) tbody tr:not(.k-talk),
+.pf:has(#pf-camp:checked) tbody tr:not(.k-camp),.pf:has(#pf-charge:checked) tbody tr:not(.k-charge),
+.pf:has(#pf-refund:checked) tbody tr:not(.k-refund){display:none}
+.faq:has(#fq-acc:checked) .faq-i:not(.fq-acc),.faq:has(#fq-camp:checked) .faq-i:not(.fq-camp),.faq:has(#fq-pt:checked) .faq-i:not(.fq-pt),
+.faq:has(#fq-rv:checked) .faq-i:not(.fq-rv),.faq:has(#fq-etc:checked) .faq-i:not(.fq-etc),.faq:has(#fq-ag:checked) .faq-i:not(.fq-ag){display:none}
+
+/* 안내 상자 */
+.infobox{margin:14px 0;padding:12px 16px;border:1px solid var(--c-3);border-radius:var(--r-md);background:#fafafb;font-size:13px}
+.infobox ul{margin:6px 0 0;padding-left:18px;line-height:1.7;color:var(--c-9)}
+.kv{display:grid;grid-template-columns:140px 1fr;gap:8px 16px;margin:0 0 14px;font-size:13px;max-width:760px}
+.kv dt{color:var(--c-8);font-weight:700}
+.kv dd{margin:0;text-align:left;justify-self:start;font-weight:400}
+
+/* 사용료 */
+.eg-note{display:inline-block;margin:0 0 4px;padding:4px 10px;border-radius:var(--r-full);background:var(--ag-warning-light);color:var(--ag-warning);font-size:12px;font-weight:700}
+.stepn{display:inline-grid;place-items:center;width:22px;height:22px;margin-right:6px;border-radius:50%;background:var(--ag-main);color:#fff;font-size:12px}
+.gcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.gcard{display:flex;flex-direction:column;gap:10px;padding:16px 18px;border:1px solid var(--c-3);border-radius:var(--r-lg);background:#fff}
+.gcard.cur{border-color:var(--ag-main);background:var(--ag-main-bg)}
+.gcard h3{margin:0;font-size:16px;display:flex;align-items:center;gap:6px}
+.gcard ul{margin:0;padding:0;list-style:none;font-size:13px;display:flex;flex-direction:column;gap:4px}
+.glim li{display:flex;justify-content:space-between;gap:6px}
+.gfeat{padding-top:8px !important;border-top:1px solid var(--c-3)}
+.gcard p{margin:0;font-size:13px}
+.gcard .amt b{font-size:18px}
+.gcard .btn.wide{min-width:0;align-self:stretch;margin-top:auto}
+.pr{display:none}
+.plan-buy:has(input[name=pm][value="1"]:checked) .pr-1,.plan-buy:has(input[name=pm][value="3"]:checked) .pr-3,
+.plan-buy:has(input[name=pm][value="6"]:checked) .pr-6,.plan-buy:has(input[name=pm][value="12"]:checked) .pr-12{display:block}
+.cmp th[scope=row] small{color:var(--c-5);font-weight:400}
+.cmp td.y{color:#00744d;font-weight:800}
+.cmp td.n{color:var(--c-5)}
+.cmp th[scope=row]{text-align:left}
+
+/* 문자설정 */
+.msgc{display:flex;align-items:center;gap:10px;justify-content:space-between}
+.msgc .dflt{margin:0;font-size:12px;color:var(--c-9)}
+.msgc select{height:32px;border:1px solid var(--c-4);border-radius:var(--r-sm);padding:0 8px}
+.kv.row select{height:32px;border:1px solid var(--c-4);border-radius:var(--r-sm)}
+.mcards{display:flex;flex-direction:column;gap:8px}
+.mcard{border:1px solid var(--c-3);border-radius:var(--r-md);background:#fff;padding:12px 14px;font-size:13px}
+.mcard p{margin:6px 0}
+.mh,.mf{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.mh .sp,.mf .sp{flex:1}
+
+/* 패널티 */
+.pband{margin:0 0 10px;padding:12px 16px;border-radius:var(--r-md);font-size:14px}
+.pband.ok{background:var(--ag-success-light);color:#00744d}
+.pband.bad{background:var(--ag-danger-light);color:var(--ag-danger);font-weight:700}
+.pband.eg{opacity:.55}
+
+/* 대행사 정보 */
+.anchors{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 6px}
+.anchors a{padding:6px 12px;border-radius:var(--r-full);background:var(--c-2);font-size:12px;font-weight:700;color:var(--c-9);text-decoration:none}
+.isec{margin:0 0 18px;padding:4px 18px 16px;border:1px solid var(--c-3);border-radius:var(--r-lg);background:#fff;scroll-margin-top:16px}
+.isec.add{outline-offset:-2px}
+.hi{margin:0 0 8px;font-size:15px;font-weight:700}
+.strip{display:flex;align-items:center;justify-content:space-between;gap:10px;max-width:760px;margin:0 0 8px;padding:10px 14px;border-radius:var(--r-md);background:var(--ag-main-bg);font-size:13px}
+.logo-ph{display:inline-grid;place-items:center;width:32px;height:32px;border-radius:8px;background:var(--ag-main);color:#fff;font-weight:800;vertical-align:middle}
+.btns{display:flex;gap:6px;margin:0}
+.warn{margin:0 0 12px;padding-left:18px;color:var(--ag-danger);font-size:13px;line-height:1.7}
+.todo{margin:0 0 12px;padding:8px 12px 8px 30px;font-size:13px;line-height:1.9}
+.todo a{margin-left:6px;font-size:12px}
+
+/* 고객센터 */
+.otable tr.unread td{background:#fcfbff}
+.newb{display:inline-grid;place-items:center;width:16px;height:16px;border-radius:50%;background:var(--ag-danger);color:#fff;font-size:10px}
+.faq-i{border:1px solid var(--c-3);border-radius:var(--r-md);background:#fff;margin-bottom:6px}
+.faq-i summary{padding:12px 14px;cursor:pointer;font-size:14px;font-weight:700;display:flex;gap:8px;align-items:center}
+.faq-i p{margin:0;padding:0 14px 14px;font-size:13px;color:var(--c-9)}

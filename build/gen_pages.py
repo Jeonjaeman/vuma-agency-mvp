@@ -125,13 +125,14 @@ def page(title, active, body, panel, extra_style="", js="pages.js"):
 {G.sidebar(TOTAL_ISSUE, active)}
 <div class="main">
 {G.topbar()}
-<div class="work{" solo" if panel is None else ""}">
+<div class="work{" solo" if panel is None else ""}{" scoped" if active in G.OPS else ""}">
 {body}
 {aside}
 </div>
 </div>
 </div>
-<script src="js/{js}"></script>
+<script src="js/scope.js"></script>
+{"".join(f'<script src="js/{j}"></script>' for j in (js or "").split())}
 </body>
 </html>
 '''
@@ -381,7 +382,7 @@ def biz_drawer(b):
            '<button type="button" class="btn sm">링크 복사</button></li>'
            '<li><b>10월 보고서</b><span class="st off">만료</span><span class="muted">만료 11/8</span>'
            '<button type="button" class="btn sm">다시 켜기</button></li></ul>'
-           '<button type="button" class="btn primary">+ 보고서 링크 만들기</button>'
+           '<a class="btn primary" href="reports.html">보고서 화면에서 관리 →</a>'
            '<p class="note">보고서에는 리워드·포인트·수수료 금액이 나오지 않습니다(업체 고객용).</p>')
     memo = ('<textarea class="input memo-in" rows="3" placeholder="업체 메모 (대행사 안에서만 보임)"></textarea>'
             '<button type="button" class="btn sm primary">메모 남기기</button>'

@@ -1,0 +1,74 @@
+/* [2026-11-10 v0.8] 캠페인 운영 — 리뷰 사진 관리 · 검색결과 리포트 · 영상 제작 요청 · 쪽지 (build/gen_ops2.py)
+   광고주 화면 그대로 + 대행사 추가분(.add). 거르기는 라디오/체크 + :has(), 창은 popover. JS 없음. */
+
+/* 채널 버튼(전체/블로그/유튜브/인스타) — 라디오를 버튼처럼 */
+.chf{display:flex;gap:6px;flex-wrap:wrap}
+.chf label{display:inline-flex;align-items:center;height:34px;padding:0 14px;border:1px solid var(--c-4);border-radius:var(--r-full);font-size:13px;font-weight:700;color:var(--c-9);cursor:pointer;background:#fff}
+.chf input{position:absolute;opacity:0;pointer-events:none}
+.chf label:has(input:checked){border-color:var(--ag-main);background:var(--ag-main-light);color:var(--ag-main)}
+.chf label:has(input:focus-visible){outline:2px solid var(--ag-main);outline-offset:2px}
+.phs:has(#chf-blog:checked) [data-ch]:not([data-ch="blog"]),
+.phs:has(#chf-yt:checked) [data-ch]:not([data-ch="yt"]),
+.phs:has(#chf-ig:checked) [data-ch]:not([data-ch="ig"]){display:none}
+
+/* 사진 자리(외부 그림 없이 색 블록) — --h = 색상 각도 */
+.ph{display:block;aspect-ratio:1;border-radius:6px;background:linear-gradient(135deg,hsl(var(--h) 55% 82%),hsl(calc(var(--h) + 40) 50% 62%))}
+.ph4{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin:-4px -6px 10px}
+.ph4 .more{display:grid;place-items:center;color:#fff;font-weight:800;font-size:18px;background:linear-gradient(135deg,hsl(var(--h) 25% 45%),hsl(var(--h) 25% 30%))}
+.pcard h3{font-size:14px}
+.pcard .meta{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:4px 0 10px}
+.pcard .bt{display:flex;gap:6px}
+.pcard .bt .btn{flex:1;justify-content:center}
+.card .col-biz{font-size:12px;color:var(--c-8)}
+.card .col-biz a{color:var(--c-11);font-weight:700;text-decoration:none}
+
+/* 사진보기 창 */
+.pop.wide{width:min(760px,94vw)}
+.usebar{display:flex;align-items:center;gap:10px;font-size:13px}
+.usebar .bar{flex:1;height:8px;border-radius:var(--r-full);background:var(--c-2);overflow:hidden}
+.usebar .bar i{display:block;height:100%;background:var(--ag-success)}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px}
+.tile{position:relative;margin:0;font-size:11px}
+.tile figcaption{margin-top:4px;color:var(--c-8);line-height:1.35}
+.tile .st{position:absolute;top:6px;left:6px}
+.tile.no .ph{filter:grayscale(.85);opacity:.6}
+.pop:has(.only-ok:checked) .tile.no{display:none}
+.chk{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600}
+.chk input{accent-color:var(--ag-main);width:16px;height:16px}
+
+/* 검색결과 리포트 */
+.rk{font-size:22px;font-weight:800;letter-spacing:-.02em;color:var(--ag-main)}
+.rk.none{font-size:15px;color:var(--c-8)}
+.scard .kw{font-size:12px;color:var(--c-9)}
+.scard .bt{display:flex;gap:6px;margin-top:10px}
+.scard .inrep{display:flex;margin-top:10px;padding:6px 8px;font-size:12px}
+.scard.wait{background:#fafafb}
+
+/* 영상 제작 요청 */
+.price{display:flex;align-items:center;gap:18px;flex-wrap:wrap;padding:14px 18px;border:1px solid var(--c-3);border-radius:var(--r-lg);background:#fff;margin-bottom:8px;font-size:14px}
+.price b{color:var(--ag-main)}
+.price .sp{flex:1}
+.notice{font-size:12px;color:var(--c-8);margin:0 0 6px}
+.sec-h{font-size:16px;margin:22px 0 10px}
+.otable td small.sub{display:block;margin-top:2px}
+
+/* 쪽지 */
+.mnote{padding:10px 14px;border-radius:var(--r-md,10px);background:var(--ag-main-bg);font-size:13px;margin-bottom:12px}
+.mrow .ttl{border:0;background:none;padding:0;font:inherit;font-weight:700;color:var(--c-14);cursor:pointer;text-align:left}
+.mrow .ttl:hover{color:var(--ag-main);text-decoration:underline}
+.mrow .snip{color:var(--c-8);max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mrow.unread .ttl{color:var(--ag-main)}
+.mrow .tag{display:block;margin-top:3px;font-size:11px;color:var(--c-8)}
+.msg-b{white-space:pre-line;font-size:14px;line-height:1.6;padding:12px 14px;border:1px solid var(--c-3);border-radius:8px;background:#fafafb}
+.dl{display:grid;grid-template-columns:90px 1fr;gap:6px 10px;margin:0;font-size:13px}
+.dl dt{color:var(--c-8);font-weight:700}
+.dl dd{margin:0}
+.sends{display:flex;flex-direction:column;gap:8px}
+.sends .card{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.sends .card .body{flex:1;min-width:220px}
+.sends .card .cost{font-weight:800;color:var(--ag-danger);font-size:13px}
+
+@media (max-width:640px){
+	.ops{padding:16px}
+	.fbar input[type=search]{min-width:0;flex:1}
+}

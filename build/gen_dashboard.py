@@ -13,7 +13,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))   # -I 로 돌려도 같은 폴더 모듈을 찾게
 import alerts  # noqa: E402  [2026-11-10] 수시 알림 (v0.4)
 
-VERSION = "v0.6"   # 시안 버전 — mvp/CHANGELOG.md · git 태그와 맞춘다
+VERSION = "v0.8"   # 시안 버전 — mvp/CHANGELOG.md · git 태그와 맞춘다
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "dashboard.html"
@@ -165,6 +165,9 @@ def make_biz():
         if owner is None:
             issues["owner"] = issue_from([(camps[0], 0)])
         rows.append({"id": f"b{i}", "name": name, "owner": owner, "camps": camps, "issues": issues})
+    # [2026-11-10 v0.8] 셸(업체 범위 목록 · 메뉴 숫자)도 같은 업체 데이터를 쓴다
+    SCOPE_BIZ[:] = rows
+    COUNTS.update({k: sum(b["issues"][k]["n"] for b in rows if k in b["issues"]) for k in ("review", "pay")})
     return rows
 
 
@@ -349,7 +352,7 @@ def tbody_by_staff(bizs):
 def point_rows():
     return ('<dl class="kv"><dt>추가 예치 필요</dt><dd>165,000P</dd><dt>사용 가능 잔액</dt><dd class="bad">84,500P</dd></dl>'
             '<p class="ctx">초과모집 3명 요청 · 잔액이 부족해 대기 중입니다.</p>'
-            '<div class="acts wide"><button type="button" class="btn primary">충전하기</button>'
+            '<div class="acts wide"><a class="btn primary" href="point.html">충전하기 (통포인트) →</a>'
             '<button type="button" class="btn" disabled title="잔액이 부족합니다">예치하고 진행</button></div>')
 
 
@@ -622,13 +625,17 @@ def camp_index(b, key, it):
 
 
 # [2026-11-10 v0.6] [상세 관리 →] = 캠페인 페이지의 그 이슈 탭(기획서 6-4 "검수 카드 → 리뷰 탭")
-DETAIL_TAB = {"apply": "app", "select": "app", "prep": "app", "review": "rev", "nudge": "rev", "pay": "pay",
-              "point": "ov", "late": "ov"}
+# [2026-11-10 v0.8] [상세 관리 →] = 운영 층 그 화면(검수 → 리뷰 검수, 지급 → 포인트 지급 확인, 포인트 → 통포인트)
+DETAIL_TAB = {"apply": "app", "select": "app", "prep": "rev", "review": "rev", "nudge": "rev", "pay": "rev",
+              "point": "ov", "late": "app"}
+DETAIL_PAGE = {"review": "inspect.html", "pay": "payout.html", "point": "point.html"}
 
 
 def detail_href(b, key, it):
     if key == "owner":
         return f'biz.html#biz={b["id"]}'          # 담당자 없음 = 업체 화면에서 배정
+    if key in DETAIL_PAGE:
+        return f'{DETAIL_PAGE[key]}?biz={b["id"]}'   # 업체 범위를 그 업체로 걸고 연다
     return f'campaigns.html#c-{b["id"]}-{ccode(it["camp"])}-{DETAIL_TAB[key]}'
 
 
@@ -660,6 +667,19 @@ ICON = {
     "pay": '<rect x="2" y="6" width="20" height="13" rx="2"/><path d="M2 10h20"/>',
     "team": '<circle cx="9" cy="8" r="3.5"/><path d="M2 21c0-4 3-6 7-6s7 2 7 6M16 4.5a3.5 3.5 0 0 1 0 7M18 15c2.5.6 4 2.6 4 6"/>',
     "set": '<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/>',
+    # [2026-11-10 v0.8] 운영·계정 메뉴
+    "rvw": '<circle cx="10" cy="8" r="4"/><path d="M3 21c0-4 3-7 7-7M16 15l2 2 4-4"/>',
+    "insp": '<path d="M9 11l2 2 4-4"/><rect x="4" y="3" width="16" height="18" rx="2"/>',
+    "payc": '<circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/>',
+    "photo": '<rect x="3" y="5" width="18" height="15" rx="2"/><circle cx="9" cy="11" r="2"/><path d="M21 17l-5-5-8 8"/>',
+    "srch": '<circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5M8 11h6"/>',
+    "video": '<rect x="2" y="6" width="14" height="12" rx="2"/><path d="M16 10l6-3v10l-6-3"/>',
+    "chat": '<path d="M4 5h16v11H9l-5 4z"/>',
+    "plan": '<path d="M4 7h16v12H4zM8 7V5h8v2M4 12h16"/>',
+    "sms": '<rect x="6" y="2" width="12" height="20" rx="2"/><path d="M10 18h4"/>',
+    "pen": '<path d="M12 3l9 16H3zM12 10v4M12 17v.5"/>',
+    "info": '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/>',
+    "help": '<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6M12 17v.5"/>',
 }
 
 
@@ -667,35 +687,75 @@ def ico(name):
     return f'<svg viewBox="0 0 24 24" aria-hidden="true">{ICON[name]}</svg>'
 
 
-# [2026-11-10 v0.5] 화면 주소 — 아직 없는 화면은 '#'(준비 중)
-NAV_HREF = {"dash": "dashboard.html", "cal": "schedule.html", "biz": "biz.html", "camp": "campaigns.html"}
+# [2026-11-10 v0.8] 메뉴 = 세 묶음(기획 구조재설계_v0.8안 3장)
+#   대행사 = 광고주 사이트에 없는 것 / 캠페인 운영 = 광고주 "캠페인 관리" 그대로 / 계정 = 광고주 계정 기능을 대행사 1개 단위로
+#   (키, 이름, 주소, 화면이 있는가) — 아직 없는 화면은 흐리게 + "광고주 화면 그대로 예정"
+NAV = [
+    ("대행사", [("dash", "대시보드", "dashboard.html"), ("cal", "일정", "schedule.html"), ("biz", "업체", "biz.html"),
+              ("team", "팀·담당자", "team.html"), ("rep", "보고서 링크", "reports.html")]),
+    ("캠페인 운영", [("camp", "캠페인 리스트", "campaigns.html"), ("rvw", "리뷰어 관리", "reviewers.html"),
+                ("insp", "리뷰 검수", "inspect.html"), ("payc", "포인트 지급 확인", "payout.html"),
+                ("photo", "리뷰 사진 관리", "photos.html"), ("srch", "검색결과 리포트", "search_report.html"),
+                ("video", "영상 제작 요청", "video.html"), ("chat", "쪽지", "messages.html")]),
+    # ※ 광고주 사이트에 채팅은 없음(2026-10-28 제거) — 쪽지만
+    ("계정", [("pay", "통포인트", "point.html"), ("plan", "사용료", "plan.html"), ("sms", "문자설정", "sms.html"),
+            ("pen", "패널티", "penalty.html"), ("info", "대행사 정보", "info.html"), ("help", "고객센터", "help.html")]),
+]
+NAV_HREF = {k: href for _g, items in NAV for k, _l, href in items}
+OPS = {k for k, _l, _h in NAV[1][1]}          # 업체 범위가 걸리는 화면(운영 층)
+# 만들어진 화면 — 화면을 새로 만들면 여기에 키를 더한다(생성 순서와 상관없이 모든 화면의 메뉴가 같게)
+READY = {"dash", "cal", "biz", "rep", "camp", "team", "rvw", "insp", "payc", "photo", "srch", "video", "chat",
+         "pay", "plan", "sms", "pen", "info", "help"}
+
+
+def _built():
+    return READY
+
+
+COUNTS = {}        # 메뉴 숫자(검수·지급) — make_biz() 가 채운다
 
 
 def sidebar(issue_total, active="dash"):
-    """사이드바 — 일정·업체 화면(gen_pages.py)도 같이 쓴다. active = 지금 화면"""
-    items = [("dash", "대시보드", issue_total), ("cal", "일정", None), None,
-             ("biz", "업체", None), ("camp", "캠페인", None), ("rep", "보고서", None),
-             ("pay", "정산", None), ("team", "팀", None), ("set", "설정", None)]
-    lis = []
-    for it in items:
-        if it is None:
-            lis.append('<li class="nav-sep">상세 관리</li>')
-            continue
-        k, label, badge = it
-        on = k == active
-        href = NAV_HREF.get(k, "#")
-        soon = "" if k in NAV_HREF else ' title="준비 중인 화면" aria-disabled="true"'
-        lis.append(f'<li><a href="{href}"{soon} class="nav{" on" if on else ""}{"" if k in NAV_HREF else " soon"}"{" aria-current=page" if on else ""}>{ico(k)}<span>{label}</span>'
-                   f'{f"<b class=nav-badge>{badge}</b>" if badge else ""}</a></li>')
+    """사이드바 — 모든 화면이 같이 쓴다. active = 지금 화면 키"""
+    badges = {"dash": issue_total, "insp": COUNTS.get("review"), "payc": COUNTS.get("pay"), "chat": 3}
+    parts = []
+    for gname, items in NAV:
+        lis = []
+        for k, label, href in items:
+            on = k == active
+            ok = k in _built()
+            soon = "" if ok else ' title="광고주 화면 그대로 — 만드는 중" aria-disabled="true"'
+            lis.append(f'<li><a href="{href if ok else "#"}"{soon} class="nav{" on" if on else ""}{"" if ok else " soon"}"'
+                       f'{" aria-current=page" if on else ""}>{ico(k)}<span>{label}</span>'
+                       f'{f"<b class=nav-badge>{badges[k]}</b>" if badges.get(k) else ""}</a></li>')
+        parts.append(f'<li class="nav-g"><p class="nav-sep">{gname}</p><ul>{"".join(lis)}</ul></li>')
     return (f'<aside class="side"><div class="brand"><span class="logo">V</span><b>뷰마 대행사</b><a class="ver" href="versions/" title="이전 버전 보기">{VERSION} 시안</a></div>'
             f'<button type="button" class="agency">애니라인 마케팅 <span>▾</span></button>'
-            f'<nav aria-label="주 메뉴"><ul>{"".join(lis)}</ul></nav>'
-            '<div class="side-foot"><p class="bal-l">사용 가능 잔액</p><p class="bal">1,284,500<small>P</small></p>'
+            f'<a class="btn primary new-camp" href="campaign_new.html">+ 새 캠페인 등록</a>'
+            f'<nav class="nav-scroll" aria-label="주 메뉴"><ul>{"".join(parts)}</ul></nav>'
+            f'<div class="side-foot"><p class="bal-l">통포인트 사용 가능</p><p class="bal">{BALANCE:,}<small>P</small></p>'
             '<p class="plan">무료 이용 중 · D-142</p></div></aside>')
 
 
+def scope_pop():
+    """[2026-11-10 v0.8] 업체 범위 고르기 — 광고주는 계정 = 업체 하나라 없던 것.
+       한 업체를 고르면 운영 화면은 광고주 사이트에서 그 업체로 본 것과 같아진다(업체·담당자 칸도 숨김 · Q18).
+       고른 범위는 주소 ?biz= 로 화면을 넘어 이어진다(js/scope.js)."""
+    rows = "".join(f'<li><a href="?biz={b["id"]}" data-scope="{b["id"]}" data-name="{esc(b["name"])}">{esc(b["name"])}'
+                   f'<small>{b["owner"][1] if b["owner"] else "미담당"}</small></a></li>' for b in SCOPE_BIZ)
+    return (f'<div id="scope-pop" class="scope-pop" popover><p class="sp-h">업체 범위 <small>캠페인 운영 화면에 걸립니다</small></p>'
+            f'<a class="sp-all" href="?biz=" data-scope="">전체 업체 <small>{len(SCOPE_BIZ)}곳</small></a>'
+            f'<label class="sp-q"><span class="sr">업체 찾기</span><input type="search" class="js-sp-q" placeholder="업체 이름"></label>'
+            f'<ul>{rows}</ul></div>')
+
+
+SCOPE_BIZ = []     # 업체 범위 목록 — make_biz() 결과
+
+
 def topbar():
-    return ('<header class="top"><button type="button" class="scope-biz">전체 업체 <span>▾</span></button>'
+    return ('<header class="top"><button type="button" class="scope-biz" popovertarget="scope-pop">'
+            '<b class="js-scope-name">전체 업체</b> <span>▾</span></button>'
+            f'{scope_pop()}'
             '<label class="search"><span class="sr">검색</span><input type="search" placeholder="업체·캠페인 검색"></label>'
             '<div class="top-r"><button type="button" class="bell" aria-label="알림 5건">🔔<i>5</i></button>'
             '<span class="me"><i>대</i>대표 <small>관리자</small></span></div></header>')
@@ -801,6 +861,7 @@ def build():
 </div>
 </div>
 <div class="toasts" aria-live="assertive"></div>
+<script src="js/scope.js"></script>
 <script src="js/dashboard.js"></script>
 </body>
 </html>

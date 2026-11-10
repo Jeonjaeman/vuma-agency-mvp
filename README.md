@@ -1,36 +1,47 @@
 # 대행사 사이트 MVP (로컬 시안)
 
-기준: `..\기획\대행사사이트_기획서_v0.6.md` (현재 시안 **v0.6**) · 레퍼런스: `..\UI레퍼런스\선정레퍼런스\README.md`
+기준: `..\기획\대행사사이트_기획서_v0.8.md` (현재 시안 **v0.8**) · 구조 원칙: `..\기획\구조재설계_v0.8안.md` · 광고주 화면 원본 정리: `..\조사\광고주_운영화면_스펙_20261110.md` · `..\조사\광고주_계정화면_스펙_20261110.md` · 레퍼런스: `..\UI레퍼런스\선정레퍼런스\README.md`
 
-| 파일 | 내용 |
-|---|---|
-| `dashboard.html` | 대시보드 시안(6-3): 업체 × 이슈 격자 + 오른쪽 처리 패널. **생성 파일이므로 직접 고치지 말 것** |
-| `build/gen_dashboard.py` | 더미 데이터(업체 30 · 직원 6명/2팀 + 팀 없는 담당자 1명 · 미담당 2곳)로 위 HTML을 만드는 스크립트(시드 고정) |
-| `css/agency.css` | 공통 스타일(뷰마 토큰 `--ag-*`/`--c-*`) |
-| `js/dashboard.js` | 꼭 필요한 동작만(패널 전환 · 열 거르기 · 처리 표시 · 다음 · 수시 알림) |
-| `schedule.html` · `biz.html` | 일정 · 업체 화면(v0.5) — `build/gen_pages.py` 로 생성, `css/pages.css` · `js/pages.js` |
-| `campaigns.html` · `campaign_new.html` | 캠페인 목록·페이지 · 등록/복제(v0.6) — `build/gen_campaigns.py`(+ `camp_data.py` · `camp_new.py`) 로 생성, `css/campaigns.css` · `js/campaigns.js` · `js/campaign_new.js` |
-| `build/alerts.py` | 수시 알림 더미·알림 패널·알림 띠 (v0.4) |
-| `versions/` | 지난 버전 보관본 + 버전 목록. 변경 내용은 `CHANGELOG.md` |
+**원칙(v0.8)**: 광고주 사이트의 모든 기능 = 그대로 + 대행사 전용 대시보드·정보관리. 화면의 점선(`.add`) = 광고주 화면에 없는 대행사 추가분.
+모든 `*.html` 은 생성 파일 — **직접 고치지 말고 `build/` 생성기를 고친다.**
 
-다시 만들기: `python -I build/gen_dashboard.py` · `python -I build/gen_pages.py` · `python -I build/gen_campaigns.py`
+| 메뉴 묶음 | 화면 | 생성기 · 스타일 · 동작 |
+|---|---|---|
+| 대행사 | `dashboard.html` 대시보드 | `gen_dashboard.py`(+ `alerts.py`) · `agency.css` · `dashboard.js` |
+| | `schedule.html` 일정 · `biz.html` 업체 | `gen_pages.py` · `pages.css` · `pages.js` |
+| | `team.html` 팀·담당자 | `gen_agency.py` |
+| | `reports.html` 보고서 링크 · `report.html` 공개 보고서 | `gen_reports.py` · `settle.css` · `report.css` · `settle.js` |
+| 캠페인 운영 | `campaigns.html` 캠페인 리스트·상세 · `campaign_new.html` 등록 | `gen_campaigns.py`(+ `camp_data.py` · `camp_new.py`) · `campaigns.css` · `campaigns.js` · `campaign_new.js` |
+| | `reviewers.html` 리뷰어 관리 · `inspect.html` 리뷰 검수 · `payout.html` 포인트 지급 확인 | `gen_ops.py` |
+| | `photos.html` · `search_report.html` · `video.html` · `messages.html` | `gen_ops2.py` · `media.css` |
+| 계정 | `point.html` 통포인트 · `plan.html` 사용료 · `sms.html` 문자설정 · `penalty.html` · `info.html` 대행사 정보 · `help.html` 고객센터 | `gen_account.py` · `account.css` |
+| 공통 | 셸(메뉴 `NAV` · 업체 범위) | `gen_dashboard.py` `sidebar()`/`topbar()` · `gen_pages.page()` · `js/scope.js` |
+| | 운영·계정 화면 조각(탭 · 표 · 창 · 캠페인 상단 탭) | `ops_kit.py` · `ops.css` · `ops.js` |
+
+`gen_settle.py` 는 v0.7 정산 함수 모음(통포인트·지급 묶음이 가져다 씀) — `settle.html` 은 더 만들지 않음.
+새 화면을 메뉴에 켜기: `gen_dashboard.py` 의 `READY` 에 키 추가.
+
+다시 만들기(순서 상관없음):
+`python -I build/gen_dashboard.py` · `gen_pages.py` · `gen_campaigns.py` · `gen_reports.py` · `gen_agency.py` · `gen_ops.py` · `gen_ops2.py` · `gen_account.py`
+
+> 주의: PowerShell 5.1 의 `Get-Content`/`Set-Content` 로 생성기를 고치면 한글이 깨진다(BOM 없는 UTF-8). 편집기나 Python(`encoding="utf-8"`)으로만.
 
 ## 버전 관리
-- 버전 하나 = git 태그(`v0.6`) = 지난 버전 보관 폴더(`versions/v0.5/`) = 기획서 파일(`..\기획\대행사사이트_기획서_v0.6.md`)
-- 새 버전을 시작할 때: ①지금 배포본에 태그가 있는지 확인 ②`git archive <이전태그> *.html css js | tar -x -C versions/<이전태그>`(v0.5부터 화면이 여러 개) 로 보관 ③`build/gen_dashboard.py` 의 `VERSION` 올림 ④`CHANGELOG.md`·`versions/index.html` 에 한 칸 추가 ⑤커밋 후 새 태그
+- 버전 하나 = git 태그(`v0.8`) = 지난 버전 보관 폴더(`versions/v0.6/` …) = 기획서 파일(`..\기획\대행사사이트_기획서_v0.8.md`)
+- 새 버전을 시작할 때: ①지금 배포본에 태그가 있는지 확인 ②`git archive <이전태그> *.html css js | tar -x -C versions/<이전태그>` 로 보관 ③`build/gen_dashboard.py` 의 `VERSION` 올림 ④`CHANGELOG.md`·`versions/index.html` 에 한 칸 추가 ⑤커밋 후 새 태그
+- v0.7 은 태그 없이 v0.8 에 합쳐짐(보관 폴더 없음 · `시안_v0.7_*.png` 만)
 - 보관 폴더는 고치지 않는다(그때 모습 그대로 비교용)
 
 ## 시안에서 해 볼 수 있는 것
-- 칸 클릭 → 그 업체의 그 이슈가 오른쪽 패널에 열림 / 업체명 클릭 → 그 업체 이슈 전부(다음 = 같은 업체 안에서)
-- 열 머리(예: 검수) 클릭 → 그 이슈가 있는 업체만 남김 → [다음 ▶]로 같은 이슈를 업체를 넘기며 처리
-- 처리 버튼(선정·승인·지급 확정 등) → 카드 "처리됨", 칸·합계 숫자 감소. 다 처리해도 패널은 그대로("처리 완료" 안내 — 다음은 [다음 ▶]으로)
-- [업체별 | 담당자별] 전환(CSS만) · "이슈 없음" 묶음 펼치기(CSS만)
-- 화면 폭 1100px 이하에서는 패널이 격자 위로 겹쳐 열림
-
-- 캠페인: 목록 줄 → 캠페인 페이지(주소 `#c-...`), 탭 · 신청자 선정/보류 · 검수 승인 표시 · 대시보드 [상세 관리 →] 로 바로 그 탭
-- 등록: [보는 사람] 바꾸기(관리자/담당자) · 인원 30 × 50,000P 로 잔액 부족 분기 · 1단계 [복제해서 만들기]
+- **업체 범위**: 맨 위 "전체 업체 ▾" → 한 업체 → 운영 화면이 그 업체 것만, 업체·담당자 칸 숨김, 다른 화면으로 가도 유지(주소 `?biz=b3`)
+- 대시보드: 칸 클릭 → 처리 패널 / [상세 관리 →] → 운영 층 그 화면(신청 → 캠페인 신청자, 검수 → 리뷰 검수, 지급 → 포인트 지급 확인)
+- 캠페인 리스트: 상태 탭 12개 · 채널/유형 · 정렬 · 썸네일형/목록형(모두 CSS) · 카드 → 상세(주소 `#c-...`), 신청자 [선정] → 선정대기 수
+- 리뷰어 관리 5탭 · 리뷰 검수 상태/캠페인 select 거르기(CSS) · 포인트 지급 확인 [지급대기만 보기] · 지급 묶음 [묶음 확정]
+- 계정 화면 탭 전부 · 충전 금액 버튼 · 증빙 신청 칸 바뀜 · 창(popover)들
+- 팀·담당자: 탭 3개 · 직원 초대/역할/업체 배정/중지·인수인계 창
 
 ## 아직 안 된 것(시안 한계)
-- 보기 범위(내 업체/우리 팀/전체)·업체 범위 버튼은 모양만
-- 되돌리기 없음, 새로고침하면 처음 상태
-- 담당자 1인 화면 · 1인 대행사 화면 · 모바일(≤900) 카드형은 아직 없음
+- 저장 없음(버튼은 안내 한 줄), 새로고침하면 처음 상태
+- 담당자로 로그인했을 때 업체 범위를 "내 업체"로 묶는 것은 표시만(권한 표 · 8-3)
+- 대시보드 이슈 수와 운영 화면 줄 수가 일부 다름(더미 데이터 모델 차이 — CHANGELOG v0.8)
+- 모바일(≤900) 카드형 셸은 아직 없음

@@ -1,0 +1,45 @@
+/* [2026-11-10 v0.7] 보고서 공개 화면(업체 고객용) — 기획서 v0.7 6-9
+   로그인 없음 · 셸 없음 · 대행사 상호가 머리, 뷰마는 꼬리말 한 줄 · 금액 없음
+   보고서마다 article 하나 — 주소가 가리키는 것만(:target), 주소가 없으면 첫 보고서 · 휴대폰에서 많이 열리므로 한 줄 흐름 */
+:root{--main:#7346f3;--ink:#0e0e0e;--sub:#767676;--line:#e7e7e7;--bg:#f7f7f9;--ok:#00744d;--ok-bg:#e6f8f1;--warn:#b56a00;--warn-bg:#fff5e5}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Pretendard,-apple-system,"Malgun Gothic",sans-serif;font-size:15px;line-height:1.55}
+.muted{color:var(--sub)}
+.top{display:flex;align-items:center;gap:10px;padding:14px 20px;background:#fff;border-bottom:1px solid var(--line)}
+.top .logo{width:30px;height:30px;border-radius:8px;background:var(--ink);color:#fff;display:grid;place-items:center;font-weight:800}
+.top .muted{margin-left:auto;font-size:13px}
+.wrap{max-width:760px;margin:0 auto;padding:28px 16px 40px}
+.rp{display:none}
+.rp:target,body:not(:has(.rp:target)) .rp.first{display:block}
+.rp-k{margin:0;font-size:13px;font-weight:700;color:var(--main)}
+.rp h1{margin:4px 0 2px;font-size:26px;letter-spacing:-.02em}
+.rp-meta{margin:0 0 18px;font-size:13px;color:var(--sub)}
+.pks{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:20px}
+.pk{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.pk p{margin:0;font-size:12px;color:var(--sub);font-weight:700}
+.pk b{font-size:24px}
+.pc{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px 18px;margin-bottom:12px;box-shadow:inset 4px 0 0 var(--cg)}
+.cg-v{--cg:#7346f3}.cg-s{--cg:#0077e6}.cg-p{--cg:#00a06a}
+.pc header{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.pc h3{margin:0 0 0 4px;font-size:17px}
+.pc h3 small{font-size:12px;color:var(--sub);font-weight:600}
+.pst{margin-left:auto;font-size:12px;font-weight:800;color:var(--ok);background:var(--ok-bg);padding:2px 9px;border-radius:999px}
+.ty{font-size:11px;font-weight:700;padding:1px 7px;border-radius:6px;border:1px solid}
+.ty-v{color:#5f33d6;border-color:#cbbcff;background:#f7f5ff}
+.ty-s{color:#005fb8;border-color:#a9d0f5;background:#e9f4ff}
+.ty-p{color:#00744d;border-color:#9fdcc6;background:#e6f8f1}
+.chn{font-size:11px;font-weight:600;color:#525252;background:#f3f3f3;padding:1px 7px;border-radius:6px}
+.pcn{margin:6px 0 10px;font-size:13px;color:var(--sub)}
+.rlist{margin:0;padding:0 0 0 20px;display:flex;flex-direction:column;gap:8px}
+.rlist li{padding-left:2px}
+.rt{font-weight:700;color:var(--ink);text-decoration:none}
+.rt:hover{color:var(--main);text-decoration:underline}
+.rm{display:block;font-size:12px;color:var(--sub)}
+.ad{font-style:normal;color:var(--ok);font-weight:700}
+.noad{font-style:normal;color:var(--warn);font-weight:700}
+.rlist .none{list-style:none;margin-left:-20px;color:var(--sub);font-size:13px}
+.rp-state{text-align:center;padding:60px 16px;background:#fff;border:1px solid var(--line);border-radius:20px}
+.rp-state .big{font-size:42px;margin:0}
+.rp-state h1{font-size:22px}
+.foot{text-align:center;font-size:12px;color:var(--sub);padding:0 16px 32px}
+@media (max-width:560px){.pks{grid-template-columns:repeat(2,minmax(0,1fr))}.rp h1{font-size:22px}.top .muted{display:none}}
