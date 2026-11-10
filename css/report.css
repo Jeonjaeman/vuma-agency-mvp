@@ -2,7 +2,12 @@
    로그인 없음 · 셸 없음 · 대행사 상호가 머리, 뷰마는 꼬리말 한 줄 · 금액 없음
    보고서마다 article 하나 — 주소가 가리키는 것만(:target), 주소가 없으면 첫 보고서 · 휴대폰에서 많이 열리므로 한 줄 흐름 */
 :root{--main:#7346f3;--ink:#0e0e0e;--sub:#767676;--line:#e7e7e7;--bg:#f7f7f9;--ok:#00744d;--ok-bg:#e6f8f1;--warn:#b56a00;--warn-bg:#fff5e5}
-*{box-sizing:border-box}
+*{box-sizing:border-box;scrollbar-width:thin;scrollbar-color:#cfcfcf transparent}
+/* [2026-11-10] 얇은 스크롤바(셸 화면과 같게) */
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#cfcfcf;border-radius:999px}
+::-webkit-scrollbar-thumb:hover{background:var(--sub)}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:Pretendard,-apple-system,"Malgun Gothic",sans-serif;font-size:15px;line-height:1.55}
 .muted{color:var(--sub)}
 .top{display:flex;align-items:center;gap:10px;padding:14px 20px;background:#fff;border-bottom:1px solid var(--line)}

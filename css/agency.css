@@ -24,6 +24,14 @@ button,input,select{font:inherit;color:inherit}
 a{color:inherit}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .muted{color:var(--c-8)}
+/* [2026-11-10] 얇은 스크롤바 — 모든 스크롤 영역 공통(셸 · 표 · 패널 · 창)
+   표준(Firefox·Chrome 121+) = scrollbar-width/color, 그 밖의 Chromium·Safari = ::-webkit-scrollbar */
+*{scrollbar-width:thin;scrollbar-color:var(--c-5) transparent}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--c-5);border-radius:var(--r-full)}
+::-webkit-scrollbar-thumb:hover{background:var(--c-8)}
+::-webkit-scrollbar-corner{background:transparent}
 svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
 
 /* ── 셸 ───────────────────────────────── */
