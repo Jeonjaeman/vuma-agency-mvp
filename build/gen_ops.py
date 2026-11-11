@@ -154,7 +154,7 @@ def insp_tr(c, v):
            "fix": K.btn("승인", "승인했습니다") + K.btn("재검수 요청", "재검수를 요청했습니다"),
            "ok": K.btn("재검수 요청", "재검수를 요청했습니다") + ' <small class="muted">11/16까지</small>'}[v["st"]]
     who = "" if v["st"] == "pend" else f'{P.md(-v["ago"] + 1)} · {"대행사 · " + C.owner_html(b) if b["owner"] else "운영자"}'
-    reason = '<br><small class="bad">사유 : 사진 5장 미만</small>' if v["st"] == "fix" else ""
+    reason = '<br><small class="bad">사유 : 이미지 10개 미만(미션 미충족)</small>' if v["st"] == "fix" else ""
     ck = '<input type="checkbox" aria-label="고르기">' if v["st"] == "pend" else ""
     return (f'<tr class="irow v-{k} v-{c["id"]}" data-biz="{b["id"]}"><td class="ck">{ck}</td>'
             f'<td><a href="campaigns.html#c-{c["id"]}-rev">{esc(c["name"])}</a><br><small>#{C.code(c)}</small></td>'
@@ -165,7 +165,9 @@ def insp_tr(c, v):
 
 def insp_pop():
     rows = "".join(f'<tr><td>{a}</td><td>{b}</td><td>{c}</td></tr>' for a, b, c in
-                   [("글자수", "1,000자 이상", "충족"), ("사진", "5장 이상", "미충족"), ("필수 키워드", "#연남헤어", "충족"), ("광고 표시", "문구 포함", "수동확인")])
+                   # 항목 = 실서버 리뷰 미션 칸(키워드 · 글자 수 · 이미지 · 지도 필수)
+                   [("키워드 필수", "#연남헤어 #마포미용실", "충족"), ("글자 수", "1,000자 이상", "충족"),
+                    ("이미지", "10개 이상", "미충족"), ("지도 필수", "지도 첨부", "수동확인")])
     return K.pop("pop-insp", "리뷰 검수",
                  '<p><b>맛집탐방러</b> · 블로그 <a href="#" class="ext">blog.naver.com/…</a></p>'
                  f'<table class="otable"><thead><tr><th>항목</th><th>기준</th><th>충족</th></tr></thead><tbody>{rows}</tbody></table>'

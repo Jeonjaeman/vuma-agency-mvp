@@ -239,10 +239,12 @@ def build_video():
     price = (f'<div class="price"><span>클립 <b>{K.won(VIDEO_PRICE)}</b></span><span>릴스 <b>{K.won(VIDEO_PRICE)}</b></span>'
              f'<span>쇼츠 <b>{K.won(VIDEO_PRICE)}</b></span><span class="sp"></span>'
              f'<span>보유 포인트 <b>통포인트 {K.won(TONG_POINT)}</b></span></div>'
-             '<p class="notice">※ 요청하시면 포인트가 바로 차감됩니다.</p>'
+             '<p class="notice">※ 요청하시면 포인트가 바로 차감됩니다. 운영자가 반려하거나 영상을 받기 전에 취소하시면 전액 환불됩니다.</p>'
              f'<p class="notice add">통포인트에서 차감 · 업체별 사용내역에 표시{K.add_tag()}</p>')
-    kinds = "".join(f'<label><input type="radio" name="vk"{" checked" if i == 0 else ""}> {k}</label>'
-                    for i, k in enumerate(["클립", "릴스", "쇼츠"]))
+    # 종류 설명 = 실서버 videoRequest.class.php
+    kinds = "".join(f'<label><input type="radio" name="vk"{" checked" if i == 0 else ""}> {k} <small class="muted">{d}</small></label>'
+                    for i, (k, d) in enumerate([("클립", "짧게 자른 홍보용 영상"), ("릴스", "인스타그램 릴스 (세로형)"),
+                                                ("쇼츠", "유튜브 쇼츠 (세로형)")]))
     pp = K.pop("pop-vreq", "영상 제작 요청",
                f'<div class="fl">영상 종류<div class="radios">{kinds}</div></div>'
                '<label class="fl">요청사항<textarea placeholder="강조할 장면, 길이, 자막 등"></textarea></label>'

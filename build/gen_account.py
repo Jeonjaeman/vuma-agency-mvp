@@ -72,6 +72,17 @@ esc = K.esc
 won = K.won
 AGENCY = "애니라인 마케팅"
 REG_ACC = ("신한은행", "110-***-**1234", "(주)애니라인마케팅")      # 더미 · 가림 표시
+# [2026-11-10] 은행 = 실서버 $BANKLIST(core\inc\define.inc.php · 자주 쓰는 순)
+BANKS = ["국민은행", "신한은행", "우리은행", "하나은행", "농협은행", "기업은행", "카카오뱅크", "토스뱅크", "케이뱅크", "SC제일은행",
+         "새마을금고", "신협", "우체국", "수협은행", "산업은행", "부산은행", "대구은행", "경남은행", "광주은행", "전북은행", "제주은행"]
+
+
+def bank_opts(sel=""):
+    return '<option>은행을 선택하세요</option>' + "".join(f'<option{" selected" if b == sel else ""}>{b}</option>' for b in BANKS)
+
+
+# 1:1 문의 유형(광고주) = 실서버 campaignTaxonomy(inquiry)
+QNA_TYPES = ["캠페인 등록/심사", "리뷰어/선정", "리뷰 검수", "포인트/정산", "결제/이용권", "계정/기타"]
 EXTRA = K.CSS + '<link rel="stylesheet" href="css/account.css">'
 
 
@@ -200,8 +211,8 @@ def tab_req():
 
 def tab_refund():
     bank, acc, holder = REG_ACC
-    other = ('<div class="rc rc-other"><label class="fl">은행<select><option>은행 선택</option><option>국민</option><option>신한</option>'
-             '<option>우리</option><option>하나</option></select></label><label class="fl">계좌번호<input type="text" placeholder="- 없이 숫자만"></label>'
+    other = (f'<div class="rc rc-other"><label class="fl">은행<select>{bank_opts()}</select></label>'
+             '<label class="fl">계좌번호<input type="text" placeholder="숫자와 - 만"></label>'
              '<label class="fl">예금주<input type="text"></label></div>')
     return ('<div class="form-c refund">'
             '<p class="okline"><span class="st st-green">본인확인 완료</span> 대표 이정민 · 2026-10-02 — 본인확인 후 환불을 신청할 수 있습니다</p>'
@@ -343,12 +354,14 @@ FEATS = [("campaignLoad", "이전 캠페인 불러오기"), ("keywordSuggest", "
          ("sendNumber", "발신번호 관리")]
 LIMITS = ["캠페인당 모집인원(명)", "한 달 등록 캠페인 수(개)", "동시 진행 캠페인 수(개)"]
 ADD_LIMITS = ["관리 업체 수(곳)", "직원 수(명)"]
-# (키, 이름, 월 요금, 한도 3 + 대행사 한도 2(0 = 무제한), 기능 코드) — 이름·금액은 예시(Q3)
-GRADES = [("free", "무료 이용", 0, (10, 3, 3, 5, 2), ["campaignLoad", "keywordSuggest"]),
-          ("std", "스탠다드", 99000, (30, 20, 10, 20, 5), ["campaignLoad", "keywordSuggest", "autoSend", "sendNumber", "resultExcel"]),
-          ("dlx", "디럭스", 199000, (50, 50, 30, 50, 15), ["campaignLoad", "keywordSuggest", "autoSend", "sendNumber", "resultExcel",
-                                                          "directSend", "photoManage", "rerecruitRequest"]),
-          ("pre", "프리미엄", 349000, (0, 0, 0, 0, 0), [f for f, _l in FEATS])]
+# [2026-11-10] 등급 = 실서버 advertiserGrade seed(_sql\advertiserGrade.sql · advFeature.sql)
+#   (키, 이름, 월 요금 — None = 운영 DB 값(seed 0 = 판매 안 함), 한도 3 + 대행사 한도 2 — None = DB 값, 기능, 승급 조건 완료 건수, 유료)
+#   seed 는 추가모집 요청(rerecruitRequest)만 빼고 모든 등급에 기능을 다 연다 — 등급별로 나누는 것은 DB 값
+SEED_FEATS = [f for f, _l in FEATS if f != "rerecruitRequest"]
+GRADES = [("bronze", "브론즈", 0, None, SEED_FEATS, 0, False), ("silver", "실버", 0, None, SEED_FEATS, 5, False),
+          ("gold", "골드", 0, None, SEED_FEATS, 20, False), ("platinum", "플래티넘", None, None, SEED_FEATS, 50, True),
+          ("vip", "VIP", None, None, SEED_FEATS, 100, True)]
+CUR_GRADE = "bronze"
 MONTHS = [(1, 0), (3, 5), (6, 10), (12, 15)]      # (개월, 할인 %) — 예시
 PLAN_END = P.d_of(142)                            # 사이드바 "무료 이용 중 · D-142"
 
@@ -359,10 +372,14 @@ def add_months(d, m):
 
 
 def lim(v):
+    if v is None:
+        return '<span class="muted">DB 값</span>'
     return "무제한" if v == 0 else f"{v:,}"
 
 
 def price_lines(monthly):
+    if monthly is None:     # 유료 등급 — 금액은 운영 DB(마스터에서 정함)
+        return '<p class="amt"><b>금액 미정</b> <small class="muted">운영 DB 값 · Q3</small></p>'
     out = []
     for m, dc in MONTHS:
         total = monthly * m * (100 - dc) // 100 // 100 * 100
@@ -372,24 +389,32 @@ def price_lines(monthly):
     return "".join(out)
 
 
-def grade_card(key, name, monthly, lims, feats):
-    cur = key == "free"
-    ls = "".join(f"<li>{LIMITS[i]} <b>{lim(lims[i])}</b></li>" for i in range(3))
-    ls += "".join(f'<li class="add">{ADD_LIMITS[i]} <b>{lim(lims[3 + i])}</b>{K.add_tag()}</li>' for i in range(2))
+def grade_card(key, name, monthly, lims, feats, done, paid):
+    cur = key == CUR_GRADE
+    ls = "".join(f"<li>{LIMITS[i]} <b>{lim(lims and lims[i])}</b></li>" for i in range(3))
+    ls += "".join(f'<li class="add">{ADD_LIMITS[i]} <b>{lim(lims and lims[3 + i])}</b>{K.add_tag()}</li>' for i in range(2))
     names = [lab for code, lab in FEATS if code in feats]
     fs = "".join(f"<li>✓ {x}</li>" for x in names[:3]) + (f'<li class="muted">그 외 {len(names) - 3}개</li>' if len(names) > 3 else "")
-    foot = ('<p class="muted">가입 혜택 · 결제 없음</p>' if cur else price_lines(monthly)
-            + K.btn("이 등급으로 결제", f"시안: {name} 결제창(카드)으로 이동합니다", "btn primary wide"))
-    return (f'<div class="gcard g-{key}{" cur" if cur else ""}"><h3>{name}{K.badge("st-green", "이용중") if cur else ""}</h3>'
+    cond = "기본 등급. 가입 즉시 부여됩니다." if done == 0 else f"완료 캠페인 {done}건 이상."
+    if cur:
+        foot = '<p class="muted">지금 등급 · 결제 없음</p>'
+    elif paid:
+        foot = price_lines(monthly) + K.btn("이 등급으로 결제", f"시안: {name} 결제창(카드)으로 이동합니다", "btn primary wide")
+    else:
+        foot = '<p class="muted">조건을 채우면 운영자가 확인 후 올려 드립니다(자동 승급 아님)</p>'
+    return (f'<div class="gcard g-{key}{" cur" if cur else ""}"><h3>{name}{K.badge("st-green", "이용중") if cur else ""}'
+            f'{K.badge("st-purple", "유료") if paid else ""}</h3><p class="help">{cond}</p>'
             f'<ul class="glim">{ls}</ul><ul class="gfeat">{fs or "<li class=muted>등급 기능 없음</li>"}</ul>{foot}</div>')
 
 
 def compare_table():
     th = "".join(f"<th>{g[1]}</th>" for g in GRADES)
-    rows = [f'<tr><th scope="row">이용 요금(월)</th>{"".join(f"<td>{g[2]:,}원</td>" if g[2] else "<td>무료</td>" for g in GRADES)}</tr>']
+    fee = "".join("<td>준비중</td>" if g[2] is None else "<td>무료</td>" for g in GRADES)   # 광고주 비교표 표기(n원 / 준비중 / 무료)
+    rows = [f'<tr><th scope="row">이용 요금(월)</th>{fee}</tr>',
+            f'<tr><th scope="row">승급 조건</th>{"".join(f"<td>완료 {g[5]}건</td>" for g in GRADES)}</tr>']
     for i, lab in enumerate(LIMITS + ADD_LIMITS):
         cls = ' class="add-c"' if i >= 3 else ""
-        rows.append(f'<tr{cls}><th scope="row">{lab}{K.add_tag() if i >= 3 else ""}</th>{"".join(f"<td>{lim(g[3][i])}</td>" for g in GRADES)}</tr>')
+        rows.append(f'<tr{cls}><th scope="row">{lab}{K.add_tag() if i >= 3 else ""}</th>{"".join(f"<td>{lim(g[3] and g[3][i])}</td>" for g in GRADES)}</tr>')
     for code, lab in FEATS:
         rows.append(f'<tr><th scope="row">{lab} <small>{code}</small></th>'
                     + "".join('<td class="y">✓</td>' if code in g[4] else '<td class="n">—</td>' for g in GRADES) + "</tr>")
@@ -399,9 +424,8 @@ def compare_table():
 
 
 def tab_buy():
-    d_left = (PLAN_END - P.d_of(0)).days
-    status = (f'<div class="kpis st2"><div class="kpi"><p>현재 등급</p><b>무료 이용</b><small>가입 혜택</small></div>'
-              f'<div class="kpi"><p>이용 기간</p><b>{ymd(PLAN_END)} 까지</b><small>D-{d_left}{" · 만료 임박" if d_left <= 14 else ""}</small></div></div>')
+    status = ('<div class="kpis st2"><div class="kpi"><p>현재 등급</p><b>브론즈</b><small>기본 등급 · 완료 캠페인 5건이면 실버</small></div>'
+              '<div class="kpi"><p>이용 기간</p><b>이용 중인 유료등급이 없습니다</b><small>유료 = 플래티넘 · VIP</small></div></div>')
     months = radios("pm", [(m, f"{m}개월") for m, _d in MONTHS])
     notes = info_box("유의사항", ["결제는 카드 결제만 가능합니다.", "결제가 완료되면 즉시 등급이 적용되고 이용 기간이 시작됩니다.",
                                 "이용 중인 등급을 같은 등급으로 결제하면 이용 기간이 연장됩니다.",
@@ -410,7 +434,7 @@ def tab_buy():
     blocked = addbox('막힌 기능 화면 문구(광고주와 같음): "{기능}은/는 등급별 기능입니다" / "지금 등급에서는 사용할 수 없습니다. '
                      '이용을 원하시면 1:1 문의로 요청해 주세요." [1:1 문의하기]', "참고")
     return ('<div class="plan-buy">' + status
-            + '<p class="eg-note">등급 이름·금액은 예시 — Q3 결정 대기</p>'
+            + '<p class="eg-note">등급 이름·승급 조건 = 실서버 seed. 유료 금액·한도·등급별 기능 나눔 = 운영 DB 값(대행사 금액은 Q3 결정 대기)</p>'
             + f'<h2 class="sec-t"><span class="stepn">1</span> 이용 기간 선택</h2>{months}'
             + '<h2 class="sec-t"><span class="stepn">2</span> 등급 선택 후 결제</h2>'
             + f'<div class="gcards">{"".join(grade_card(*g) for g in GRADES)}</div>'
@@ -420,8 +444,7 @@ def tab_buy():
 def tab_plan_hist():
     heads = [("번호", "num"), ("등급", ""), ("결제일시", ""), ("결제수단", ""), ("결제금액", "num"), ("이용기간", ""),
              ("만료일", ""), ("상태", ""), ("영수증", "")]
-    rows = [("", ["2", "스탠다드", dt(-3, "11:20"), "신용카드", "99,000원", "1개월", "—", K.badge("st-red", "결제실패"), "—"]),
-            ("", ["1", "무료 이용", dt(-40, "10:00"), "—", "0원", "6개월", ymd(PLAN_END), K.badge("st-green", "이용중"), "—"])]
+    rows = [("", ["1", "플래티넘", dt(-3, "11:20"), "신용카드", "—", "1개월", "—", K.badge("st-red", "결제실패"), "—"])]
     return (K.table(heads, rows)
             + '<p class="help">상태: 결제대기 · 이용중 · 결제실패 · 기간만료. 사용료는 대행사 하나에 매깁니다(업체마다 아님).</p>')
 
@@ -434,12 +457,27 @@ def plan_page():
 
 
 # ════════════════ 3. 문자설정(sms.html) ════════════════
-SMS_PRICE = [("문자", 20), ("장문", 50), ("알림톡", 15)]       # 예시 단가(P)
-AUTO = [("선정 안내", "선정 확정 즉시 · 항상 발송 · 뷰마 부담", True),
-        ("미선정 안내", "캠페인 시작일", False), ("방문 하루 전 안내", "방문 예정일 하루 전", False),
-        ("리뷰 마감 임박 안내", "3일 전", False), ("리뷰 미등록 안내", "마감 다음날", False),
-        ("리뷰 감사 인사", "검수 승인 즉시", False), ("영상 제작 완료", "제작 완료 즉시", False),
-        ("리뷰등록 연장 신청", "리뷰어가 연장 신청하면", False), ("리뷰등록 연장 완료", "연장 승인 즉시", False)]
+# [2026-11-10] 단가 = 실서버 advPrice 기본값(문자 단문 20P · 장문 50P(90바이트 넘으면) · 알림톡 15P · 메일 무료)
+SMS_PRICE = [("문자", 20), ("장문", 50), ("알림톡", 15)]
+# 상황 · 시점 · 항상 발송 = 실서버 autoSend.class.php, 기본 문구 = _sql\autoSend_seed*.sql 그대로
+AUTO = [("선정 안내", "선정 확정 즉시 · 비용은 뷰마 부담", True,
+         "[{업체명}] {닉네임}님, {캠페인명} 체험단에 선정되셨습니다. 자세한 내용은 뷰마에서 확인해 주세요."),
+        ("미선정 안내", "캠페인 시작일 (매일 오전)", False,
+         "[{업체명}] {닉네임}님, {캠페인명} 선정 결과 아쉽게 이번에는 모시지 못했습니다. 다음 기회에 뵙겠습니다."),
+        ("방문 하루 전 안내", "방문일 1일 전 (매일 오전)", False,
+         "[{업체명}] {닉네임}님, 내일({방문일}) 방문 예정입니다. 일정 확인 부탁드립니다."),
+        ("리뷰 마감 임박 안내", "리뷰 마감일 3일 전 (매일 오전)", False,
+         "[{업체명}] {닉네임}님, {캠페인명} 리뷰 마감일이 {마감일}입니다. 등록 부탁드립니다."),
+        ("리뷰 미등록 안내", "리뷰 마감일 다음날 (매일 오전)", False,
+         "[{업체명}] {닉네임}님, {캠페인명} 리뷰가 아직 등록되지 않았습니다. 확인 부탁드립니다."),
+        ("리뷰 감사 인사", "리뷰 검수 승인 즉시", False,
+         "[{업체명}] {닉네임}님, {캠페인명} 리뷰 감사합니다. 다음에도 좋은 기회로 뵙겠습니다."),
+        ("영상 제작 완료", "운영자가 영상을 올린 즉시 · 뷰마 부담", True,
+         "[뷰마] 요청하신 {영상종류} 영상 제작이 완료되었습니다. 영상 제작 요청 화면에서 내려받으실 수 있습니다."),
+        ("리뷰등록 연장 신청", "연장 요청 즉시 (나에게)", False,
+         "[뷰마] {캠페인명}에서 {닉네임}님이 리뷰등록 기간 연장을 요청했습니다. 리뷰어 관리에서 처리해 주세요."),
+        ("리뷰등록 연장 완료", "연장 승인 즉시", False,
+         "[뷰마] {닉네임}님, {캠페인명} 리뷰등록 기간이 {연장마감일}까지 연장되었습니다. 기한 내 등록 부탁드립니다.")]
 
 
 def tab_verify():
@@ -450,12 +488,11 @@ def tab_verify():
             + addbox("인증은 대행사 하나에 1번 — 업체마다 하지 않습니다."))
 
 
-def auto_row(i, sit, when, always):
-    use = '<input type="checkbox" checked disabled aria-label="사용">' if always else \
-        f'<input type="checkbox"{" checked" if i in (2, 3, 4, 5) else ""} aria-label="{sit} 사용">'
+def auto_row(i, sit, when, always, text):
+    use = (f'<input type="checkbox" checked disabled aria-label="사용"> {K.badge("st-purple", "항상 발송")}' if always else
+           f'<input type="checkbox"{" checked" if i in (3, 4, 5) else ""} aria-label="{sit} 사용">')
     ch = '<span class="muted">알림톡(뷰마 부담)</span>' if always else \
-        '<select aria-label="보낼 방법"><option>문자</option><option selected>알림톡</option><option>메일(무료)</option></select>'
-    text = f"[{{업체명}}] {sit} — {{리뷰어}}님, {{캠페인}} 관련 안내드립니다."
+        '<select aria-label="보낼 방법"><option>기본 문구 (운영자 지정)</option><optgroup label="문자"><option>정중한 안내</option><option>짧게</option></optgroup><optgroup label="메일 (무료)"><option>기본 안내</option></optgroup></select>'
     return ("", [use, f"<b>{sit}</b><br><small>{when}</small>",
                  f'<div class="msgc"><p class="dflt"><small>기본 문구(운영자 지정)</small><br>{esc(text)}</p>{ch}</div>'])
 
@@ -546,9 +583,13 @@ def sms_page():
 
 
 # ════════════════ 4. 패널티(penalty.html) ════════════════
-RULES = [(5, "경고 알림(메일·문자)"), (10, "7일간 새 캠페인 등록 제한"), (20, "30일간 새 캠페인 등록 제한"), (30, "서비스 이용 정지(1:1 문의로 해제 요청)")]
-PEN_REASON = [("자동", "선정 마감 3일 지남 — 미선정", 2), ("자동", "리뷰 검수 7일 넘김", 1), ("자동", "리뷰어 지급 확정 지연", 2),
-              ("운영자", "캠페인 무단 중단", 3), ("자동", "체험 제공 누락 신고 확인", 2)]
+# [2026-11-10] 실서버 penaltyRule — 광고주 사유는 "모집완료 후 캠페인 숨김/취소" 2점(자동) 하나.
+#   광고주 누적 기준은 seed 없음(DB 값) → 구간은 리뷰어 seed(fix_penaltyThreshold_20261029: 20 · 30 · 50점)를 빌려 표시
+RULES = [(20, "7일간 새 캠페인 등록 제한"), (30, "30일간 새 캠페인 등록 제한"), (50, "영구 이용 제한")]
+PEN_REASON = [("모집완료 후 캠페인 숨김/취소", "리뷰어가 신청·선정된 캠페인을 모집완료 이후 숨김/취소", 2),
+              ("모집완료 후 캠페인 숨김/취소", "리뷰어가 신청·선정된 캠페인을 모집완료 이후 숨김/취소", 2),
+              ("관리자 차감", "소명 확인 — 업체 폐업으로 인한 취소", -2),
+              ("모집완료 후 캠페인 숨김/취소", "리뷰어가 신청·선정된 캠페인을 모집완료 이후 숨김/취소", 2)]
 
 
 def pen_rows():
@@ -556,7 +597,7 @@ def pen_rows():
     out = []
     for i, (kind, why, pt) in enumerate(PEN_REASON):
         c = r.choice([x for x in D.CAMPS if x["dts"]])
-        out.append((kind, why, c, pt, -r.randint(3, 80), "취소됨" if i == 3 else "적용중"))
+        out.append((kind, why, c, pt, -r.randint(3, 80), "취소됨" if i == 1 else "적용중"))
     out.sort(key=lambda x: x[4], reverse=True)
     return out
 
@@ -577,7 +618,7 @@ def penalty_page():
             + band + addbox("패널티는 대행사에 쌓입니다(Q16 확인 필요) — 어느 업체 캠페인에서 생겼는지 업체 칸으로 보입니다.")
             + '<h2 class="sec-t">패널티 점수별 제재 기준</h2>'
             + K.table([("누적 점수", ""), ("제재 내용", ""), ("현재", "")], rule_rows)
-            + '<p class="help">기준 점수·제재 내용은 예시 — 운영 DB 값을 씁니다.</p>'
+            + '<p class="help">광고주 누적 기준은 운영 DB 값(seed 없음) — 점수 구간은 리뷰어 기준(20 · 30 · 50점)을 빌려 보여 줍니다. 관리자 차감은 파란 마이너스.</p>'
             + '<h2 class="sec-t">나에게 부여된 패널티</h2>' + K.table(heads, trs))
     write("penalty.html", "패널티", "pen", body)
 
@@ -610,7 +651,7 @@ def sec_refund_acc():
                    [("", ["2026-10-02", bank, acc, holder, "대표"]), ("", ["2026-03-15", "국민은행", "123-**-****-567", holder, "대표"])])
     return ('<section class="isec" id="s-acc"><h2 class="sec-t">환불계좌</h2>'
             f'<p>현재 계좌 <b>{bank} {acc}</b> · 예금주 {holder}</p><div class="form-c">'
-            '<label class="fl">은행<select><option>은행 선택</option><option>국민</option><option selected>신한</option><option>우리</option></select></label>'
+            f'<label class="fl">은행<select>{bank_opts("신한은행")}</select></label>'
             '<label class="fl">계좌번호<input type="text" placeholder="- 없이 숫자만"></label>'
             '<label class="fl">예금주 <small>사업자 명의가 아니면 환불이 거절될 수 있습니다.</small><input type="text"></label>'
             '<label class="fl">비밀번호 확인<input type="password" autocomplete="off"></label>'
@@ -627,8 +668,9 @@ def sec_leave():
             '<ul class="warn"><li>해지하면 모든 직원 계정이 함께 닫힙니다.</li><li>남은 포인트는 환불 신청 후 해지해야 합니다 — 해지 뒤에는 돌려받을 수 없습니다.</li>'
             '<li>캠페인·리뷰 기록과 보고서 링크는 다시 볼 수 없습니다.</li></ul>'
             f'<div class="add"><h3 class="sub-t">먼저 정리할 것{K.add_tag()}</h3><ul class="todo">{"".join(f"<li>{x}</li>" for x in todo)}</ul></div>'
-            '<div class="form-c"><label class="fl">해지 사유<select><option>선택</option><option>서비스를 더 이상 쓰지 않음</option>'
-            '<option>비용 부담</option><option>다른 서비스 이용</option><option>기타</option></select></label>'
+            # 사유 목록은 실서버 DB(taxonomy withdrawAd)에만 있음 — 코드 주석의 예시만 씀
+            '<div class="form-c"><label class="fl">해지 사유 (선택)<select><option>선택해 주세요</option><option>효과가 없어서</option>'
+            '<option>비용이 부담되어서</option><option>기타</option></select><small>사유 목록은 운영 DB 값</small></label>'
             '<label class="fl">남기실 말씀<textarea></textarea></label>'
             + K.btn("해지 신청", "시안: 먼저 정리할 것이 남아 있어 해지할 수 없습니다", "btn ghost-danger") + "</div></section>")
 
@@ -688,11 +730,12 @@ QNA_ST = {"접수중": "st-gray", "답변대기": "st-orange", "답변중": "st-
 
 
 def tab_qna():
-    rows = [("포인트", "가상계좌 입금했는데 충전이 안 됐어요", "답변중", -1, "김지은"), ("캠페인", "추가모집 요청 기준이 궁금합니다", "답변완료", -5, "박서준"),
-            ("계정", "직원 계정 추가 가능 수", "답변완료", -12, "대표"), ("기타", "보고서 링크에 로고 넣기", "접수중", 0, "김지은")]
+    rows = [("포인트/정산", "가상계좌 입금했는데 충전이 안 됐어요", "답변중", -1, "김지은"),
+            ("캠페인 등록/심사", "추가모집 요청 기준이 궁금합니다", "답변완료", -5, "박서준"),
+            ("계정/기타", "직원 계정 추가 가능 수", "답변완료", -12, "대표"), ("리뷰 검수", "미션 미충족 리뷰 승인해도 되나요", "접수중", 0, "김지은")]
     trs = [("", [t, q, K.badge(QNA_ST[s], s), f"{P.d_of(off):%Y-%m-%d}", w]) for t, q, s, off, w in rows]
-    form = ('<label class="fl">문의유형<select><option>계정</option><option>캠페인</option><option>포인트</option><option>리뷰</option><option>기타</option></select></label>'
-            '<label class="fl">제목<input type="text"></label>'
+    form = (f'<label class="fl">문의유형<select>{"".join(f"<option>{t}</option>" for t in QNA_TYPES)}</select></label>'
+            '<label class="fl">제목<input type="text" placeholder="제목을 입력해 주세요."></label>'
             '<label class="fl">문의내용 <small>2000자까지</small><textarea maxlength="2000"></textarea></label>'
             f'{file_in("첨부파일")}'
             f'<label class="fl add">관련 업체{K.add_tag()}<select><option>업체 없음(대행사 전체)</option>'

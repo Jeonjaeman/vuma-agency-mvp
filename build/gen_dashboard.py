@@ -734,7 +734,7 @@ def sidebar(issue_total, active="dash"):
             f'<a class="btn primary new-camp" href="campaign_new.html">+ 새 캠페인 등록</a>'
             f'<nav class="nav-scroll" aria-label="주 메뉴"><ul>{"".join(parts)}</ul></nav>'
             f'<div class="side-foot"><p class="bal-l">통포인트 사용 가능</p><p class="bal">{BALANCE:,}<small>P</small></p>'
-            '<p class="plan">무료 이용 중 · D-142</p></div></aside>')
+            '<p class="plan">브론즈 · 유료등급 없음</p></div></aside>')
 
 
 def scope_pop():

@@ -17,7 +17,7 @@ P, G = D.P, D.G
 esc = P.esc
 TODAY = P.TODAY
 OWNER = {b["id"]: (b["owner"][1] if b["owner"] else "미담당") for b in P.BIZS}
-BANKS = ["국민", "신한", "우리", "하나", "카카오뱅크", "토스뱅크", "농협"]
+BANKS = ["국민은행", "신한은행", "우리은행", "하나은행", "카카오뱅크", "토스뱅크", "농협은행"]   # 실서버 $BANKLIST 이름
 
 
 def won(n):

@@ -75,8 +75,10 @@ def owner_html(b):
 
 def offer(c):
     """제공내용(리뷰어에게 보이는 줄)"""
-    return {"v": f'{c["b"]["name"]} 방문 체험 + 리뷰 포인트 {c["reward"]:,}P',
-            "s": f'제품 배송 + 리뷰 포인트 {c["reward"]:,}P', "p": f'원고료 {c["reward"]:,}P · 보도자료 제공'}[c["ty"]]
+    # 실서버 등록 칸 예시("5만원 상당 자유 체험권") 꼴 + 포인트 지급 "1인당 ___ P"
+    worth = {5000: "3만원", 10000: "5만원", 15000: "7만원", 30000: "10만원"}[c["reward"]]
+    return {"v": f'{worth} 상당 자유 체험권 · 1인당 {c["reward"]:,}P',
+            "s": f'{worth} 상당 제품 배송 · 1인당 {c["reward"]:,}P', "p": f'원고료 1인당 {c["reward"]:,}P · 보도자료 제공'}[c["ty"]]
 
 
 def dday(c):
@@ -203,13 +205,23 @@ def progress(c):
 def tab_ov(c):
     b, ty = c["b"], c["ty"]
     x = P.extra(b)
-    place = {"v": ("방문/예약", f'{x["reg"]} · 업체 주소 · 방문 전 전화 예약'), "s": ("배송안내", "택배 발송 · 선정 후 3일 안에 출고"),
+    # 안내문 · 미션 = 실서버 등록 화면 기본 문구(campaignCreate.inc.html L115-139) · 리뷰 미션 칸($CHARLEN · $IMGCNT)
+    place = {"v": ("방문/예약", f'[{x["reg"]}] · 리뷰어와 일정협의 · 체험시간 주중 13:00 ~ 18:00<br>'
+                               '★방문 2~3일전 반드시 예약 문의 후 방문 부탁 드립니다.<br>예약 문의가 없을 시 체험이 불가능 할 수 있으니 유의 바랍니다.<br>★당일 체험 불가'),
+             "s": ("배송안내", "택배, 순차발송 · 배송정보는 선정 후 확인"),
              "p": ("전달 자료", "보도자료 · 이미지 · 가이드라인 — 선정된 리뷰어 탭 '리뷰어에게 전달할 자료'")}[ty]
+    ch_guide = {"인스타": "표시광고법에 따라 #협찬 해시태그를 맨앞에 표기해주세요.", "릴스": "표시광고법에 따라 #협찬 해시태그를 맨앞에 표기해주세요.",
+                "쇼츠": "표시광고법에 따라 영상 설명 맨 앞에 #협찬 을 표기해주세요.",
+                "구매평": "구매평에 지정한 검색 키워드를 포함해주세요. 대가를 받아 작성한 후기임을 함께 밝혀주세요."
+                }.get(c["ch"], "위의 키워드 중 제목, 본문, #태그에 아래와 같이 키워드를 기재해주세요.")
+    r = random.Random("mis-" + c["id"])
+    mission = f'키워드 필수 · {"지도 필수 · " if ty == "v" else ""}글자 수 {r.choice([800, 1000, 1200, 1500])}자 이상 · 이미지 {r.choice([5, 10, 15])}개 이상'
     body = (f'<section><h3 class="sec-t">제공내용</h3><p>{esc(offer(c))}</p></section>'
             f'<section><h3 class="sec-t">{place[0]}</h3><p>{place[1]}</p></section>'
-            f'<section><h3 class="sec-t">채널별 키워드</h3><p>{c["ch"]} · #{region(b)}{P.guess_ind(b["name"])} #{esc(b["name"].split()[-1])}</p></section>'
-            '<section><h3 class="sec-t">가이드라인/요청사항</h3><p>사진 5장 이상 · 1,000자 이상 · 광고 표시 문구 필수</p></section>'
-            '<section><h3 class="sec-t">NOTICE</h3><p class="muted">리뷰 등록 후 6개월 유지 · 미등록 시 패널티</p></section>')
+            f'<section><h3 class="sec-t">채널별 키워드</h3><p>{c["ch"]} · #{region(b)}{P.guess_ind(b["name"])} #{esc(b["name"].split()[-1])}<br>'
+            f'<span class="muted">{ch_guide}</span></p></section>'
+            f'<section><h3 class="sec-t">가이드라인/요청사항</h3><p>{mission}<br>● 위치 정보(지도 첨부), 운영 시간을 반드시 함께 작성해 주세요.</p></section>'
+            '<section><h3 class="sec-t">NOTICE</h3><p class="muted">리뷰 마감일까지 미등록 시 리뷰 미제출 패널티(3점 · 30일 신청 제한) · 유예 7일</p></section>')
     if c["dts"]:
         tl = "".join(f'<li class="tl k-{k}{" past" if c["dts"][k] < 0 else ""}{" now" if c["dts"][k] == 0 else ""}"><i></i>'
                      f'<b>{P.EXP_LABEL[ty] if k == "exp" else lab}</b><span>{P.mdw(c["dts"][k])}</span></li>' for k, lab in P.KIND)
@@ -410,7 +422,11 @@ def pops():
                  '<div class="radios"><label><input type="radio" name="ed" checked> 캠페인설정</label><label><input type="radio" name="ed"> 기본정보</label>'
                  '<label><input type="radio" name="ed"> 방문 및 예약안내</label><label><input type="radio" name="ed"> 홍보내용</label></div>',
                  "수정 화면 열기", "시안: 등록 단계 화면을 그대로 씁니다")
-    pen = K.pop("pop-pen", "패널티 부여", '<label class="fl">사유<select><option>리뷰 미등록 (+3점)</option><option>노쇼 (+5점)</option></select></label>'
+    # 사유 · 점수 = 실서버 penaltyRule(리뷰어)
+    reasons = "".join(f"<option>{n} (+{p}점 · {d})</option>" for n, p, d in
+                      [("리뷰 미제출", 3, "30일 신청 제한"), ("부실 리뷰", 2, "14일"), ("방문 미실시", 3, "30일"),
+                       ("노쇼 (No-show)", 3, "30일"), ("허위 정보 입력", 5, "영구 제한")])
+    pen = K.pop("pop-pen", "패널티 부여", f'<label class="fl">사유<select>{reasons}</select></label>'
                 '<label class="fl">내용<textarea placeholder="어떤 문제가 있었는지 적어주세요"></textarea></label>', "부여", "패널티를 부여했습니다")
     return rr + edit + pen
 
