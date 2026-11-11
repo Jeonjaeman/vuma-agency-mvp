@@ -352,22 +352,22 @@ def tbody_by_staff(bizs):
 def point_rows():
     return ('<dl class="kv"><dt>추가 예치 필요</dt><dd>165,000P</dd><dt>사용 가능 잔액</dt><dd class="bad">84,500P</dd></dl>'
             '<p class="ctx">초과모집 3명 요청 · 잔액이 부족해 대기 중입니다.</p>'
-            '<div class="acts wide"><a class="btn primary" href="point.html">충전하기 (포인트) →</a>'
-            '<button type="button" class="btn" disabled title="잔액이 부족합니다">예치하고 진행</button></div>')
+            '<div class="acts wide"><a class="ag-btn primary" href="point.html">충전하기 (포인트) →</a>'
+            '<button type="button" class="ag-btn" disabled title="잔액이 부족합니다">예치하고 진행</button></div>')
 
 
 def owner_rows():
     opts = "".join(f'<option>{s[1]} ({s[3]})</option>' for s in STAFF)
     return ('<p class="ctx">담당자가 없어 이 업체의 이슈 알림이 관리자에게만 갑니다.</p>'
             f'<div class="assign"><select class="input" aria-label="담당자 선택"><option>담당자 선택</option>{opts}</select>'
-            '<button type="button" class="btn primary" data-done="배정됨" data-whole>배정</button></div>'
-            '<button type="button" class="btn link" data-done="내가 맡음" data-whole>내가 맡기</button>')
+            '<button type="button" class="ag-btn primary" data-done="배정됨" data-whole>배정</button></div>'
+            '<button type="button" class="ag-btn link" data-done="내가 맡음" data-whole>내가 맡기</button>')
 
 
 def late_rows(it, b=None):
     return (f'<p class="ctx">모집 마감이 {-it["due"]}일 지났는데 선정 단계로 넘어가지 않았습니다.</p>'
-            '<div class="acts wide"><button type="button" class="btn primary" data-done="선정 단계로 넘김" data-whole>이대로 진행</button>'
-            f'<a class="btn" href="{detail_href(b, "late", it) if b else "#"}">기간 연장 (상세 관리) →</a></div>')
+            '<div class="acts wide"><button type="button" class="ag-btn primary" data-done="선정 단계로 넘김" data-whole>이대로 진행</button>'
+            f'<a class="ag-btn" href="{detail_href(b, "late", it) if b else "#"}">기간 연장 (상세 관리) →</a></div>')
 
 
 def by_campaign(items):
@@ -420,10 +420,10 @@ GRADE_CLS = {"최적화": "bi-opt", "준최적화": "bi-semi", "일반": "bi-nor
 def evidence_html(bi, hist):
     """신청자 줄의 근거 두 줄: ① 블로그지수 ② 뷰마 이력·평점"""
     if bi:
-        l1 = (f'<span class="bi {GRADE_CLS[bi["grade"]]}">{bi["grade"]}</span><b class="bi-score">{bi["score"]}</b>'
+        l1 = (f'<span class="bi {GRADE_CLS[bi["grade"]]}">{bi["grade"]}</span><b class="ag-bi-score">{bi["score"]}</b>'
               f'<span class="ev">일 방문 {bi["visit"]:,} · 최근 30일 {bi["post30"]}글 · 이웃 {bi["neighbor"]:,}</span>')
     else:
-        l1 = '<span class="bi bi-none">지수 수집 전</span>'
+        l1 = '<span class="bi ag-bi-none">지수 수집 전</span>'
     if hist:
         warn = '<span class="pen">패널티 이력</span>' if hist["penalty"] else ""
         ours = f'<span class="ours">우리와 {hist["ours"]}회</span>' if hist["ours"] else ""
@@ -451,12 +451,12 @@ def applicant_li(due, mark=False):
             f'<div class="item-main"><b>{nick}</b>{evidence_html(bi, hist)}'
             f'<span class="memo">"{rnd.choice(["주말 방문 가능해요", "아이와 함께 방문 예정", "사진 위주로 작성합니다", "평일 저녁 방문"])}"</span>'
             f'<a href="#" class="blog-open js-blog">블로그 보기 ↗</a>{gate}</div>'
-            f'<div class="acts"><button type="button" class="btn sm primary js-pick"{b_attr}{lock} data-done="선정됨">선정</button>'
-            f'<button type="button" class="btn sm"{b_attr} data-done="보류">보류</button></div></li>')
+            f'<div class="acts"><button type="button" class="ag-btn sm primary js-pick"{b_attr}{lock} data-done="선정됨">선정</button>'
+            f'<button type="button" class="ag-btn sm"{b_attr} data-done="보류">보류</button></div></li>')
 
 
 SORT_CHIPS = ('<div class="sorts" role="group" aria-label="신청자 정렬">'
-              '<button type="button" class="sort on" data-sort="">신청순</button>'
+              '<button type="button" class="sort ag-on" data-sort="">신청순</button>'
               '<button type="button" class="sort" data-sort="bi">블로그지수순</button>'
               '<button type="button" class="sort" data-sort="rate">평점순</button>'
               '<button type="button" class="sort" data-sort="ours">우리와 해본 리뷰어</button></div>')
@@ -469,9 +469,9 @@ def review_li(due):
             '<div class="checks"><label><input type="checkbox" checked> 필수 키워드</label>'
             '<label><input type="checkbox" checked> 글자 수</label><label><input type="checkbox"> 사진 5장</label>'
             '<label><input type="checkbox" checked> 광고 표시</label></div>'
-            '<div class="acts"><button type="button" class="btn sm primary" data-done="승인">승인</button>'
-            '<button type="button" class="btn sm" data-done="수정 요청 보냄">수정 요청</button>'
-            '<button type="button" class="btn sm ghost-danger" data-done="반려">반려</button></div></li>')
+            '<div class="acts"><button type="button" class="ag-btn sm primary" data-done="승인">승인</button>'
+            '<button type="button" class="ag-btn sm" data-done="수정 요청 보냄">수정 요청</button>'
+            '<button type="button" class="ag-btn sm ghost-danger" data-done="반려">반려</button></div></li>')
 
 
 # ── 추가모집 (= 기존 초과모집 + 재모집, 11-09 사용자 확정) ─────────────
@@ -506,7 +506,7 @@ def recruit_box(kind, camp):
             '<dt class="tot">추가 예치 합계</dt><dd class="tot js-c-total"></dd>'
             '<dt>사용 가능 잔액</dt><dd class="js-c-bal"></dd></dl>'
             f'<p class="rc-note">{note} · 이력에 남습니다</p>'
-            '<div class="acts wide"><button type="button" class="btn primary js-recruit" data-kind="' + kind + '">'
+            '<div class="acts wide"><button type="button" class="ag-btn primary js-recruit" data-kind="' + kind + '">'
             f'{title} 시작</button></div></div></details>')
 
 
@@ -531,14 +531,14 @@ def ship_li(due):
     return (f'<li class="item col" data-due="{due}"><div class="item-main"><b>{nick}</b>'
             f'<span class="meta">📦 {rnd.choice(ADDRS)} · 010-****-{rnd.randint(1000, 9999)}</span></div>'
             '<div class="ship-f"><input class="input" placeholder="운송장 번호(선택)" aria-label="운송장 번호">'
-            '<button type="button" class="btn sm primary" data-done="발송 완료">발송 완료</button></div></li>')
+            '<button type="button" class="ag-btn sm primary" data-done="발송 완료">발송 완료</button></div></li>')
 
 
 def press_li(due):
     """기자단 — 자료를 받아 가지 않은 리뷰어(기존 campaignMaterialDown 기록)"""
     return (f'<li class="item" data-due="{due}"><div class="item-main"><b>{rnd.choice(REVIEWERS)}</b>'
             f'<span class="meta">선정 {rnd.randint(1, 4)}일 전 · 자료 아직 안 받아 감</span></div>'
-            '<div class="acts"><button type="button" class="btn sm" data-done="다시 알림 보냄">다시 알림</button></div></li>')
+            '<div class="acts"><button type="button" class="ag-btn sm" data-done="다시 알림 보냄">다시 알림</button></div></li>')
 
 
 def prep_body(it):
@@ -554,7 +554,7 @@ def prep_body(it):
                 # 자료가 아직 없음 — 올려야 리뷰어가 글을 쓸 수 있다. 올리면 묶음 전체가 처리됨
                 inner = (f'<p class="ctx"><span class="warn-t">전달 자료가 없습니다</span> · 선정된 {n}명이 원고를 시작하지 못하고 있어요</p>'
                          '<div class="upload"><input type="file" class="input" aria-label="보도자료·이미지·가이드라인">'
-                         '<button type="button" class="btn primary" data-done="자료 올림 · 선정자에게 알림" data-gwhole>올리고 알림 보내기</button></div>'
+                         '<button type="button" class="ag-btn primary" data-done="자료 올림 · 선정자에게 알림" data-gwhole>올리고 알림 보내기</button></div>'
                          '<ul class="items hidden-items">' + "".join(typed(press_li(d), c) for _ in range(n)) + "</ul>")
                 parts.append(cgroup(c, d, n, "미전달", inner))
             else:
@@ -569,7 +569,7 @@ def nudge_body(it):
     groups = "".join(cgroup(c, d, n, "미등록", f'<p class="names">{", ".join(rnd.sample(REVIEWERS, n))}</p>'
                             + recruit_box("replace", c))
                      for c, d, n in by_campaign(it["items"]))
-    return (groups + '<div class="acts wide"><button type="button" class="btn primary" data-done="등록 요청 알림 보냄" data-whole>'
+    return (groups + '<div class="acts wide"><button type="button" class="ag-btn primary" data-done="등록 요청 알림 보냄" data-whole>'
             f'미등록 {it["n"]}명에게 등록 요청 알림</button></div>')
 
 
@@ -585,7 +585,7 @@ def pay_body(it):
                        f'<span class="meta">검수 승인 · 계좌 확인됨</span></div><span class="amt">{amt:,}P</span></li>')
         parts.append(cgroup(c, d, n, "지급", '<ul class="items">' + "".join(lis) + "</ul>"))
     return ("".join(parts) + f'<p class="ctx sum-line">합계 <b>{total:,}P</b> · 플랫폼 수수료 10% 포함 차감 {int(total * 1.1):,}P</p>'
-            '<div class="acts wide"><button type="button" class="btn primary" data-done="지급 확정됨" data-whole>지급 확정</button></div>')
+            '<div class="acts wide"><button type="button" class="ag-btn primary" data-done="지급 확정됨" data-whole>지급 확정</button></div>')
 
 
 def select_body(it):
@@ -593,7 +593,7 @@ def select_body(it):
     lis = "".join(applicant_li(d, mark=True) for _ in range(4))
     return (SORT_CHIPS + cgroup(c, d, 1, "캠페인", '<p class="ctx"><span class="warn-t">3명 더 뽑아야 합니다</span> (선정 2/5명)</p>'
                    f'<ul class="items">{lis}</ul>')
-            + '<div class="acts wide"><button type="button" class="btn primary" data-done="선정 완료" data-whole>선정 완료</button></div>'
+            + '<div class="acts wide"><button type="button" class="ag-btn primary" data-done="선정 완료" data-whole>선정 완료</button></div>'
             + '<p class="or">신청자 중에 뽑을 사람이 모자라면</p>' + recruit_box("add", c))
 
 
@@ -644,7 +644,7 @@ def panel(b, key):
     it = b["issues"][key]
     owner = b["owner"][1] if b["owner"] else "미담당"
     chips = "".join(
-        f'<button type="button" class="pchip{" on" if k == key else ""}" data-go="{b["id"]}-{k}">'
+        f'<button type="button" class="pchip{" ag-on" if k == key else ""}" data-go="{b["id"]}-{k}">'
         f'{ISSUE_NAME[k]} {v["n"]}</button>' for k, v in sorted(b["issues"].items(), key=lambda kv: kv[1]["due"]))
     return (f'<section class="pane" data-panel="{b["id"]}-{key}" hidden>'
             f'<header class="pane-h"><p class="pane-biz">{esc(b["name"])} <span>담당 {owner}'
@@ -653,8 +653,8 @@ def panel(b, key):
             f'<p class="pane-camp js-mix">{due_mix(it["items"])}</p>'
             f'<div class="pchips" aria-label="이 업체의 다른 이슈">{chips}</div></header>'
             f'<div class="pane-b">{camp_index(b, key, it)}{panel_body(key, it)}</div>'
-            f'<footer class="pane-f"><a href="{detail_href(b, key, it)}" class="btn ghost">상세 관리 →</a>'
-            f'<button type="button" class="btn primary js-next">다음 ▶</button></footer></section>')
+            f'<footer class="pane-f"><a href="{detail_href(b, key, it)}" class="ag-btn ghost">상세 관리 →</a>'
+            f'<button type="button" class="ag-btn primary js-next">다음 ▶</button></footer></section>')
 
 
 # ── 셸 ────────────────────────────────────────────
@@ -766,7 +766,7 @@ def sidebar(issue_total, active="dash"):
             '<a class="btn-tag" href="plan.html">플랜</a></div></div>'
             f'<div class="user-info-row"><span class="info-label">포인트</span><div class="info-value-group"><span class="info-value">{BALANCE:,} P</span>'
             '<a class="btn-tag" href="point.html">충전</a></div></div></div></div>')
-    scope = ('<div class="scope-box add"><p class="scope-l">업체 범위</p><button type="button" class="scope-biz" popovertarget="scope-pop">'
+    scope = ('<div class="scope-box add ag"><p class="scope-l">업체 범위</p><button type="button" class="scope-biz" popovertarget="scope-pop">'
              f'{ms("storefront")}<b class="js-scope-name">전체 업체</b>{ms("expand_more")}</button>{scope_pop()}</div>')
     return (f'<aside class="sidebar"><div class="sidebar-inner">'
             f'<div class="sidebar-brand"><p class="brand-label">뷰마 대행사 <a class="ver add" href="versions/" title="이전 버전 보기">{VERSION} 시안</a></p>'
@@ -786,7 +786,7 @@ def scope_pop():
        고른 범위는 주소 ?biz= 로 화면을 넘어 이어진다(js/scope.js)."""
     rows = "".join(f'<li><a href="?biz={b["id"]}" data-scope="{b["id"]}" data-name="{esc(b["name"])}">{esc(b["name"])}'
                    f'<small>{b["owner"][1] if b["owner"] else "미담당"}</small></a></li>' for b in SCOPE_BIZ)
-    return (f'<div id="scope-pop" class="scope-pop" popover><p class="sp-h">업체 범위 <small>캠페인 운영 화면에 걸립니다</small></p>'
+    return (f'<div id="scope-pop" class="scope-pop ag" popover><p class="sp-h">업체 범위 <small>캠페인 운영 화면에 걸립니다</small></p>'
             f'<a class="sp-all" href="?biz=" data-scope="">전체 업체 <small>{len(SCOPE_BIZ)}곳</small></a>'
             f'<label class="sp-q"><span class="sr">업체 찾기</span><input type="search" class="js-sp-q" placeholder="업체 이름"></label>'
             f'<ul>{rows}</ul></div>')
@@ -817,7 +817,7 @@ def type_chips(bizs):
                 cnt[ctype(c)] += 1
     btns = "".join(f'<button type="button" class="tchip" data-type="{k}"><span class="ty ty-{k}">{v}</span><em>{cnt[k]}</em></button>'
                    for k, v in TYPE_NAME.items())
-    return f'<div class="tchips" role="group" aria-label="캠페인 유형"><button type="button" class="tchip on" data-type="">전체 유형</button>{btns}</div>'
+    return f'<div class="tchips" role="group" aria-label="캠페인 유형"><button type="button" class="tchip ag-on" data-type="">전체 유형</button>{btns}</div>'
 
 
 def build():
@@ -840,7 +840,8 @@ def build():
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>대시보드 · 뷰마 대행사 ({VERSION} 시안)</title>
 {HEAD_ADV}
-<link rel="stylesheet" href="css/agency.css">
+<link rel="stylesheet" href="css/ag/agency.css">
+<link rel="stylesheet" href="css/bridge/shell.css">
 </head>
 <body>
 <!-- [2026-11-10] 대행사 대시보드 시안 {VERSION} — 기획서 v0.5 6-3 · 6-11. gen_dashboard.py 로 생성(직접 수정 금지)
@@ -848,7 +849,7 @@ def build():
 <div class="dashboard">
 {sidebar(total_issue)}
 <main class="main-content"><div class="main-view">
-<div class="work">
+<div class="work ag">
 <section class="board" aria-labelledby="board-title">
 	<div class="board-h">
 		<div>
@@ -856,7 +857,7 @@ def build():
 			<p class="sub">{TODAY_LABEL} · 업체 {len(bizs)}곳 중 <b>{with_issue}곳</b>에 이슈 <b>{total_issue}건</b> · 기한 지남·오늘 <b class="hot-t">{hot}곳</b></p>
 		</div>
 		<div class="seg" role="group" aria-label="보기 범위">
-			<button type="button">내 업체</button><button type="button">우리 팀</button><button type="button" class="on">전체</button>
+			<button type="button">내 업체</button><button type="button">우리 팀</button><button type="button" class="ag-on">전체</button>
 		</div>
 	</div>
 
@@ -870,7 +871,7 @@ def build():
 		<div class="seg sm"><label for="v-biz">업체별</label><label for="v-staff">담당자별</label></div>
 		{type_chips(bizs)}
 		<button type="button" class="tchip js-afilter"><i class="adot-i" aria-hidden="true"></i>알림 있는 업체만</button>
-		<p class="filter-note" hidden><span class="js-filter-name"></span> 이슈가 있는 업체만 보는 중 <button type="button" class="btn link js-clear">전체 보기</button></p>
+		<p class="filter-note" hidden><span class="js-filter-name"></span> 이슈가 있는 업체만 보는 중 <button type="button" class="ag-btn link js-clear">전체 보기</button></p>
 		<ul class="legend" aria-label="칸 색 뜻">
 			<li><i class="is-hot"></i>기한 지남·오늘</li><li><i class="is-soon"></i>3일 내</li><li><i class="is-later"></i>그 외</li><li><i class="mix"></i>기한 섞임(칸 = 가장 급한 기한)</li>
 		</ul>
@@ -894,7 +895,7 @@ def build():
 		<p class="empty-ico" aria-hidden="true">☰</p>
 		<p><b>격자에서 칸을 고르세요</b></p>
 		<p class="muted">칸 하나 = 한 업체의 한 가지 이슈입니다.<br>여기서 바로 확인하고 처리합니다.</p>
-		<button type="button" class="btn primary js-next">가장 급한 이슈부터 ▶</button>
+		<button type="button" class="ag-btn primary js-next">가장 급한 이슈부터 ▶</button>
 	</div>
 	<div class="pane-done" hidden>
 		<p class="empty-ico" aria-hidden="true">✓</p>

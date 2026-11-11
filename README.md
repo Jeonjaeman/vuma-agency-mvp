@@ -3,7 +3,7 @@
 기준: `..\기획\대행사사이트_기획서_v0.9.md` (현재 시안 **v0.9**) · 구조 원칙: `..\기획\구조재설계_v0.8안.md` · 광고주 화면 원본 정리: `..\조사\광고주_운영화면_스펙_20261110.md` · `..\조사\광고주_계정화면_스펙_20261110.md` · 레퍼런스: `..\UI레퍼런스\선정레퍼런스\README.md`
 
 **원칙(v0.8)**: 광고주 사이트의 모든 기능 = 그대로 + 대행사 전용 대시보드·정보관리. 화면의 점선(`.add`) = 광고주 화면에 없는 대행사 추가분.
-**모양(v0.9)**: 광고주 CSS 그대로(`css/adv/` — 실서버에서 읽기만 해서 복사, 고치지 않음) + 이음 규칙 `css/v9-*.css`. 셸 = `gen_dashboard.HEAD_ADV` · `sidebar()` · `shell()`.
+**모양(v0.9)**: 광고주 기능 화면 = 광고주 화면 그대로(광고주 CSS · 마크업), 대행사 전용 화면만 대행사 CSS. 셸 = `gen_dashboard.HEAD_ADV` · `sidebar()` · `shell()`, 화면 틀 = `gen_pages.frame()`(광고주 기능 = `.adv-page`, 대행사 = `.work.ag`).
 모든 `*.html` 은 생성 파일 — **직접 고치지 말고 `build/` 생성기를 고친다.**
 
 | 메뉴 묶음 | 화면 | 생성기 · 스타일 · 동작 |
@@ -26,6 +26,16 @@
 `python -I build/gen_dashboard.py` · `gen_pages.py` · `gen_campaigns.py` · `gen_reports.py` · `gen_agency.py` · `gen_ops.py` · `gen_ops2.py` · `gen_account.py`
 
 > 주의: PowerShell 5.1 의 `Get-Content`/`Set-Content` 로 생성기를 고치면 한글이 깨진다(BOM 없는 UTF-8). 편집기나 Python(`encoding="utf-8"`)으로만.
+
+## CSS 나눔 (광고주 ↔ 대행사 — 서로 안 겹치게)
+| 폴더 | 내용 | 규칙 |
+|---|---|---|
+| `css/adv/` | 광고주 원본 17개(U:\admin\css · U:\core\css 를 읽기만 해서 복사) | **고치지 않는다** |
+| `css/bridge/` | 광고주 화면을 시안에서 돌리는 이음(광고주 JS 대신 라디오·`:has()`·popover) · 광고주 셸에 대행사 것 붙이기(`shell.css`) | 광고주 모양 값을 덮지 않음 · 태그 전체 규칙 금지 |
+| `css/ag/` | 대행사 전용(대시보드 · 일정 · 업체 · 팀 · 보고서 · 대행사 추가분 `.add`) | class 이름이 광고주에 없을 것(겹치던 것은 `ag-` — `ag-btn` · `ag-on` …) · 광고주 class 선택 금지 · 태그 규칙은 `:where(.ag)` 안에서만 · 변수는 `--ag-` |
+
+- 검사: `python -I build/check_css.py` — 하나라도 겹치면 이유를 찍고 실패. 광고주 CSS 를 새로 복사했을 때도 돌린다
+- 대행사 추가분 표시 = `.add`(보라 점선) · 대행사 영역 = `.ag`(대행사 화면 틀 · 사이드바 업체 범위)
 
 ## 버전 관리
 - 버전 하나 = git 태그(`v0.9`) = 지난 버전 보관 폴더(`versions/v0.6/` …) = 기획서 파일(`..\기획\대행사사이트_기획서_v0.9.md`)

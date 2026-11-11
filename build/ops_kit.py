@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 [2026-11-10 v0.8] 운영·계정·팀 화면 공통 조각 — 광고주 화면 구성을 옮길 때 같은 모양으로 찍어 내기
-  tabs()  = 라디오 탭(css/ops.css .ot — 번호 순서로 묶임)
+  tabs()  = 라디오 탭(css/ag/ops.css .ot — 번호 순서로 묶임)
   table() = 머리 + 줄 표(.otable), 업체·담당자 칸은 class="col-biz"(한 업체 범위면 숨김 · Q18)
   pop()   = popover 창(JS 없음)
   write() = 셸(gen_pages.page)로 감싸 파일 쓰기 (메뉴에 켜기 = gen_dashboard.READY 에 키 추가)
@@ -13,7 +13,7 @@ import gen_pages as P
 G = P.G
 esc = html.escape
 ROOT = G.ROOT
-CSS = '<link rel="stylesheet" href="css/ops.css">'
+CSS = '<link rel="stylesheet" href="css/ag/ops.css">'
 
 
 def won(n):
@@ -52,7 +52,7 @@ def table(heads, rows, ck=False, bulk=""):
     for attrs, cells in rows:
         tds = "".join(f'<td class="{heads[i][1]}">{v}</td>' for i, v in enumerate(cells))
         trs.append(f'<tr {attrs}>{"<td class=ck><input type=checkbox aria-label=고르기></td>" if ck else ""}{tds}</tr>')
-    body = "".join(trs) or f'<tr><td colspan="{len(heads) + ck}" class="empty">내역이 없습니다</td></tr>'
+    body = "".join(trs) or f'<tr><td colspan="{len(heads) + ck}" class="ag-empty">내역이 없습니다</td></tr>'
     return (f'<div class="owrap"><table class="otable"><thead><tr>{th}</tr></thead><tbody>{body}</tbody></table>'
             f'{f"<div class=obulk>{bulk}</div>" if bulk else ""}</div>')
 
@@ -75,7 +75,7 @@ def dates():
     return '<input type="date" aria-label="시작일" value="2026-10-10"> ~ <input type="date" aria-label="끝일" value="2026-11-09">'
 
 
-def btn(label, msg="", cls="btn sm", pop=""):
+def btn(label, msg="", cls="ag-btn sm", pop=""):
     if pop:
         return f'<button type="button" class="{cls}" popovertarget="{pop}">{label}</button>'
     return f'<button type="button" class="{cls} js-flash" data-msg="{esc(msg or "시안: 저장되지 않습니다")}">{label}</button>'
@@ -83,10 +83,10 @@ def btn(label, msg="", cls="btn sm", pop=""):
 
 def pop(pid, title, body, ok="저장", msg=""):
     return (f'<div id="{pid}" class="pop" popover><header><h2>{title}</h2>'
-            f'<button type="button" class="btn sm" popovertarget="{pid}" popovertargetaction="hide">닫기</button></header>'
+            f'<button type="button" class="ag-btn sm" popovertarget="{pid}" popovertargetaction="hide">닫기</button></header>'
             f'<div class="pop-b">{body}</div><footer>'
-            f'<button type="button" class="btn" popovertarget="{pid}" popovertargetaction="hide">취소</button>'
-            f'{btn(ok, msg, "btn primary")}</footer></div>')
+            f'<button type="button" class="ag-btn" popovertarget="{pid}" popovertargetaction="hide">취소</button>'
+            f'{btn(ok, msg, "ag-btn primary")}</footer></div>')
 
 
 # 광고주 캠페인 상단 탭(campaignTabs.inc.html) 그대로 — 포인트 지급 확인은 탭에 없음(사이드바만)

@@ -56,7 +56,7 @@
 	// 화면에 보이는(남은) 칸 목록 — 숨겨진 묶음·처리 끝난 칸·유형으로 걸러진 칸은 뺀다
 	function visibleCells() {
 		return Array.prototype.filter.call(grid.querySelectorAll('.cell:not(.ccell)'), function (el) {
-			return el.offsetParent !== null && !el.classList.contains('done') && !el.classList.contains('t-zero');
+			return el.offsetParent !== null && !el.classList.contains('ag-done') && !el.classList.contains('t-zero');
 		});
 	}
 
@@ -106,7 +106,7 @@
 		c.classList.remove('is-hot', 'is-soon', 'is-later', 't-zero');
 		var old = c.querySelector('.mixbar');
 		if (old) old.remove();
-		if (!all.length) { c.classList.add('done'); c.querySelector('b').textContent = 0; c.querySelector('small').textContent = '처리'; c.title = '처리 완료'; return 0; }
+		if (!all.length) { c.classList.add('ag-done'); c.querySelector('b').textContent = 0; c.querySelector('small').textContent = '처리'; c.title = '처리 완료'; return 0; }
 		if (!items.length) { c.classList.add('t-zero', 'is-later'); c.querySelector('b').textContent = 0; c.querySelector('small').textContent = '다른 유형'; c.title = '이 유형의 건 없음'; return 0; }
 		items.sort(byDue);
 		c.classList.add(dueClass(items[0].d));
@@ -136,10 +136,10 @@
 	function renderCCell(cc) {
 		var base = grid.querySelector('.tb-biz [data-cell="' + cc.dataset.of + '"]');
 		var items = base ? shownItems(base).filter(function (x) { return x.c === cc.dataset.camp; }) : [];
-		cc.classList.remove('is-hot', 'is-soon', 'is-later', 'done', 't-zero');
+		cc.classList.remove('is-hot', 'is-soon', 'is-later', 'ag-done', 't-zero');
 		if (!items.length) {
 			var anyLeft = base && readItems(base).some(function (x) { return x.c === cc.dataset.camp; });
-			cc.classList.add(anyLeft ? 't-zero' : 'done');
+			cc.classList.add(anyLeft ? 't-zero' : 'ag-done');
 			cc.querySelector('b').textContent = 0;
 			cc.querySelector('small').textContent = anyLeft ? '다른 유형' : '처리';
 			return 0;
@@ -158,7 +158,7 @@
 		grid.querySelectorAll('.tb-biz tr.biz').forEach(function (row) {
 			var rowTot = 0;
 			row.querySelectorAll('.cell:not(.ccell)').forEach(function (c) {
-				var n = c.classList.contains('done') || c.classList.contains('t-zero') ? 0 : shownItems(c).length;
+				var n = c.classList.contains('ag-done') || c.classList.contains('t-zero') ? 0 : shownItems(c).length;
 				var key = c.dataset.cell.split('-')[1];
 				rowTot += n;
 				add('all-' + key, n); add('all-total', n);
@@ -197,7 +197,7 @@
 	// 업체 행을 남은 이슈의 가장 급한 기한에 맞는 묶음으로 옮김 (업체별 보기만)
 	function minOf(row) {
 		var ds = [];
-		row.querySelectorAll('.cell:not(.ccell):not(.done)').forEach(function (c) { readItems(c).forEach(function (x) { ds.push(x.d); }); });
+		row.querySelectorAll('.cell:not(.ccell):not(.ag-done)').forEach(function (c) { readItems(c).forEach(function (x) { ds.push(x.d); }); });
 		return ds.length ? Math.min.apply(null, ds) : null;
 	}
 	function campRowsOf(row) {
@@ -294,7 +294,7 @@
 		// 표시만 하는 버튼(선정 마감의 신청자 선정) — 숫자는 [선정 완료] 때 줄어듦
 		if (btn.hasAttribute('data-mark')) {
 			var li = btn.closest('.item');
-			li.querySelector('.acts').replaceWith(doneTag(btn.dataset.done));
+			li.querySelector('.acts').replaceWith(doneTag(btn.dataset.ag-done));
 			li.classList.add('is-done');
 			return;
 		}
@@ -303,20 +303,20 @@
 			// 캠페인 묶음 하나를 한 번에 (예: 기자단 자료 올리기 → 그 캠페인 미전달 전부 해결)
 			var grp = btn.closest('.cgroup');
 			var lis = Array.prototype.slice.call(grp.querySelectorAll('.item:not(.is-done)'));
-			btn.closest('.upload').replaceWith(doneTag(btn.dataset.done));
+			btn.closest('.upload').replaceWith(doneTag(btn.dataset.ag-done));
 			lis.forEach(function (l) { l.classList.add('is-done'); });
 			left = update(id, lis.map(itemOf));
 		} else if (btn.hasAttribute('data-whole')) {
 			// 이슈 전체를 한 번에 처리 — 남은 건 전부
 			var host = btn.closest('.acts, .assign') || btn;
-			host.replaceWith(doneTag(btn.dataset.done));
+			host.replaceWith(doneTag(btn.dataset.ag-done));
 			pane.querySelectorAll('.item:not(.is-done)').forEach(function (i) { i.classList.add('is-done'); });
 			left = update(id, readItems(grid.querySelector('[data-cell="' + id + '"]')));
 		} else {
 			// 한 건 처리 — 그 건의 기한·유형만 뺀다
 			var item = btn.closest('.item');
 			var host2 = item.querySelector('.acts, .ship-f');
-			host2.replaceWith(doneTag(btn.dataset.done));
+			host2.replaceWith(doneTag(btn.dataset.ag-done));
 			item.classList.add('is-done');
 			left = update(id, [itemOf(item)]);
 		}
@@ -326,7 +326,7 @@
 	// 5) 유형 칩
 	function setType(btn) {
 		typeFilter = btn.dataset.type;
-		document.querySelectorAll('.tchip').forEach(function (b) { b.classList.toggle('on', b === btn); });
+		document.querySelectorAll('.tchip').forEach(function (b) { b.classList.toggle('ag-on', b === btn); });
 		if (typeFilter) grid.dataset.type = typeFilter; else delete grid.dataset.type;
 		grid.querySelectorAll('.cell:not(.ccell)').forEach(renderCell);
 		grid.querySelectorAll('.ccell').forEach(renderCCell);
@@ -351,7 +351,7 @@
 	function sortApplicants(btn) {
 		var pane = btn.closest('.pane');
 		var key = btn.dataset.sort;
-		pane.querySelectorAll('.sort').forEach(function (s) { s.classList.toggle('on', s === btn); });
+		pane.querySelectorAll('.sort').forEach(function (s) { s.classList.toggle('ag-on', s === btn); });
 		pane.querySelectorAll('.cgroup .items').forEach(function (ul) {
 			var lis = Array.prototype.slice.call(ul.children);
 			lis.forEach(function (li, i) { if (!li.dataset.i) li.dataset.i = i; });
@@ -460,7 +460,7 @@
 	// 알림 패널 열기 — lv = 등급 거르기('' 전체), biz = 업체 하나만
 	function setAlertLevel(lv) {
 		alPane.dataset.lv = lv;
-		alPane.querySelectorAll('.alv').forEach(function (b) { b.classList.toggle('on', b.dataset.alv === lv); });
+		alPane.querySelectorAll('.alv').forEach(function (b) { b.classList.toggle('ag-on', b.dataset.alv === lv); });
 	}
 	function showAlerts(lv, biz) {
 		panel.querySelectorAll('.pane').forEach(function (p) { p.hidden = true; });
@@ -522,7 +522,7 @@
 		p.appendChild(el('b', '', KIND_NAME[a.dataset.kind]));
 		p.appendChild(el('span', '', ' · ' + a.querySelector('.al-biz').textContent));
 		box.appendChild(p);
-		var open = el('button', 'btn sm primary js-toast-open', '보기');
+		var open = el('button', 'ag-btn sm primary js-toast-open', '보기');
 		open.type = 'button';
 		var x = el('button', 't-x', '✕');
 		x.type = 'button';
@@ -578,7 +578,7 @@
 		if (t.matches('.js-afilter')) {
 			var on = !grid.dataset.alert;
 			if (on) grid.dataset.alert = '1'; else delete grid.dataset.alert;
-			t.classList.toggle('on', on);
+			t.classList.toggle('ag-on', on);
 			return;
 		}
 		if (t.matches('.ccell')) {
@@ -591,7 +591,7 @@
 		if (t.matches('.cell')) { mode = 'grid'; return openPane(t.dataset.cell); }
 		if (t.matches('.bizlink')) {
 			// 업체명 = 그 업체의 가장 급한 칸부터, [다음]은 같은 업체 안에서
-			var cells = Array.prototype.slice.call(t.closest('tr').querySelectorAll('.cell:not(.ccell):not(.done):not(.t-zero)'));
+			var cells = Array.prototype.slice.call(t.closest('tr').querySelectorAll('.cell:not(.ccell):not(.ag-done):not(.t-zero)'));
 			cells.sort(function (a, b) { return shownItems(a)[0].d - shownItems(b)[0].d; });
 			if (cells[0]) { mode = 'biz'; openPane(cells[0].dataset.cell); }
 			return;

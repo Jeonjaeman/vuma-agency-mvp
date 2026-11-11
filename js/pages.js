@@ -39,9 +39,9 @@
 	// ── 2) 업체 상세 ─────────────────────────
 	function openBiz(id) {
 		if (!show('[data-bdrawer="' + id + '"]')) return;
-		document.querySelectorAll('.brow.is-open').forEach(function (r) { r.classList.remove('is-open'); });
+		document.querySelectorAll('.brow.ag-open').forEach(function (r) { r.classList.remove('ag-open'); });
 		var row = document.querySelector('.brow[data-biz="' + id + '"]');
-		if (row) { row.classList.add('is-open'); row.scrollIntoView({ block: 'nearest' }); }
+		if (row) { row.classList.add('ag-open'); row.scrollIntoView({ block: 'nearest' }); }
 	}
 	var m = location.hash.match(/^#biz=(b\d+)/);
 	if (m) openBiz(m[1]);

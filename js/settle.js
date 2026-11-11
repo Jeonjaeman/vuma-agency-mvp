@@ -37,7 +37,7 @@
 				var on = ck && ck.checked;
 				r.classList.toggle('is-out', !on);
 				r.querySelector('.js-pst').replaceChildren(on ? badge('st-purple', '확정') : badge('st-orange', '다음 묶음으로'));
-				if (on) { n++; sum += Number(r.querySelector('.num').textContent.replace(/[^\d]/g, '')); }
+				if (on) { n++; sum += Number(r.querySelector('.ag-num').textContent.replace(/[^\d]/g, '')); }
 				if (ck) ck.disabled = true;
 			});
 			batch.querySelector('.js-bst').replaceWith(badge('st-purple js-bst', '확정'));

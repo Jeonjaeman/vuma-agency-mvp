@@ -84,18 +84,18 @@ def rep_row(rp):
     cls, lab = ST[rp["st"]]
     n_rev = sum(len(reviews(c)) for c in rp["camps"])
     sid = rp["b"]["owner"][0] if rp["b"] and rp["b"]["owner"] else "un"
-    toggle = {"on": '<button type="button" class="btn sm js-toggle" data-to="off">끄기</button>',
-              "off": '<button type="button" class="btn sm js-toggle" data-to="on">켜기</button>',
-              "exp": '<button type="button" class="btn sm js-toggle" data-to="on">30일 다시 켜기</button>',
+    toggle = {"on": '<button type="button" class="ag-btn sm js-toggle" data-to="off">끄기</button>',
+              "off": '<button type="button" class="ag-btn sm js-toggle" data-to="on">켜기</button>',
+              "exp": '<button type="button" class="ag-btn sm js-toggle" data-to="on">30일 다시 켜기</button>',
               "gone": '<span class="muted small">보관된 업체</span>'}[rp["st"]]
     unit = "업체" if rp["unit"] == "biz" else "캠페인"
     return (f'<tr class="rrow r-{rp["st"]}" data-owner="{sid}" data-name="{esc(rp["title"])}">'
             f'<th scope="row"><b>{esc(rp["title"])}</b><br><small class="muted">{unit} 단위 · {rp["period"]} · 캠페인 {len(rp["camps"])} · 리뷰 {n_rev}</small></th>'
-            f'<td class="js-rst"><span class="st {cls}">{lab}</span></td><td>{rp["exp"]}</td><td class="num">{rp["views"]}</td>'
+            f'<td class="js-rst"><span class="st {cls}">{lab}</span></td><td>{rp["exp"]}</td><td class="ag-num">{rp["views"]}</td>'
             f'<td>{rp["by"]} <small class="muted">{rp["made"]}</small></td>'
-            f'<td><div class="acts"><button type="button" class="btn sm js-copy" data-url="https://report.vuma.example/{rp["id"]}"'
+            f'<td><div class="acts"><button type="button" class="ag-btn sm js-copy" data-url="https://report.vuma.example/{rp["id"]}"'
             f'{" disabled" if rp["st"] == "gone" else ""}>링크 복사</button>{toggle}'
-            f'<a class="btn sm ghost" href="{pub_href(rp)}" target="_blank" rel="noopener">미리보기 ↗</a></div></td></tr>')
+            f'<a class="ag-btn sm ghost" href="{pub_href(rp)}" target="_blank" rel="noopener">미리보기 ↗</a></div></td></tr>')
 
 
 def make_pop():
@@ -109,8 +109,8 @@ def make_pop():
 		<label class="fl">기간 <span class="row2"><input type="date" class="input" value="2026-11-01"> ~ <input type="date" class="input" value="2026-11-30"></span></label>
 		<label class="fl">만료 <select class="input"><option>30일 뒤 (기본)</option><option>7일 뒤</option><option>90일 뒤</option></select></label>
 		<p class="note">업체 고객은 로그인 없이 링크로 봅니다. 리워드·포인트·수수료 금액은 나오지 않습니다.</p></div>
-	<footer><button type="button" class="btn" popovertarget="pop-rep" popovertargetaction="hide">취소</button>
-		<button type="button" class="btn primary js-flash" data-msg="링크를 만들고 복사했습니다 · 만료 12/10">만들고 복사</button></footer>
+	<footer><button type="button" class="ag-btn" popovertarget="pop-rep" popovertargetaction="hide">취소</button>
+		<button type="button" class="ag-btn primary js-flash" data-msg="링크를 만들고 복사했습니다 · 만료 12/10">만들고 복사</button></footer>
 </div>'''
 
 
@@ -126,15 +126,15 @@ def reports_page():
     body = f'''<section class="board reports" aria-labelledby="t-rep">
 	<div class="board-h"><div><h1 id="t-rep">보고서</h1>
 		<p class="sub">업체 고객(사장님·원장님)에게 보내는 링크 — 로그인 없이 열림 · 기본 만료 30일 · <b>금액은 나오지 않음</b></p></div>
-		<button type="button" class="btn primary" popovertarget="pop-rep">+ 보고서 링크 만들기</button></div>
+		<button type="button" class="ag-btn primary" popovertarget="pop-rep">+ 보고서 링크 만들기</button></div>
 	{radios}
 	<div class="s-tools"><label class="search b-search"><span class="sr">보고서 검색</span><input type="search" class="js-rsearch" placeholder="업체명·캠페인명"></label>
 		<div class="rfs" role="group" aria-label="상태">{chips}</div></div>
 	<div class="s-tools pubs"><b class="small">공개 화면 미리보기</b>{states}</div>
-	<div class="grid-wrap"><table class="btable rtable2"><thead><tr><th>보고서</th><th>상태</th><th>만료</th><th class="num">열람</th>
+	<div class="grid-wrap"><table class="btable rtable2"><thead><tr><th>보고서</th><th>상태</th><th>만료</th><th class="ag-num">열람</th>
 		<th>만든 사람</th><th></th></tr></thead><tbody>{rows}</tbody></table></div>
 </section>{make_pop()}'''
-    return P.page("보고서", "rep", body, None, '<link rel="stylesheet" href="css/settle.css">', "settle.js")
+    return P.page("보고서", "rep", body, None, '<link rel="stylesheet" href="css/ag/settle.css">', "settle.js")
 
 
 # ════════════════ 공개 화면 ════════════════
@@ -178,7 +178,7 @@ def public_page():
 <meta name="robots" content="noindex">
 <title>캠페인 보고서 · {AGENCY}</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
-<link rel="stylesheet" href="css/report.css">
+<link rel="stylesheet" href="css/ag/report.css">
 </head>
 <body>
 <!-- [2026-11-10] 보고서 공개 화면 시안 {G.VERSION} — 업체 고객용(로그인 없음). build/gen_reports.py 로 생성(직접 수정 금지)

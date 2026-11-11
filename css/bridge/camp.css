@@ -49,16 +49,6 @@ a.card-btn{color:var(--color-text-11)}
 	#dd-ct{position-anchor:--dd-ct;top:anchor(bottom);left:anchor(left)}
 }
 
-/* 대행사 줄(업체 · 담당 · 단계 · 이슈 · 회차) */
-.card-agency,.cd-agency{display:flex;align-items:center;flex-wrap:wrap;gap:6px;font-size:12px;color:var(--color-text-11)}
-.card-agency{margin:0 0 10px}
-.card-agency .who i{width:20px;height:20px;font-size:10px}
-.cd-agency{margin:0 0 16px;font-size:13px}
-.stage{font-size:11px;font-weight:700;color:var(--color-main);padding:1px 7px;border-radius:var(--r-full);background:var(--color-main-light)}
-.stage.late{color:#c0392b;background:#ffece9}
-.watch{margin-left:auto;display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:#0077e6;background:#e5f2ff;padding:4px 10px;border-radius:var(--r-full)}
-.watch i{width:8px;height:8px;border-radius:50%;background:#0077e6;box-shadow:0 0 0 3px rgba(0,119,230,.2)}
-
 /* ── 상세: 광고주는 모달 · 여기는 주소(:target)로 여는 화면 안 패널 ── */
 .cdetail{display:none}
 .cdetail:target,.cdetail:has(.detail-panel:target){display:block}
@@ -105,8 +95,3 @@ a.detail-action-btn{text-decoration:none}
 button.modal-dim{border:0;padding:0;cursor:default}
 .edit-context-menu[popover]{padding:0}
 .edit-context-menu[popover]:popover-open{display:block}
-
-/* [2026-11-11 v0.9] 카드 칸 270px → 320px — 광고주는 버튼 5개 글자가 두 줄로 접힘(대행사 줄이 더해져 카드도 높아짐).
-   넓은 화면에서 4칸 → 3칸이 되는 대신 버튼 글자가 한 줄로 들어간다 */
-.cmp-grid-view{grid-template-columns:repeat(auto-fill,minmax(320px,1fr))}
-.cmp-grid-view .card-btn>span{white-space:nowrap}

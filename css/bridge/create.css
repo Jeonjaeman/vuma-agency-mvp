@@ -1,0 +1,104 @@
+/* [2026-11-12 v0.9] 캠페인 등록 — 광고주 등록창(campaignCreate.inc.html) 마크업에 붙이는 최소 이음 규칙
+   광고주는 campaign.js 가 class(.active · .completed · .open)와 style.display 를 바꾼다.
+   여기서는 그 모양을 숨은 라디오/체크박스 · :has() · popover 상태에서 그대로 내도록 옮겨 적는다(값은 광고주 CSS 에서 복사).
+   모양을 새로 만들지 않는다 — 상태만. 대행사 추가분(ag-)은 css/ag/create.css */
+
+/* ── 모달 껍데기 없이 페이지 안에 펼침 ──
+   광고주는 .modal-wrap(고정 덮개) 안에 띄우고 .open 일 때 transform 을 0 으로 돌린다. 시안은 덮개가 없으니 열린 모양 그대로 */
+.campaign-create-modal .create-modal-content{transform:none}
+.campaign-create-modal .modal-dim{display:none}
+
+/* ── 단계 이동 — setCreateStep() 이 .step-content / .step-item / .step-line 에 .active · .completed 를 붙이던 것 ── */
+.campaign-create-modal:has(#ccStep1:checked) .step1,
+.campaign-create-modal:has(#ccStep2:checked) .step2,
+.campaign-create-modal:has(#ccStep4:checked) .step4{display:block}
+/* 3단계는 유형별 칸 하나만 (campaignTypeChange 의 PANEL 표: 1→Type0 · 2→Type1 · 3→Type2 · 그 밖→Type999) */
+.campaign-create-modal:has(#ccStep3:checked):has([name=campaignType][value="1"]:checked) .campaignType0,
+.campaign-create-modal:has(#ccStep3:checked):has([name=campaignType][value="2"]:checked) .campaignType1,
+.campaign-create-modal:has(#ccStep3:checked):has([name=campaignType][value="3"]:checked) .campaignType2,
+.campaign-create-modal:has(#ccStep3:checked):has([name=campaignType][value="999"]:checked) .campaignType999{display:block}
+
+.campaign-create-modal label.step-item{cursor:pointer}
+/* .step-item.active */
+.campaign-create-modal:has(#ccStep1:checked) .step-item[for=ccStep1] .step-num,
+.campaign-create-modal:has(#ccStep2:checked) .step-item[for=ccStep2] .step-num,
+.campaign-create-modal:has(#ccStep3:checked) .step-item[for=ccStep3] .step-num,
+.campaign-create-modal:has(#ccStep4:checked) .step-item[for=ccStep4] .step-num{background:#7346f3;color:#fff;box-shadow:0 4px 10px rgba(124,58,237,.3)}
+.campaign-create-modal:has(#ccStep1:checked) .step-item[for=ccStep1] .step-label,
+.campaign-create-modal:has(#ccStep2:checked) .step-item[for=ccStep2] .step-label,
+.campaign-create-modal:has(#ccStep3:checked) .step-item[for=ccStep3] .step-label,
+.campaign-create-modal:has(#ccStep4:checked) .step-item[for=ccStep4] .step-label{color:#7346f3}
+/* .step-item.completed (지난 단계) */
+.campaign-create-modal:is(:has(#ccStep2:checked),:has(#ccStep3:checked),:has(#ccStep4:checked)) .step-item[for=ccStep1] .step-num,
+.campaign-create-modal:is(:has(#ccStep3:checked),:has(#ccStep4:checked)) .step-item[for=ccStep2] .step-num,
+.campaign-create-modal:has(#ccStep4:checked) .step-item[for=ccStep3] .step-num{background:#7346f3;color:#fff}
+/* .step-line.active (지난 단계 뒤 선) */
+.campaign-create-modal:is(:has(#ccStep2:checked),:has(#ccStep3:checked),:has(#ccStep4:checked)) .step-line:nth-of-type(1),
+.campaign-create-modal:is(:has(#ccStep3:checked),:has(#ccStep4:checked)) .step-line:nth-of-type(2),
+.campaign-create-modal:has(#ccStep4:checked) .step-line:nth-of-type(3){background:#7346f3}
+
+/* 3단계 이름 · 일정 이름 — innerHTML 로 바꾸던 글자를 두 벌 두고 유형에 맞는 것만 */
+.campaign-create-modal [data-ty-label]{display:none}
+.campaign-create-modal:has([name=campaignType][value="1"]:checked) #step3Label [data-ty-label="1"],
+.campaign-create-modal:has([name=campaignType][value="2"]:checked) #step3Label [data-ty-label="2"],
+.campaign-create-modal:has([name=campaignType][value="3"]:checked) #step3Label [data-ty-label="3"],
+.campaign-create-modal:has([name=campaignType][value="999"]:checked) #step3Label [data-ty-label="999"],
+.campaign-create-modal:not(:has([name=campaignType][value="2"]:checked)) #campaignPeriodLabel [data-ty-label=visit],
+.campaign-create-modal:has([name=campaignType][value="2"]:checked) #campaignPeriodLabel [data-ty-label=delivery]{display:inline}
+
+/* 이전 · 다음 — 단계마다 하나씩 둔 label 중 지금 단계 것만 (광고주: btnPrev.style.display · btnNext.textContent) */
+.campaign-create-modal .create-modal-footer :is(.btn-prev-step,.btn-next-step){display:none}
+.campaign-create-modal:has(#ccStep1:checked) .create-modal-footer [data-on="1"],
+.campaign-create-modal:has(#ccStep2:checked) .create-modal-footer [data-on="2"],
+.campaign-create-modal:has(#ccStep3:checked) .create-modal-footer [data-on="3"],
+.campaign-create-modal:has(#ccStep4:checked) .create-modal-footer [data-on="4"]{display:inline-flex;align-items:center;justify-content:center}
+/* <button> 대신 쓴 label · a — 버튼처럼 글자를 가운데에 */
+.campaign-create-modal :is(label,a).btn-cc,
+.campaign-create-modal :is(label,a).cc-btn-sub{display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;text-decoration:none}
+
+/* ── 1단계 ── */
+/* 배송시작일 줄 — 배송형일 때만 (deliveryRow.style.display) */
+.campaign-create-modal #deliveryDateRow{display:none}
+.campaign-create-modal:has([name=campaignType][value="2"]:checked) #deliveryDateRow{display:table-row}
+/* '관심지역 설정하지 않음' → 지역 칸 감춤 (noRegionToggle) */
+.campaign-create-modal:has(#noRegion:checked) #zonePickWrap{display:none}
+
+/* 펼쳐서 작성 / 접기 — 숨은 체크박스 (zoneToggle · offerDetailToggle · visitDetailToggle · extraDetailToggle) */
+.campaign-create-modal :is(#zoneArea,#offerDetailArea,#visitDetailArea,#extraDetailArea){display:none}
+.campaign-create-modal:has(#ccZoneOpen:checked) #zoneArea,
+.campaign-create-modal:has(#ccOfferOpen:checked) #offerDetailArea,
+.campaign-create-modal:has(#ccVisitOpen:checked) #visitDetailArea,
+.campaign-create-modal:has(#ccExtraOpen:checked) #extraDetailArea{display:block}
+.campaign-create-modal :is(#zoneToggle,#offerDetailToggle,#visitDetailToggle,#extraDetailToggle) > span + span,
+.campaign-create-modal input:checked + :is(#zoneToggle,#offerDetailToggle,#visitDetailToggle,#extraDetailToggle) > span:first-child{display:none}
+.campaign-create-modal input:checked + :is(#zoneToggle,#offerDetailToggle,#visitDetailToggle,#extraDetailToggle) > span + span{display:inline}
+
+/* 포인트 미지급 → 1인당 지급 · 총사용 포인트 · 보유 포인트 감춤 (calcUsePoint) */
+.campaign-create-modal:has([name=rewards][value=N]:checked) :is(#rewardPointWrap,#usePointRow,#myBalanceRow){display:none}
+
+/* ── 4단계: 고른 채널의 키워드 줄만 (channelKeywordToggle — 아무 채널도 안 고르면 전부 숨김) ── */
+.campaign-create-modal :is(.js-kw-blog,.js-kw-insta,.js-kw-youtube,.js-kw-tiktok,.js-kw-reviews){display:none}
+.campaign-create-modal:has([name="channel[]"]:is([value=BLOG],[value=CLIP]):checked) .js-kw-blog,
+.campaign-create-modal:has([name="channel[]"]:is([value=INSTARGRAM],[value=REELS]):checked) .js-kw-insta,
+.campaign-create-modal:has([name="channel[]"]:is([value=YOUTUBE],[value=SHORTS]):checked) .js-kw-youtube,
+.campaign-create-modal:has([name="channel[]"][value=TIKTOK]:checked) .js-kw-tiktok,
+.campaign-create-modal:has([name="channel[]"][value=REVIEWS]:checked) .js-kw-reviews{display:table-row}
+/* 준수사항 '없음' → 글상자 감춤 (abidanceTypeChange) */
+.campaign-create-modal:has([name=blogAbidanceType][value=N]:checked) #blogAbidanceArea,
+.campaign-create-modal:has([name=instarAbidanceType][value=N]:checked) #instarAbidanceArea,
+.campaign-create-modal:has([name=youtubeAbidanceType][value=N]:checked) #youtubeAbidanceArea,
+.campaign-create-modal:has([name=tiktokAbidanceType][value=N]:checked) #tiktokAbidanceArea,
+.campaign-create-modal:has([name=reviewsAbidanceType][value=N]:checked) #reviewsAbidanceArea{display:none}
+/* 모바일 — 광고주는 .form-table tr 을 flex 로 바꾼다(campaign-create.css 1024px). 보이는 키워드 줄도 같은 모양 */
+@media (max-width:1024px){
+	.campaign-create-modal:has([name="channel[]"]:is([value=BLOG],[value=CLIP]):checked) .js-kw-blog,
+	.campaign-create-modal:has([name="channel[]"]:is([value=INSTARGRAM],[value=REELS]):checked) .js-kw-insta,
+	.campaign-create-modal:has([name="channel[]"]:is([value=YOUTUBE],[value=SHORTS]):checked) .js-kw-youtube,
+	.campaign-create-modal:has([name="channel[]"][value=TIKTOK]:checked) .js-kw-tiktok,
+	.campaign-create-modal:has([name="channel[]"][value=REVIEWS]:checked) .js-kw-reviews,
+	.campaign-create-modal:has([name=campaignType][value="2"]:checked) #deliveryDateRow{display:flex}
+}
+
+/* ── 닫기 확인 — .cc-close-confirm.open 대신 popover (브라우저 기본 popover 상자 모양만 걷어 냄) ── */
+.cc-close-confirm[popover]{inset:0;width:auto;height:auto;max-width:none;max-height:none;margin:0;padding:0;border:0}
+.cc-close-confirm[popover]:popover-open{display:flex}

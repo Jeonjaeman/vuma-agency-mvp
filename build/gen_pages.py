@@ -105,6 +105,18 @@ def cp_id(b, camp):
 
 
 # ── 공통 셸 ─────────────────────────────────────────────
+# [2026-11-12 v0.9] 광고주 기능 화면 = 광고주 화면 그대로 — 대행사 틀(.work · 여백 · 바탕) 없이 광고주 페이지 뿌리가 .main-view 에
+#   바로 놓인다(.adv-page = display:contents · css/bridge/shell.css). 대행사 전용 화면만 대행사 영역(.work.ag)
+ADV_KEYS = {"camp", "rvw", "insp", "payc", "photo", "srch", "video", "chat", "pay", "plan", "sms", "pen", "info", "help"}
+
+
+def frame(active, panel, inner):
+    scoped = " scoped" if active in G.OPS else ""
+    if active in ADV_KEYS:
+        return f'<div class="adv-page{scoped}">{inner}</div>'
+    return f'<div class="work ag{" solo" if panel is None else ""}{scoped}">{inner}</div>'
+
+
 def page(title, active, body, panel, extra_style="", js="pages.js"):
     """[2026-11-10 v0.6] panel=None 이면 오른쪽 패널 없이 넓게(.work.solo), js = 화면별 동작 파일"""
     aside = ('' if panel is None else f'<aside class="panel" aria-label="상세" aria-live="polite">\n{panel}\n</aside>')
@@ -115,14 +127,15 @@ def page(title, active, body, panel, extra_style="", js="pages.js"):
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{title} · 뷰마 대행사 ({G.VERSION} 시안)</title>
 {G.HEAD_ADV}
-<link rel="stylesheet" href="css/agency.css">
-<link rel="stylesheet" href="css/pages.css">
+<link rel="stylesheet" href="css/ag/agency.css">
+<link rel="stylesheet" href="css/ag/pages.css">
 {extra_style}
+<link rel="stylesheet" href="css/bridge/shell.css">
 </head>
 <body>
 <!-- [2026-11-10] 대행사 {title} 시안 {G.VERSION}. build/gen_pages.py 로 생성(직접 수정 금지)
      [2026-11-11 v0.9] 틀 = 광고주 index.html(.dashboard > .sidebar + .main-content > .main-view) -->
-{G.shell(TOTAL_ISSUE, active, f'<div class="work{" solo" if panel is None else ""}{" scoped" if active in G.OPS else ""}">{body}{aside}</div>')}
+{G.shell(TOTAL_ISSUE, active, frame(active, panel, body + aside))}
 <script src="js/scope.js"></script>
 {"".join(f'<script src="js/{j}"></script>' for j in (js or "").split())}
 </body>
@@ -165,14 +178,14 @@ def day_cell(evs):
 def week_table(start, label, idx):
     days = list(range(start, start + 7))
     head = "".join(
-        f'<th scope="col" class="{"today" if o == 0 else ""}{" wkend" if d_of(o).weekday() >= 5 else ""}">'
+        f'<th scope="col" class="{"ag-today" if o == 0 else ""}{" wkend" if d_of(o).weekday() >= 5 else ""}">'
         f'{WD[d_of(o).weekday()]} <b>{md(o)}</b>{"<em>오늘</em>" if o == 0 else ""}</th>' for o in days)
     rows = []
     team_now = None
     for sid, name, lead, tname in ROWS:
         if tname and tname != team_now:
             team_now = tname
-            rows.append(f'<tr class="t-row t-{"none" if tname == "팀 없음" else "on"}"><th colspan="8" scope="rowgroup">{tname}</th></tr>')
+            rows.append(f'<tr class="t-row t-{"none" if tname == "팀 없음" else "ag-on"}"><th colspan="8" scope="rowgroup">{tname}</th></tr>')
         mine = [e for e in EVS if e["sid"] == ("" if sid == "un" else sid)]
         wk = [e for e in mine if start <= e["off"] < start + 7]
         nbiz = len({e["b"]["id"] for e in mine})
@@ -204,7 +217,7 @@ def month_view():
             f'<button type="button" class="mev k-{e["kind"]} s-{e["sid"] or "un"}" data-cp="{cp_id(e["b"], e["camp"])}">'
             f'{esc(e["b"]["name"])} · {kind_label(e)}</button>' for e in evs)
         out = " out" if dd.month != 11 else ""
-        cells.append(f'<div class="mday{out}{" today" if off == 0 else ""}"><p class="mnum">{dd.day}</p>'
+        cells.append(f'<div class="mday{out}{" ag-today" if off == 0 else ""}"><p class="mnum">{dd.day}</p>'
                      f'<div class="mcnt">{cnt}</div><div class="mlist">{lines}</div></div>')
     heads = "".join(f'<div class="mhead">{w}</div>' for w in WD)
     return f'<div class="month">{heads}{"".join(cells)}</div>'
@@ -231,8 +244,8 @@ def camp_panel(b, camp):
             f'<div class="pane-b"><h3 class="sec-t">일정</h3><ol class="timeline">{tl}</ol>'
             f'<h3 class="sec-t">이 캠페인에 걸린 이슈</h3><div class="ichips">{chips}</div>'
             f'<p class="note">이슈를 누르면 대시보드의 그 칸이 열립니다 — 처리는 대시보드에서.</p></div>'
-            f'<footer class="pane-f"><a href="biz.html#biz={b["id"]}" class="btn ghost">업체 보기 →</a>'
-            f'<a href="campaigns.html#c-{cp_id(b, camp)}" class="btn">상세 관리 →</a></footer></section>')
+            f'<footer class="pane-f"><a href="biz.html#biz={b["id"]}" class="ag-btn ghost">업체 보기 →</a>'
+            f'<a href="campaigns.html#c-{cp_id(b, camp)}" class="ag-btn">상세 관리 →</a></footer></section>')
 
 
 def schedule_page():
@@ -257,13 +270,13 @@ def schedule_page():
     who_css = "\n".join(
         f'#who-{sid}:checked ~ .sched-wrap .s-row:not(.s-{sid}),#who-{sid}:checked ~ .sched-wrap .t-row,'
         f'#who-{sid}:checked ~ .sched-wrap .mev:not(.s-{sid}){{display:none}}'
-        f'#who-{sid}:checked ~ .s-tools label[for=who-{sid}]{{background:var(--c-14);color:#fff;border-color:var(--c-14)}}'
+        f'#who-{sid}:checked ~ .s-tools label[for=who-{sid}]{{background:var(--ag-c-14);color:#fff;border-color:var(--ag-c-14)}}'
         for sid, *_ in ROWS)
     style = f'<style>/* [2026-11-10] 담당자 거르기 — 생성 */\n{who_css}</style>'
     body = f'''<section class="board sched-page" aria-labelledby="t-sched">
 	<div class="board-h"><div><h1 id="t-sched">일정</h1>
 		<p class="sub">행 = 담당자, 맨 위 = 미담당 업체, 맨 아래 = 날짜별 합계 · 카드 색 = 일정 종류 · 이름을 누르면 그 사람만</p></div>
-		<a class="btn" href="#">엑셀 내려받기</a></div>
+		<a class="ag-btn" href="#">엑셀 내려받기</a></div>
 	{who_inputs}{kind_inputs}{wk_inputs}{view_inputs}
 	<div class="s-tools">
 		<div class="seg sm"><label for="sv-week">주</label><label for="sv-month">월</label></div>
@@ -331,7 +344,7 @@ def biz_row(b):
             f'<td class="ck"><input type="checkbox" class="js-ck" aria-label="{esc(b["name"])} 선택"></td>'
             f'<th scope="row"><button type="button" class="bname js-open" data-biz="{b["id"]}">{esc(b["name"])}</button></th>'
             f'<td>{x["ind"]}</td><td>{x["reg"]}</td><td class="js-owner">{owner}</td><td class="js-team">{team}</td>'
-            f'<td class="num">{len(b["camps"])} / {x["acc"]}</td><td class="num">{x["used"]:,}P</td><td>{iss}</td>'
+            f'<td class="ag-num">{len(b["camps"])} / {x["acc"]}</td><td class="ag-num">{x["used"]:,}P</td><td>{iss}</td>'
             f'<td class="muted">{x["reg_d"]}</td></tr>')
 
 
@@ -339,7 +352,7 @@ def archived_rows():
     return "".join(
         f'<tr class="brow f-arch" data-active="0" data-name="{n} {i} {r}"><td class="ck"><input type="checkbox" class="js-ck" aria-label="{n} 선택"></td>'
         f'<th scope="row"><span class="bname arch">{n}</span> <span class="tag-arch">보관</span></th><td>{i}</td><td>{r}</td>'
-        f'<td><span class="muted">—</span></td><td>—</td><td class="num">0 / {3 + k}</td><td class="num">0P</td><td><span class="muted">—</span></td>'
+        f'<td><span class="muted">—</span></td><td>—</td><td class="ag-num">0 / {3 + k}</td><td class="ag-num">0P</td><td><span class="muted">—</span></td>'
         f'<td class="muted">보관 {d}</td></tr>' for k, (n, i, r, d) in enumerate(ARCHIVED))
 
 
@@ -360,7 +373,7 @@ def biz_drawer(b):
           f'<dt>연락처</dt><dd>{x["tel"]}</dd><dt>사업자번호</dt><dd>{x["bno"]}</dd><dt>등록일</dt><dd>{x["reg_d"]}</dd></dl>'
           f'<h3 class="sec-t">담당자</h3><div class="assign"><select class="input js-own-sel" aria-label="담당자">'
           f'<option value="">미담당</option>{staff_opts(owner_sel)}</select>'
-          f'<button type="button" class="btn primary js-own-save" data-biz="{bid}">변경</button></div>'
+          f'<button type="button" class="ag-btn primary js-own-save" data-biz="{bid}">변경</button></div>'
           f'<p class="note">바꾸면 이 업체의 진행 캠페인 {len(b["camps"])}개가 모두 새 담당자에게 넘어갑니다 · 이력에 남음</p>'
           f'<h3 class="sec-t">지금 걸린 이슈</h3><div class="ichips">{ichips}</div>')
     cps = "".join(
@@ -369,24 +382,24 @@ def biz_drawer(b):
         f'<a href="campaigns.html#c-{cp_id(b, c)}" class="lk">상세 →</a></li>' for c in b["camps"])
     r = random.Random(77 + int(bid[1:]))
     use = "".join(f'<tr><td>11/{r.randint(1, 9):02d}</td><td>{esc(r.choice(b["camps"]))}</td><td>{r.choice(["예치", "지급", "추가 리워드", "예치금 복귀"])}</td>'
-                  f'<td class="num">{r.choice([-55000, -27500, -11000, 16500]):,}P</td></tr>' for _ in range(5))
-    rep = ('<ul class="replist"><li><b>11월 보고서</b><span class="st on">켜짐</span><span class="muted">만료 12/9 · 열람 3회</span>'
-           '<button type="button" class="btn sm">링크 복사</button></li>'
+                  f'<td class="ag-num">{r.choice([-55000, -27500, -11000, 16500]):,}P</td></tr>' for _ in range(5))
+    rep = ('<ul class="replist"><li><b>11월 보고서</b><span class="st ag-on">켜짐</span><span class="muted">만료 12/9 · 열람 3회</span>'
+           '<button type="button" class="ag-btn sm">링크 복사</button></li>'
            '<li><b>10월 보고서</b><span class="st off">만료</span><span class="muted">만료 11/8</span>'
-           '<button type="button" class="btn sm">다시 켜기</button></li></ul>'
-           '<a class="btn primary" href="reports.html">보고서 화면에서 관리 →</a>'
+           '<button type="button" class="ag-btn sm">다시 켜기</button></li></ul>'
+           '<a class="ag-btn primary" href="reports.html">보고서 화면에서 관리 →</a>'
            '<p class="note">보고서에는 리워드·포인트·수수료 금액이 나오지 않습니다(업체 고객용).</p>')
     memo = ('<textarea class="input memo-in" rows="3" placeholder="업체 메모 (대행사 안에서만 보임)"></textarea>'
-            '<button type="button" class="btn sm primary">메모 남기기</button>'
+            '<button type="button" class="ag-btn sm primary">메모 남기기</button>'
             '<ul class="memos"><li><b>김지은</b> · 11/6<p>사장님이 평일 저녁 방문만 원하심. 주말 체험은 받지 않기로.</p></li></ul>')
     log = "".join(f'<li><span class="muted">{d}</span> {t}</li>' for d, t in
                   [("11/8 14:20", "캠페인 ‘" + esc(b["camps"][0]) + "’ 등록"),
                    ("11/3 10:02", f'담당자 지정 → {b["owner"][1] if b["owner"] else "미담당"}'),
                    ("10/21 09:40", "업체 등록")])
     active = len(b["camps"])
-    arch_btn = (f'<button type="button" class="btn ghost-danger" disabled title="진행 캠페인이 있어 보관할 수 없습니다">보관</button>'
+    arch_btn = (f'<button type="button" class="ag-btn ghost-danger" disabled title="진행 캠페인이 있어 보관할 수 없습니다">보관</button>'
                 f'<span class="muted small">진행 중 {active}건을 먼저 완료·중단하세요</span>' if active else
-                '<button type="button" class="btn ghost-danger">보관</button>')
+                '<button type="button" class="ag-btn ghost-danger">보관</button>')
     return (f'<section class="pane bdrawer" data-bdrawer="{bid}" hidden>{radios}'
             f'<header class="pane-h"><p class="pane-biz">{x["ind"]} · {x["reg"]}</p>'
             f'<h2>{esc(b["name"])}</h2><div class="tabs" role="tablist">{tabbar}</div></header>'
@@ -395,7 +408,7 @@ def biz_drawer(b):
             f'<div class="tp tp-use"><table class="mini"><thead><tr><th>일자</th><th>캠페인</th><th>구분</th><th>금액</th></tr></thead>'
             f'<tbody>{use}</tbody></table><p class="note">포인트 1개에서 쓰고, 업체별로 사용내역만 나눠 봅니다.</p></div>'
             f'<div class="tp tp-rep">{rep}</div><div class="tp tp-memo">{memo}</div><div class="tp tp-log"><ul class="logs">{log}</ul></div>'
-            f'</div><footer class="pane-f"><div class="arch">{arch_btn}</div><button type="button" class="btn">정보 수정</button></footer></section>')
+            f'</div><footer class="pane-f"><div class="arch">{arch_btn}</div><button type="button" class="ag-btn">정보 수정</button></footer></section>')
 
 
 def register_dialog():
@@ -413,7 +426,7 @@ def register_dialog():
 			<label>사업자번호 <input class="input" placeholder="000-00-00000"></label>
 			<label>담당자 <select class="input"><option value="">미담당(나중에 배정)</option>{staff_opts()}</select></label>
 		</fieldset>
-		<footer><button value="cancel" class="btn">취소</button><button value="ok" class="btn primary js-reg-ok">등록</button></footer>
+		<footer><button value="cancel" class="ag-btn">취소</button><button value="ok" class="ag-btn primary js-reg-ok">등록</button></footer>
 	</form>
 </dialog>'''
 
@@ -425,7 +438,7 @@ def biz_page():
     body = f'''<section class="board biz-page" aria-labelledby="t-biz">
 	<div class="board-h"><div><h1 id="t-biz">업체</h1>
 		<p class="sub">업체 {len(BIZS)}곳 · 미담당 <b class="hot-t">{n_un}곳</b> · 보관 {len(ARCHIVED)}곳 · 업체마다 담당자 1명(캠페인은 업체 담당자를 따름)</p></div>
-		<button type="button" class="btn primary js-reg">+ 업체 등록</button></div>
+		<button type="button" class="ag-btn primary js-reg">+ 업체 등록</button></div>
 	<input type="radio" name="bf" id="bf-all" class="vr" checked><input type="radio" name="bf" id="bf-un" class="vr">
 	<input type="radio" name="bf" id="bf-iss" class="vr"><input type="radio" name="bf" id="bf-arch" class="vr">
 	<div class="s-tools">
@@ -436,13 +449,13 @@ def biz_page():
 	</div>
 	<div class="bulk" hidden><b class="js-bulk-n">0곳 선택</b>
 		<select class="input js-bulk-own" aria-label="새 담당자"><option value="">담당자 고르기</option>{staff_opts()}</select>
-		<button type="button" class="btn sm primary js-bulk-apply">담당자 변경</button>
-		<button type="button" class="btn sm ghost-danger js-bulk-arch">보관</button>
+		<button type="button" class="ag-btn sm primary js-bulk-apply">담당자 변경</button>
+		<button type="button" class="ag-btn sm ghost-danger js-bulk-arch">보관</button>
 		<span class="bulk-msg js-bulk-msg" role="status"></span>
-		<button type="button" class="btn sm ghost js-bulk-clear">선택 해제</button></div>
+		<button type="button" class="ag-btn sm ghost js-bulk-clear">선택 해제</button></div>
 	<div class="grid-wrap"><table class="btable">
 		<thead><tr><th class="ck"><input type="checkbox" class="js-ckall" aria-label="보이는 업체 모두 선택"></th><th>업체</th><th>업종</th><th>지역</th>
-		<th>담당자</th><th>팀</th><th class="num">진행 / 누적</th><th class="num">이번 달 사용</th><th>이슈</th><th>등록</th></tr></thead>
+		<th>담당자</th><th>팀</th><th class="ag-num">진행 / 누적</th><th class="ag-num">이번 달 사용</th><th>이슈</th><th>등록</th></tr></thead>
 		<tbody>{rows}</tbody></table>
 		<p class="empty-row js-bempty" hidden>조건에 맞는 업체가 없습니다</p></div>
 </section>{register_dialog()}'''

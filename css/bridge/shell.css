@@ -1,0 +1,17 @@
+/* [2026-11-12 v0.9] 광고주 셸(css/adv/main.css 의 .dashboard · .sidebar · .main-view)에 대행사 것을 붙이는 이음
+   여기만 광고주 class 와 대행사 class 를 같이 쓴다. 광고주 모양 자체는 바꾸지 않는다(값 덮기 금지).
+   예전 css/agency.css 앞머리에 섞여 있던 것을 옮김 — 태그 전체 규칙(svg · button · a · 스크롤바 · html/body)은
+   광고주 화면에도 먹어서 지움(스크롤바는 광고주 main.css 의 5px 얇은 막대를 그대로 씀) */
+
+/* 광고주 화면 틀 — 대행사 틀(.work) 없이 광고주 페이지가 .main-view 에 바로 놓인 것처럼(주소의 업체 범위 표시용 감싸개만 남김) */
+.adv-page{display:contents}
+
+/* 사이드바: 메뉴 숫자 · 업체 범위 아이콘 · 사용자 카드 금액 줄 */
+.nav-item.active .nav-num{background:#fff;color:var(--ag-danger)}
+.scope-box .material-symbols-outlined{font-size:18px}
+.user-info-row .info-label,.user-info-row .info-value{white-space:nowrap}   /* 포인트 금액이 길어 글자가 접히지 않게 */
+.sidebar .nav-item-wrap.add{outline-offset:-2px;margin:8px -4px;padding:4px}
+
+/* 광고주 요소에 붙은 대행사 추가분 점선(.add) — 줄처럼 이어지는 것은 점선 대신 옅은 보라 바탕, 글자 담는 줄은 여백 */
+.pct-row.add{outline:0;border-radius:0;background:#faf8ff}
+.card-desc.add,.rev-demo.add,.msg-snippet.add{padding:3px 8px}

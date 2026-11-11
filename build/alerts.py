@@ -32,11 +32,11 @@ SNOOZE = (("1시간 뒤", "1시간 뒤 다시 알림"), ("오늘 오후 6시", "
 
 def _acts(kind, rev):
     """종류별 바로 처리 버튼 — data-adone = 처리 후 남길 글자"""
-    b = lambda label, done, cls="": f'<button type="button" class="btn sm {cls}" data-adone="{done}">{label}</button>'
+    b = lambda label, done, cls="": f'<button type="button" class="ag-btn sm {cls}" data-adone="{done}">{label}</button>'
     if kind == "cancel":
         return b("취소 승인", "취소 승인함 · 빈자리 1", "primary") + b("거절", "취소 거절함")
     if kind == "report":
-        return '<a class="btn sm" href="#">신고 내용 보기 ↗</a>' + b("소명 보냄", "소명 보냄", "primary")
+        return '<a class="ag-btn sm" href="#">신고 내용 보기 ↗</a>' + b("소명 보냄", "소명 보냄", "primary")
     if kind == "payfail":
         return b("계좌 재등록 요청", "계좌 재등록 요청 보냄", "primary") + b("다시 지급", "다시 지급함")
     if kind == "deleted":
@@ -70,9 +70,9 @@ def card(a, demo=False):
     esc_tag = (f'<p class="al-esc">처리 안 된 지 2시간이 넘어 <b>팀장 {a["lead"]}</b>님에게도 알렸습니다</p>' if a.get("esc") else "")
     snooze = "" if lv == "i" else (
         '<details class="snooze"><summary>나중에</summary><div class="sz">'
-        + "".join(f'<button type="button" class="btn sm" data-snooze="{msg}">{lab}</button>' for lab, msg in SNOOZE)
+        + "".join(f'<button type="button" class="ag-btn sm" data-snooze="{msg}">{lab}</button>' for lab, msg in SNOOZE)
         + "</div></details>")
-    done_btn = "" if lv == "i" or kind in ("assigned",) else '<button type="button" class="btn sm ghost" data-adone="처리 완료">처리 완료</button>'
+    done_btn = "" if lv == "i" or kind in ("assigned",) else '<button type="button" class="ag-btn sm ghost" data-adone="처리 완료">처리 완료</button>'
     attrs = f' data-demo hidden' if demo else ""
     return (f'<article class="al-card lv-{lv} is-new" data-aid="{a["id"]}" data-biz="{a["bid"]}" data-lv="{lv}" data-kind="{kind}"'
             f'{f" data-go=\"{a["go"]}\"" if a.get("go") else ""}{attrs}>'
@@ -114,7 +114,7 @@ def make(bizs, camp_meta, type_name, staff_lead):
 def pane(shown, snoozed, demo):
     """오른쪽 패널의 '받은 알림' 화면"""
     chips = ('<div class="alvs" role="group" aria-label="알림 등급">'
-             '<button type="button" class="alv on" data-alv="">전체 <em class="js-alv-all"></em></button>'
+             '<button type="button" class="alv ag-on" data-alv="">전체 <em class="js-alv-all"></em></button>'
              '<button type="button" class="alv" data-alv="u"><span class="lvb lv-u">즉시</span><em class="js-alv-u"></em></button>'
              '<button type="button" class="alv" data-alv="c"><span class="lvb lv-c">확인</span><em class="js-alv-c"></em></button>'
              '<button type="button" class="alv" data-alv="i"><span class="lvb lv-i">참고</span><em class="js-alv-i"></em></button></div>')
@@ -126,15 +126,15 @@ def pane(shown, snoozed, demo):
         '<h2>처리할 알림 <em class="js-al-open"></em></h2>'
         '<p class="pane-camp">읽기만 해서는 사라지지 않습니다 — [처리] 또는 [나중에]를 누르세요</p>'
         f'{chips}<p class="al-bizf" hidden><span class="js-al-bizname"></span> 알림만 보는 중 '
-        '<button type="button" class="btn link js-al-allbiz">모든 업체</button></p></header>'
+        '<button type="button" class="ag-btn link js-al-allbiz">모든 업체</button></p></header>'
         '<div class="pane-b">'
         '<p class="al-morning">☀ 어제 못 끝낸 알림 <b>2건</b>이 남아 있어요 — 위에서부터 처리하세요</p>'
         f'<div class="al-list js-al-list">{"".join(card(a) for a in shown)}{card(demo, demo=True)}</div>'
         f'<details class="al-fold js-al-later"><summary>나중에 <em>{len(snoozed)}</em></summary><div class="al-list">{later}</div></details>'
         '<details class="al-fold js-al-done"><summary>처리됨 <em>0</em></summary><div class="al-list"></div></details>'
         '</div>'
-        '<footer class="pane-f"><a href="#" class="btn ghost">알림 설정 →</a>'
-        '<button type="button" class="btn primary js-close-alerts">격자로 돌아가기</button></footer></section>')
+        '<footer class="pane-f"><a href="#" class="ag-btn ghost">알림 설정 →</a>'
+        '<button type="button" class="ag-btn primary js-close-alerts">격자로 돌아가기</button></footer></section>')
 
 
 def bar():
@@ -146,4 +146,4 @@ def bar():
             '<button type="button" class="ab ab-c" data-open-alerts="c"><span class="lvb lv-c">확인</span><em class="js-ab-c">0</em>'
             '<span class="ab-kinds js-ab-ckinds"></span></button>'
             '<button type="button" class="ab ab-i" data-open-alerts="i"><span class="lvb lv-i">참고</span><em class="js-ab-i">0</em></button>'
-            '<button type="button" class="btn sm ab-all" data-open-alerts="">모두 보기</button></div>')
+            '<button type="button" class="ag-btn sm ab-all" data-open-alerts="">모두 보기</button></div>')

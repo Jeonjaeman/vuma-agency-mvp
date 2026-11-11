@@ -19,10 +19,10 @@
 		// data-biz = 그 업체 하나 / data-bizs = 여러 업체에 걸친 것(리뷰어 등, 공백으로 나눈 목록)
 		st.textContent = '.scoped [data-biz]:not([data-biz="' + biz + '"]),.scoped [data-bizs]:not([data-bizs~="' + biz + '"]){display:none!important}';
 		document.head.appendChild(st);
-		pick.classList.add('on');
+		pick.classList.add('ag-on');
 	} else {
 		var all = document.querySelector('.scope-pop .sp-all');
-		if (all) all.classList.add('on');
+		if (all) all.classList.add('ag-on');
 	}
 
 	// 링크에 범위 붙이기 — 범위 창 안 링크는 이미 ?biz= 를 갖고 있으니 건너뜀

@@ -5,7 +5,7 @@
   리뷰어 관리  = U:\\admin\\inc\\reviewer.inc.html (+ 참여 이력 = inc\\view\\reviewerHistory.inc.html)
   리뷰 검수    = U:\\admin\\inc\\reviewInspect.inc.html + reviewInspectModal.inc.html (창 내용 = script\\reviewInspect.js 가 채우던 것)
   지급 확인    = U:\\admin\\inc\\payoutCheck.inc.html
-  광고주는 탭·창·거르기를 JS(서버 왕복)로 바꿈 → 여기서는 radio/checkbox + :has() · popover 속성(css/v9-ops.css)
+  광고주는 탭·창·거르기를 JS(서버 왕복)로 바꿈 → 여기서는 radio/checkbox + :has() · popover 속성(css/bridge/ops.css)
   업체 범위: 줄마다 data-biz(여러 업체 = data-bizs) → js/scope.js 가 다른 업체 줄을 숨김. 업체·담당자 칸 = .col-biz.add
   관심·차단 리뷰어 = 대행사 공용(Q14 안) → 업체 범위와 상관없이 보임
   실행: python -I build/gen_ops.py  →  reviewers.html · inspect.html · payout.html
@@ -23,7 +23,7 @@ import gen_settle as S  # noqa: E402  (지급 묶음 — 대행사 추가분)
 P = D.P
 esc = K.esc
 COMPANY = "애니라인 마케팅"           # 광고주 화면의 $_SESSION['COMPANY'] 자리 = 대행사 이름
-CSS = K.CSS + '<link rel="stylesheet" href="css/v9-ops.css">'
+CSS = K.CSS + '<link rel="stylesheet" href="css/bridge/ops.css">'
 
 
 def ymd(off, short=True):
@@ -274,7 +274,7 @@ def build_reviewers():
     panes = {
         "all": rv_list(rv_card(r, i + 1, bizs_attr(r), full=True) for i, r in enumerate(RVS)),
         "fav": shared + rv_list(rv_card(r, i + 1) for i, r in enumerate(like)),
-        # 선정취소 요청 탭과 "선정취소한 리뷰어 보기" 는 같은 카드 한 벌(더미의 취소 = 같은 사람) — 어느 칸을 보일지는 css/v9-ops.css
+        # 선정취소 요청 탭과 "선정취소한 리뷰어 보기" 는 같은 카드 한 벌(더미의 취소 = 같은 사람) — 어느 칸을 보일지는 css/bridge/ops.css
         "cancelreq": rv_list((rv_card(r, i + 1, f' data-biz="{c["bid"]}"', cancelreq(c) + canceled(c)) for i, (r, c) in enumerate(creq)),
                              "선정취소 요청이 없습니다."),
         "blocked": shared + rv_list(rv_card(r, i + 1) for i, r in enumerate(block)),
@@ -483,7 +483,7 @@ def build_payout():
              '<input type="radio" name="role" id="role-admin" class="vr" checked><input type="radio" name="role" id="role-view" class="vr">'
              f'<div class="sp-p">{S.tab_pay()}</div></div>')
     body = f'{style}<div class="page-container mp-container pc">{tabs}{pay_check(rows)}{batch}</div>'
-    write("payout.html", "포인트 지급 확인", "payc", body, "ops.js settle.js", '<link rel="stylesheet" href="css/settle.css">')
+    write("payout.html", "포인트 지급 확인", "payc", body, "ops.js settle.js", '<link rel="stylesheet" href="css/ag/settle.css">')
 
 
 if __name__ == "__main__":

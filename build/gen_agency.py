@@ -40,8 +40,8 @@ def load(sid):
 
 
 def tab_staff(rows):
-    heads = [("이름", ""), ("역할", ""), ("팀", ""), ("담당 업체", "num"), ("진행 캠페인", "num"), ("이슈", "num"),
-             ("기한 지남·오늘", "num"), ("마지막 접속", ""), ("상태", ""), ("", "")]
+    heads = [("이름", ""), ("역할", ""), ("팀", ""), ("담당 업체", "ag-num"), ("진행 캠페인", "ag-num"), ("이슈", "ag-num"),
+             ("기한 지남·오늘", "ag-num"), ("마지막 접속", ""), ("상태", ""), ("", "")]
     trs = []
     for s in rows:
         bz, camps, iss, hot = load(s["sid"])
@@ -73,10 +73,10 @@ def tab_teams(rows):
         mem = " ".join(f'<span class="chip">{n}</span>' for _s, n, _l in members)
         cards.append(f'<div class="card"><h3>{tname}</h3><p>팀장 <b>{lead}</b></p><p>{mem}</p>'
                      f'<p class="muted">업체 {len(bz)}곳 · 이슈 {iss}건</p>'
-                     f'<p style="margin-top:10px"><a class="btn sm" href="dashboard.html">대시보드에서 이 팀 보기</a> '
+                     f'<p style="margin-top:10px"><a class="ag-btn sm" href="dashboard.html">대시보드에서 이 팀 보기</a> '
                      f'{K.btn("팀 이름·팀원", pop="pop-team")}</p></div>')
     cards.append(f'<div class="card"><h3>+ 새 팀</h3><p class="muted">팀장 1명 + 팀원. 팀장은 자기 팀 업체를 모두 볼 수 있습니다.</p>'
-                 f'<p style="margin-top:10px">{K.btn("팀 만들기", pop="pop-team", cls="btn sm primary")}</p></div>')
+                 f'<p style="margin-top:10px">{K.btn("팀 만들기", pop="pop-team", cls="ag-btn sm primary")}</p></div>')
     return f'<div class="cards">{"".join(cards)}</div>'
 
 
@@ -142,7 +142,7 @@ def build():
             f'<div class="kpi"><p>미담당 업체</p><b class="bad">{sum(1 for b in P.BIZS if not b["owner"])}곳</b><small>담당자 배정 필요</small></div>'
             f'<div class="kpi main"><p>로그인 계정</p><b>직원마다 1개</b><small>정보·지갑·패널티는 대행사 하나</small></div></div>')
     body = (K.head("팀·담당자", "직원 · 팀 · 역할 — 업체마다 담당자 1명, 담당자 = 알림 받는 사람(8-5)",
-                   K.btn("+ 직원 초대", pop="pop-invite", cls="btn primary"), legend=False)
+                   K.btn("+ 직원 초대", pop="pop-invite", cls="ag-btn primary"), legend=False)
             + kpis + K.tabs("tm", [("직원", tab_staff(rows)), ("팀", tab_teams(rows)), ("역할과 권한", tab_perm())]) + pops(rows))
     K.write("team.html", "팀·담당자", "team", body)
 

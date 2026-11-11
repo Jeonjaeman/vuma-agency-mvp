@@ -10,7 +10,7 @@
   penalty ← penalty.inc.html
   info    ← mypage\\mypage.inc.html + mypage\\profile.inc.html(내 정보 수정 창)
   help    ← notice\\notifications · notice · inquiry · faq .inc.html + help.html(전체 도움말 · pageHelp 글 틀)
-  광고주가 JS 로 하던 것(탭 · 창 · 거르기 · 펼치기) = 숨은 라디오/체크 + :has() · popover — css/v9-account.css
+  광고주가 JS 로 하던 것(탭 · 창 · 거르기 · 펼치기) = 숨은 라디오/체크 + :has() · popover — css/bridge/account.css
   광고주 화면에 없는 대행사 추가분 = class="add"(점선) · K.add_tag() · 업체 칸 = col-biz
   실행: python -I build/gen_account.py
 """
@@ -86,7 +86,7 @@ BANKS = ["국민은행", "신한은행", "우리은행", "하나은행", "농협
 # 1:1 문의 유형(광고주) = 실서버 taxonomy(inquiryAd)
 QNA_TYPES = ["캠페인 등록/심사", "리뷰어/선정", "리뷰 검수", "포인트/정산", "결제/이용권", "계정/기타"]
 # [2026-11-11 v0.9] ops.css(.add · .add-tag · 상태 배지) + 이 화면들 붙임 CSS
-EXTRA = K.CSS + '<link rel="stylesheet" href="css/v9-account.css">'
+EXTRA = K.CSS + '<link rel="stylesheet" href="css/bridge/account.css">'
 WEEK = "월화수목금토일"
 
 
@@ -265,7 +265,8 @@ def panel_charge():
              '<button type="button" class="btn-view-terms" popovertarget="termPayment">약관보기</button></div></div>'
              + flash("포인트 충전 신청하기", "시안: 나이스페이 결제창으로 이동합니다", "pm-btn-submit") + "</div>")
     # 대행사: 지갑 1개를 모든 업체가 함께 씀 · 충전은 관리자만
-    who = (f'<p class="pm-amount-notice add">{tag()} 지갑 1개를 모든 업체가 함께 씁니다. 충전은 <b>관리자</b>만 — 담당자는 '
+    # [2026-11-12] 글을 span 하나로 — 줄(flex) 안에서 "충전은 관리자만" 사이 띄어쓰기가 사라지지 않게
+    who = (f'<p class="pm-amount-notice add">{tag()} <span>지갑 1개를 모든 업체가 함께 씁니다. 충전은 <b>관리자</b>만 — 담당자는</span> '
            + flash("관리자에게 충전 요청", "시안: 관리자에게 충전 요청을 보냈습니다", "pm-preset-btn") + "</p>")
     return f'<div class="pm-panel pm-panel-charge v9p">{who}{amount}{method}{evidence}{terms}</div>'
 

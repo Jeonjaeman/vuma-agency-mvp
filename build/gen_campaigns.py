@@ -9,7 +9,7 @@
   추가모집 요청 창 = admin/inc/campaign/rerecruitRequest.inc.html · 캠페인수정 메뉴 = admin/index.html .campaign-edit-menu
   대행사 추가분(.add 점선): 업체·담당자 줄 · 진행 단계 칩 · 걸린 이슈 · 복제 · 보고서 탭 · 담당자 거르기 · 급한 순 정렬 · 예치 · 지급
   광고주는 JS 로 여닫는 것을 여기서는 HTML/CSS 로:
-    상태 탭 · 채널/유형 · 정렬 · 썸네일형/목록형 · 이미지 빼고 보기 = 라디오/체크박스/select + :has() (css/v9-camp.css + list_style())
+    상태 탭 · 채널/유형 · 정렬 · 썸네일형/목록형 · 이미지 빼고 보기 = 라디오/체크박스/select + :has() (css/bridge/camp.css + list_style())
     채널/유형 드롭다운 · 추가모집 요청 창 · 캠페인수정 메뉴 = popover
     상세(광고주는 모달) = 화면 안 패널, 열기·탭 = 주소 #c-<id>[-ov|-app|-rev|-log|-inq|-rep] + :target
   검색·담당자·선정 표시만 js/campaigns.js.
@@ -218,7 +218,7 @@ def list_style():
 
 
 def drop(name, label, items):
-    """광고주 .custom-dropdown(채널전체 · 유형전체) — 패널은 popover(버튼 아래에 붙임: css/v9-camp.css anchor)"""
+    """광고주 .custom-dropdown(채널전체 · 유형전체) — 패널은 popover(버튼 아래에 붙임: css/bridge/camp.css anchor)"""
     cks = "".join(f'<label class="custom-checkbox"><input type="checkbox" id="{name}-{k}" value="{k}" checked>'
                   f'<span class="checkmark"></span><span class="chk-label">{v}</span></label>' for k, v in items)
     return (f'<div class="custom-dropdown"><button type="button" class="cmp-select dropdown-btn dd-{name}" popovertarget="dd-{name}">{label}</button>'
@@ -675,7 +675,7 @@ def tab_badge(c, k):
 
 def detail(c):
     """광고주 campaignView.inc.html — 모달 대신 화면 안 패널. 패널은 모두 .is-active 를 달고(광고주 배치 규칙을 그대로 받으려고)
-       보이고 숨기는 것은 css/v9-camp.css 의 :target 규칙이 정한다"""
+       보이고 숨기는 것은 css/bridge/camp.css 의 :target 규칙이 정한다"""
     b, cid = c["b"], c["id"]
     tabs = "".join(f'<a href="#c-{cid}-{k}" class="detail-tab{" add" if k == "rep" else ""}" data-tab="{dt}" role="tab" '
                    f'aria-controls="c-{cid}-{k}">{lab}{tab_badge(c, k)}</a>' for k, dt, lab in TABS)
@@ -754,7 +754,7 @@ def pops():
 def campaigns_page():
     body = (f'<div class="cmp-layout camp-page" aria-label="캠페인 리스트">{adv_camp_tabs("camp")}{list_view()}'
             f'{"".join(detail(c) for c in D.CAMPS)}{pops()}</div>')
-    css = (K.CSS + '<link rel="stylesheet" href="css/campaigns.css"><link rel="stylesheet" href="css/v9-camp.css">' + list_style())
+    css = (K.CSS + '<link rel="stylesheet" href="css/ag/campaigns.css"><link rel="stylesheet" href="css/bridge/camp.css">' + list_style())
     return P.page("캠페인 리스트", "camp", body, None, css, "ops.js campaigns.js")
 
 

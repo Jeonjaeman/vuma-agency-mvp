@@ -8,7 +8,7 @@
   video.html         영상 제작 요청  ← U:\\admin\\inc\\videoRequest.inc.html + script/videoRequest.js open()
   messages.html      쪽지            ← U:\\admin\\inc\\message\\receivedMessages · sentMessages · sendBox.inc.html
                                       (광고주는 4 화면, 여기선 한 파일 + 라디오 탭 — 탭 줄 .msg-box-tabs 는 그대로)
-  광고주가 JS 로 여닫는 창(.modal-wrap · .modal-overlay)은 popover 로 연다(css/v9-media.css).
+  광고주가 JS 로 여닫는 창(.modal-wrap · .modal-overlay)은 popover 로 연다(css/bridge/media.css).
   대행사 차이 = 모든 업체를 한 화면에(카드·줄마다 data-biz → js/scope.js 가 한 업체 범위면 숨김),
   업체·담당자 줄(.col-biz) · 보고서 링크에 싣기 · 포인트 차감 · 쪽지의 업체·캠페인 표시 — 모두 .add / add_tag 로 표시.
   실행: python -I build/gen_ops2.py
@@ -31,7 +31,7 @@ TONG_POINT = 1_284_500               # 포인트 잔액(시안 값)
 CH_KEY = {"블로그": "blog", "쇼츠": "youtube", "인스타": "insta", "릴스": "insta"}
 NO_REASON = ["동의 범위 밖(블로그 게시만)", "리뷰어 얼굴 포함", "광고 사용 미동의", "화질 낮음"]
 SU_SCOPE = ["자사몰 · SNS 광고 · 1년", "자사몰 · 6개월", "SNS 광고 · 2년"]
-CSS = K.CSS + '<link rel="stylesheet" href="css/v9-media.css">'
+CSS = K.CSS + '<link rel="stylesheet" href="css/bridge/media.css">'
 
 
 # ── 공통 ──────────────────────────────────────────────
@@ -196,7 +196,7 @@ def build_photos():
         items, su_on, scope = photo_set(c)
         cards.append(photo_card(c, items, su_on, scope))
         pops.append(photo_modal(c, items, su_on, scope))
-    # 채널 거르기: 광고주는 <a href="?ch=…"> 새로 불러오기 → 여기선 라디오 + :has() (css/v9-media.css)
+    # 채널 거르기: 광고주는 <a href="?ch=…"> 새로 불러오기 → 여기선 라디오 + :has() (css/bridge/media.css)
     radios = "".join(f'<input type="radio" name="rpch" id="rpch-{k}" class="v9-r"{" checked" if k == "all" else ""}>'
                      for k in ("all", "blog", "youtube", "insta"))
     btns = "".join(f'<label for="rpch-{k}" class="btn btn--sm btn--outline">{lab}</label>'
@@ -632,7 +632,7 @@ def build_messages():
     p1, pop1 = note_pane(1, "snt", "쪽지함", "", outbox, OUT_MSG, True, unread)
     p2 = send_pane(2, "sms", unread)
     p3 = send_pane(3, "mail", unread)
-    # 탭 = 라디오 넷(css/v9-media.css 가 고른 쪽 카드만 보임) — 각 카드 안 탭 줄은 광고주처럼 자기 탭이 --active
+    # 탭 = 라디오 넷(css/bridge/media.css 가 고른 쪽 카드만 보임) — 각 카드 안 탭 줄은 광고주처럼 자기 탭이 --active
     radios = "".join(f'<input type="radio" name="mb" id="mb-{i}" class="v9-r"{" checked" if i == 0 else ""}>' for i in range(4))
     note = ('<p class="add v9-note v9-msgnote">광고주 사이트에 채팅은 없습니다(10-28 제거) — 리뷰어와는 쪽지로. '
             f'받은 쪽지는 업체 담당자에게 배정됩니다{K.add_tag()}</p>')
