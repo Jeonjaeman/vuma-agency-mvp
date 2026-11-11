@@ -74,7 +74,7 @@ def card(a, demo=False):
         + "</div></details>")
     done_btn = "" if lv == "i" or kind in ("assigned",) else '<button type="button" class="btn sm ghost" data-adone="처리 완료">처리 완료</button>'
     attrs = f' data-demo hidden' if demo else ""
-    return (f'<article class="alert lv-{lv} is-new" data-aid="{a["id"]}" data-biz="{a["bid"]}" data-lv="{lv}" data-kind="{kind}"'
+    return (f'<article class="al-card lv-{lv} is-new" data-aid="{a["id"]}" data-biz="{a["bid"]}" data-lv="{lv}" data-kind="{kind}"'
             f'{f" data-go=\"{a["go"]}\"" if a.get("go") else ""}{attrs}>'
             f'<div class="al-h"><span class="lvb lv-{lv}">{LEVEL[lv]}</span><b>{KINDS[kind][1]}</b>'
             f'<span class="al-t">{a["time"]}</span><i class="new-dot" aria-label="새 알림"></i></div>'
@@ -118,7 +118,7 @@ def pane(shown, snoozed, demo):
              '<button type="button" class="alv" data-alv="u"><span class="lvb lv-u">즉시</span><em class="js-alv-u"></em></button>'
              '<button type="button" class="alv" data-alv="c"><span class="lvb lv-c">확인</span><em class="js-alv-c"></em></button>'
              '<button type="button" class="alv" data-alv="i"><span class="lvb lv-i">참고</span><em class="js-alv-i"></em></button></div>')
-    later = "".join(card(a) for a in snoozed).replace('class="alert ', 'class="alert is-snoozed ', 1)
+    later = "".join(card(a) for a in snoozed).replace('class="al-card ', 'class="al-card is-snoozed ', 1)
     later = later.replace('<div class="al-acts">', '<p class="al-sz">오늘 오후 6시에 다시 알림</p><div class="al-acts">', 1)
     return (
         '<section class="pane pane-alert" data-panel="alerts" hidden>'

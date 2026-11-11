@@ -412,7 +412,7 @@
 	var KIND_NAME = { cancel: '취소 요청', report: '신고 접수', payfail: '지급 실패', deleted: '리뷰 삭제·비공개', msg: '쪽지·문의', rereview: '리뷰 재등록', assigned: '담당 배정', paid: '입금 완료', charged: '충전 완료' };
 	var baseTitle = document.title;
 
-	function openAlerts() { return Array.prototype.slice.call(alPane.querySelectorAll('.js-al-list .alert:not([hidden])')); }
+	function openAlerts() { return Array.prototype.slice.call(alPane.querySelectorAll('.js-al-list .al-card:not([hidden])')); }
 	function kindsText(list) {
 		var seen = {};
 		list.forEach(function (a) { seen[a.dataset.kind] = (seen[a.dataset.kind] || 0) + 1; });
@@ -432,8 +432,12 @@
 		setText('.js-al-open', (by.u.length + by.c.length) + '건');
 		document.querySelector('.alertbar').classList.toggle('has-u', by.u.length > 0);
 		var need = by.u.length + by.c.length;          // 처리해야 하는 것만 센다(참고 제외)
+		// [2026-11-12 v0.9] 위 막대의 종(.bell)이 광고주 사이드바 아이콘 줄로 바뀜 — 없는 .bell 을 건드려 스크립트가 멈추고
+		//   대시보드 클릭이 모두 안 되던 문제. 이제 사이드바 [알림] 아이콘의 빨간 점을 처리할 알림이 있을 때만 보인다
 		var bell = document.querySelector('.bell i');
-		bell.textContent = need; bell.hidden = !need;
+		if (bell) { bell.textContent = need; bell.hidden = !need; }
+		var dot = document.querySelector('.sidebar-icons .icon-btn[title="알림"] .badge-dot');
+		if (dot) dot.hidden = !need;
 		document.title = (need ? '(' + need + ') ' : '') + baseTitle;
 		// 업체 알림 점: 즉시·확인 건수, 즉시가 있으면 빨강
 		var perBiz = {};
@@ -449,8 +453,8 @@
 			d.setAttribute('aria-label', b ? '처리할 알림 ' + b.n + '건' : '');
 			d.closest('tr').classList.toggle('has-alert', !!b);
 		});
-		alPane.querySelector('.js-al-later summary em').textContent = alPane.querySelectorAll('.js-al-later .alert').length;
-		alPane.querySelector('.js-al-done summary em').textContent = alPane.querySelectorAll('.js-al-done .alert').length;
+		alPane.querySelector('.js-al-later summary em').textContent = alPane.querySelectorAll('.js-al-later .al-card').length;
+		alPane.querySelector('.js-al-done summary em').textContent = alPane.querySelectorAll('.js-al-done .al-card').length;
 	}
 
 	// 알림 패널 열기 — lv = 등급 거르기('' 전체), biz = 업체 하나만
@@ -467,7 +471,7 @@
 		current = null;
 		setAlertLevel(lv || '');
 		alPane.dataset.biz = biz || '';
-		alPane.querySelectorAll('.alert').forEach(function (a) { a.classList.toggle('f-out', !!biz && a.dataset.biz !== biz); });
+		alPane.querySelectorAll('.al-card').forEach(function (a) { a.classList.toggle('f-out', !!biz && a.dataset.biz !== biz); });
 		var note = alPane.querySelector('.al-bizf');
 		note.hidden = !biz;
 		if (biz) note.querySelector('.js-al-bizname').textContent = grid.querySelector('.bizlink[data-biz="' + biz + '"]').textContent;
@@ -479,7 +483,7 @@
 
 	// 처리 / 나중에 — 카드를 아래 접힌 묶음으로 옮긴다
 	function alertDone(btn) {
-		var a = btn.closest('.alert');
+		var a = btn.closest('.al-card');
 		a.querySelector('.al-acts').replaceWith(doneTag(btn.dataset.adone));
 		a.classList.remove('is-new', 'is-snoozed');
 		a.classList.add('is-done');
@@ -488,7 +492,7 @@
 		if (btn.classList.contains('js-al-go') && a.dataset.go) openPane(a.dataset.go);
 	}
 	function alertSnooze(btn) {
-		var a = btn.closest('.alert');
+		var a = btn.closest('.al-card');
 		a.classList.remove('is-new');
 		a.classList.add('is-snoozed');
 		var old = a.querySelector('.al-sz');
@@ -531,7 +535,7 @@
 
 	// 시연: 화면을 연 뒤 잠시 후 새 취소 요청이 들어온다
 	setTimeout(function () {
-		var demo = alPane.querySelector('.alert[data-demo]');
+		var demo = alPane.querySelector('.al-card[data-demo]');
 		if (!demo) return;
 		demo.hidden = false;
 		demo.removeAttribute('data-demo');
@@ -556,7 +560,7 @@
 
 	// 이벤트 하나로 묶어서 처리 (위임)
 	document.addEventListener('click', function (e) {
-		var card = e.target.closest('.alert.is-new');
+		var card = e.target.closest('.al-card.is-new');
 		if (card) card.classList.remove('is-new');      // 읽음 표시만 — 목록에서는 안 빠진다
 		var blog = e.target.closest('a.js-blog');
 		if (blog) { e.preventDefault(); return checkBlog(blog); }

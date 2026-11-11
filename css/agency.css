@@ -26,7 +26,7 @@ button,input,select{font:inherit;color:inherit}
 .sidebar .ver{font-size:11px;font-weight:700;color:var(--ag-main);background:var(--ag-main-light);padding:1px 6px;border-radius:var(--r-full);text-decoration:none;margin-left:4px}
 .nav-num{margin-left:auto;min-width:22px;height:18px;padding:0 6px;border-radius:var(--r-full);background:var(--ag-danger);color:#fff;font-size:11px;font-weight:700;display:grid;place-items:center}
 .nav-item.active .nav-num{background:#fff;color:var(--ag-danger)}
-.sidebar .nav-item-wrap.add{outline-offset:-2px;margin:0 -4px;padding:0 4px}
+/* (사이드바 대행사 관리 점선 — 아래 v0.9 .add 묶음에서 정함) */
 .scope-box{display:flex;flex-direction:column;gap:6px;padding:10px 12px;border-radius:8px}
 .scope-l{margin:0;font-size:12px;color:var(--c-9)}
 .scope-box .scope-biz{display:flex;align-items:center;gap:6px;height:34px;padding:0 10px;border:1px solid var(--c-4);border-radius:8px;background:#fff;font-size:13px;cursor:pointer;width:100%}
@@ -531,21 +531,23 @@ tr.camp .tot{font-size:12px;color:var(--c-8)}
 .alv em{font-style:normal}
 .alv.on{border-color:var(--c-14);box-shadow:inset 0 0 0 1px var(--c-14)}
 .al-bizf{margin:10px 0 0;font-size:12px;font-weight:700;color:var(--ag-main)}
-.pane-alert[data-lv="u"] .js-al-list .alert:not(.lv-u),
-.pane-alert[data-lv="c"] .js-al-list .alert:not(.lv-c),
-.pane-alert[data-lv="i"] .js-al-list .alert:not(.lv-i),
-.alert.f-out{display:none}
+.pane-alert[data-lv="u"] .js-al-list .al-card:not(.lv-u),
+.pane-alert[data-lv="c"] .js-al-list .al-card:not(.lv-c),
+.pane-alert[data-lv="i"] .js-al-list .al-card:not(.lv-i),
+.al-card.f-out{display:none}
 .al-morning{margin:0 0 12px;padding:10px 12px;border-radius:var(--r-md);background:var(--ag-warning-light);color:var(--ag-warning);font-size:12px;font-weight:600}
 .al-list{display:flex;flex-direction:column;gap:10px}
-.alert{border:1px solid var(--c-3);border-radius:var(--r-md);padding:12px 14px 12px 17px;background:#fff;box-shadow:inset 4px 0 0 var(--lvc,var(--c-4))}
-.alert.lv-u{--lvc:var(--ag-danger)}
-.alert.lv-c{--lvc:var(--ag-info)}
-.alert.lv-i{--lvc:var(--c-4)}
-.alert.is-new{background:#fffdfa}
+/* [2026-11-12 v0.9] 이름 .alert → .al-card — 광고주 alertMessage.css 의 .alert(화면 전체를 덮는 고정 확인창 z-index 20000)와 겹쳐
+   알림 카드가 화면을 덮고 대시보드 클릭이 막혔음 */
+.al-card{border:1px solid var(--c-3);border-radius:var(--r-md);padding:12px 14px 12px 17px;background:#fff;box-shadow:inset 4px 0 0 var(--lvc,var(--c-4))}
+.al-card.lv-u{--lvc:var(--ag-danger)}
+.al-card.lv-c{--lvc:var(--ag-info)}
+.al-card.lv-i{--lvc:var(--c-4)}
+.al-card.is-new{background:#fffdfa}
 .al-h{display:flex;align-items:center;gap:8px;font-size:13px}
 .al-t{margin-left:auto;font-size:11px;color:var(--c-8)}
 .new-dot{width:8px;height:8px;border-radius:50%;background:var(--ag-danger);display:none}
-.alert.is-new .new-dot{display:inline-block}
+.al-card.is-new .new-dot{display:inline-block}
 .al-biz{margin:6px 0 2px;font-size:12px;font-weight:700;color:var(--c-11)}
 .al-biz .ty{font-size:10px;padding:0 5px}
 .al-txt{margin:0;font-size:13px;color:var(--c-11)}
@@ -557,8 +559,8 @@ tr.camp .tot{font-size:12px;color:var(--c-8)}
 .snooze summary{list-style:none;cursor:pointer;height:30px;padding:0 10px;border:1px dashed var(--c-4);border-radius:var(--r-full);font-size:12px;font-weight:600;color:var(--c-9);display:inline-flex;align-items:center}
 .snooze summary::-webkit-details-marker{display:none}
 .snooze .sz{position:absolute;right:0;top:34px;z-index:5;display:flex;flex-direction:column;gap:4px;padding:8px;background:#fff;border:1px solid var(--c-3);border-radius:var(--r-md);box-shadow:var(--sh-md);min-width:140px}
-.alert.is-done{opacity:.6}
-.alert.is-snoozed{border-style:dashed}
+.al-card.is-done{opacity:.6}
+.al-card.is-snoozed{border-style:dashed}
 .al-fold{margin-top:14px}
 .al-fold summary{cursor:pointer;font-size:12px;font-weight:700;color:var(--c-9);padding:6px 0}
 .al-fold summary em{font-style:normal;color:var(--c-14)}
@@ -600,3 +602,14 @@ tr.camp .tot{font-size:12px;color:var(--c-8)}
 .seg .on{font-weight:700}
 .tchip,.pill{border-radius:6px}
 .otabs label{font-size:13px;font-weight:500;color:var(--c-14)}
+
+/* ── [2026-11-12 v0.9] 대행사 추가분(.add) 점선 — 모든 화면 공통(ops.css 에서 옮김) ──
+   점검(r77): 점선이 바깥 2px 에만 그려져 안 글자가 점선에 3px 로 붙고, 사이드바 묶음은 위아래 메뉴에 0px 로 닿았음.
+   ① 글자 담는 상자는 좌우 6px 여백 — :where() 라 무게 0: 광고주/대행사 CSS 가 여백을 정해 둔 상자는 그 값을 그대로 쓴다
+   ② 줄처럼 이어 붙는 것(표 칸 · 비교표 줄 · 상태 탭 줄)은 점선 대신 옅은 보라 바탕 — 줄마다 점선이면 서로 닿고 잘림 */
+.add{outline:1.5px dashed #b9a5ff;outline-offset:2px;border-radius:6px}
+:where(:is(span,p,div,section,li,dd,dt,label,small,b,strong,em).add){padding-left:6px;padding-right:6px}
+.pc-tabs.add{width:fit-content;max-width:100%}
+:is(td,th,.pct-row,.pc-tabs).add{outline:0;border-radius:0;background:#faf8ff}
+.card-agency.add,.card-desc.add,.rev-demo.add,.msg-snippet.add{padding:3px 8px}
+.sidebar .nav-item-wrap.add{outline-offset:-2px;margin:8px -4px;padding:4px}
