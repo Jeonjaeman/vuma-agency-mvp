@@ -1,0 +1,273 @@
+/*=====================================================
+블로그지수 뱃지 (3사이트 공용)   [2026-08-14]
+
+  core/lib/classes/blogIndex.class.php 의 badgeHtml() 이 그린다.
+  광고주 리뷰어목록 · 신청자목록 · 마스터 리뷰어목록 · 상세 · 찜목록에서
+  모두 같은 모양이어야 해서 core 에 둔다.
+
+  ★ 색은 각 사이트의 .badge 규칙을 그대로 쓴다(badge--success 등).
+    여기서는 배치와 크기만 잡는다 — 사이트마다 색 체계가 다르다.
+=====================================================*/
+
+.bi-badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	vertical-align: middle;
+	white-space: nowrap;
+}
+
+.bi-badge strong {
+	font-size: 13px;
+	font-weight: 700;
+	color: #333;
+}
+
+.bi-badge--sm strong {
+	font-size: 12px;
+}
+
+/*
+90일 넘게 새 글이 없는 블로그.
+  ★ 점수가 이미 절반으로 깎인 상태다. 그 사실이 보여야
+    "왜 이 사람 점수가 낮지" 를 묻지 않는다.
+*/
+.bi-stale {
+	padding: 1px 5px;
+	border-radius: 3px;
+	background: #fdecec;
+	color: #c0392b;
+	font-size: 11px;
+	font-weight: 700;
+}
+
+/* 아직 수집 전 — 목록에서 자리만 지킨다 */
+.bi-none {
+	color: #b0b0b5;
+	font-size: 12px;
+}
+
+/*
+준비 안내 — 표가 없거나 아직 수집 전일 때만 나온다.
+  ★ 준비가 끝나면 사라진다. 늘 떠 있는 안내는 아무도 안 읽는다.
+*/
+.bi-notice {
+	display: flex;
+	align-items: flex-start;
+	gap: 6px;
+	margin: 0 0 14px;
+	padding: 12px 14px;
+	background: #fff8e6;
+	border: 1px solid #f0d18a;
+	border-radius: 8px;
+	font-size: 13px;
+	line-height: 1.6;
+	color: #6b5314;
+}
+
+.bi-notice .material-symbols-outlined {
+	font-size: 18px;
+	flex-shrink: 0;
+}
+
+/*
+'/10' — 10점 만점임을 숫자 옆에서 바로 알린다.
+  ★ 점수만 두었더니 "7.2 가 무슨 뜻이냐" 는 질문을 받았다.
+    작게, 흐리게 — 숫자를 가리지 않으면서 척도만 알려준다.
+*/
+.bi-max {
+	font-size: 11px;
+	color: #1b1b1b; /* [10-21] ← #9a9aa0 */
+	font-weight: 400;
+	margin-left: 1px;
+}
+
+/*=====================================================
+블로그지수 조회 페이지 (리뷰어 사이트)   [2026-08-14]
+  /etc/blogIndex.html — 메뉴에 없다. 주소를 아는 사람만 쓴다.
+=====================================================*/
+
+.bi-page { max-width: 640px; margin: 0 auto; padding: 30px 0 60px; }
+
+.bi-page__title { margin: 0 0 8px; font-size: 24px; font-weight: 700; color: #1a1a1a; }
+.bi-page__desc  { margin: 0 0 24px; font-size: 14px; line-height: 1.7; color: #1b1b1b; /* [10-21] ← #6d6d6d */ }
+
+.bi-form { display: flex; gap: 8px; }
+
+.bi-form__input {
+	flex: 1;
+	min-width: 0;
+	height: 48px;
+	padding: 0 16px;
+	border: 1px solid #ddd;
+	border-radius: 10px;
+	font-size: 15px;
+	font-family: inherit;
+	outline: none;
+}
+.bi-form__input:focus { border-color: #7346f3; }
+
+.bi-form__btn {
+	height: 48px;
+	padding: 0 24px;
+	border: 0;
+	border-radius: 10px;
+	background: #7346f3;
+	color: #fff;
+	font-size: 15px;
+	font-weight: 700;
+	cursor: pointer;
+}
+.bi-form__btn:hover { opacity: .9; }
+
+/* 이 파일의 소수점 폰트를 정리했다 — 11.5→12 · 12.5→13 · 13.5→14 (admin/css/_revert_260902_fontScale.orig 규칙) [2026-09-18] */
+.bi-form__hint { margin: 8px 0 0; font-size: 13px; color: #1b1b1b; /* [10-21] ← #8e8e93 */ }
+
+.bi-alert {
+	margin: 18px 0 0;
+	padding: 12px 14px;
+	border-radius: 8px;
+	background: #fdecec;
+	border: 1px solid #f5c2c2;
+	font-size: 14px;
+	line-height: 1.6;
+	color: #7a4a4a;
+}
+.bi-alert--warn { background: #fff8e6; border-color: #f0d18a; color: #6b5314; }
+
+.bi-result {
+	margin-top: 24px;
+	padding: 24px 20px;
+	border: 1px solid #e7e7e7;
+	border-radius: 12px;
+	background: #fff;
+}
+
+.bi-result__head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 16px; }
+.bi-result__id   { font-size: 15px; font-weight: 700; color: #333; word-break: break-all; }
+.bi-result__link { font-size: 13px; color: #7346f3; text-decoration: none; white-space: nowrap; }
+
+/* 점수 */
+.bi-score { display: flex; align-items: baseline; gap: 8px; margin-bottom: 14px; }
+.bi-score__grade {
+	padding: 4px 10px;
+	border-radius: 20px;
+	font-size: 13px;
+	font-weight: 700;
+	background: #f0f0f2;
+	color: #1b1b1b; /* [10-21] ← #555 */
+}
+.bi-score--semi .bi-score__grade { background: #e8f1ff; color: #1a63c7; }
+.bi-score--opt  .bi-score__grade { background: #e6f7ec; color: #1a8a4a; }
+
+.bi-score__num { font-size: 38px; font-weight: 700; color: #1a1a1a; line-height: 1; }
+.bi-score__max { font-size: 15px; color: #1b1b1b; /* [10-21] ← #9a9aa0 */ }
+
+/* 단계 막대 — 숫자만으로는 높은지 낮은지 알 수 없다 */
+.bi-bar {
+	position: relative;
+	height: 10px;
+	border-radius: 6px;
+	background: linear-gradient(90deg, #e9e9ec 0 30%, #d9e7fb 30% 60%, #d6f0e0 60% 100%);
+	margin-bottom: 26px;
+}
+.bi-bar__fill {
+	position: absolute; left: 0; top: 0; bottom: 0;
+	border-radius: 6px;
+	background: #7346f3;
+	opacity: .85;
+}
+.bi-bar__marks {
+	display: flex;
+	margin-top: 6px;
+	font-size: 12px;
+	color: #1b1b1b; /* [10-21] ← #9a9aa0 */
+}
+.bi-bar__marks span { flex: 0 0 30%; }
+.bi-bar__marks span:nth-child(2) { flex: 0 0 30%; text-align: center; }
+.bi-bar__marks span:nth-child(3) { flex: 1; text-align: right; }
+
+.bi-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.bi-table th,
+.bi-table td { padding: 11px 0; border-bottom: 1px solid #f0f0f2; text-align: left; }
+.bi-table th { width: 120px; color: #1b1b1b; /* [10-21] ← #6d6d6d */ font-weight: 500; }
+.bi-table td { color: #222; font-weight: 600; }
+.bi-table--sm { font-size: 13px; margin-top: 4px; }
+.bi-table--sm th { width: auto; }
+.bi-table--sm td { font-weight: 500; }
+
+.bi-muted { color: #9a9aa0; font-weight: 400; font-size: 13px; }
+
+.bi-detail { margin-top: 18px; }
+.bi-detail summary { cursor: pointer; font-size: 14px; color: #7346f3; }
+
+@media (max-width: 480px) {
+	.bi-page { padding: 20px 16px 40px; }
+	.bi-score__num { font-size: 32px; }
+}
+
+
+/*=====================================================
+포스팅 진단분석 — 점수 막대   [2026-08-14]
+  ★ 숫자만 보여주면 70% 가 높은 건지 낮은 건지 알 수 없다.
+    색으로 한눈에 갈리게 한다.
+=====================================================*/
+.bp-score th{ text-align:left; font-weight:600; }
+.bp-bar{
+	position:relative;
+	height:14px;
+	background:#eef0f3;
+	border-radius:7px;
+	overflow:hidden;
+}
+.bp-bar__fill{
+	position:absolute;
+	left:0; top:0; bottom:0;
+	border-radius:7px;
+	transition:width .3s ease;
+}
+.bp-bar--good{ background:#27ae60; }
+.bp-bar--mid { background:#f39c12; }
+.bp-bar--bad { background:#c0392b; }
+
+
+/*=====================================================
+진단 화면 KPI 카드   [2026-08-14]
+  ★ NSIDE 처럼 항목을 카드로 늘어놓는다.
+    표로 세로로 쌓으면 여섯 항목을 한눈에 비교할 수 없다.
+=====================================================*/
+.bi-kpis{
+	display:flex;
+	flex-wrap:wrap;
+	gap:10px;
+}
+.bi-kpi{
+	flex:1 1 150px;
+	min-width:130px;
+	padding:14px 12px;
+	border:1px solid #e3e6ea;
+	border-radius:8px;
+	background:#fff;
+	text-align:center;
+}
+.bi-kpi--strong{
+	border-color:#4a5568;
+	background:#f7f9fc;
+}
+.bi-kpi__label{
+	font-size:13px;
+	color: #1b1b1b; /* [10-21] ← #6b7280 */
+	margin-bottom:6px;
+}
+.bi-kpi__value{
+	font-size:20px;
+	font-weight:700;
+	color:#1f2937;
+	line-height:1.3;
+	word-break:break-all;
+}
+.bi-kpi__note{
+	margin-top:5px;
+	font-size:12px;
+	color: #1b1b1b; /* [10-21] ← #9aa3af */
+}

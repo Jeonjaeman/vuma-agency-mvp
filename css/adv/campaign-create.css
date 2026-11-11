@@ -1,0 +1,2274 @@
+/* 캠페인 등록 모달 스타일 */
+.campaign-create-modal.modal-wrap {
+    display: flex;
+    overflow-y: auto;
+    padding: 20px 0;
+    align-items: flex-start;
+    /* 스크롤 가능하도록 상단 정렬 지원 */
+}
+
+/* =====================================================
+   등록창 폭 고정   [2026-08-14]
+
+   ★ 왜 단계마다 폭이 달라졌나
+     .campaign-create-modal 은 display:flex 다.
+     그런데 조각(campaignCreate.inc.html)을 넣으면 그 안에 <form> 이 들어오고,
+     실제 flex 항목은 .create-modal-content 가 아니라 그 <form> 이 된다.
+     폼에는 폭이 없으니 '내용만큼'(shrink-to-fit) 으로 줄어들고,
+     그 안의 width:95% 는 이미 줄어든 폼을 기준으로 다시 계산된다.
+     → 3단계 기타안내처럼 칸이 하나뿐인 화면에서 창이 확 작아졌다.
+
+   → 폼에 폭을 직접 준다. 이제 어떤 단계로 옮겨도 폭이 그대로다.
+   ===================================================== */
+.campaign-create-modal form[name="campaignForm"] {
+    width: 95%;
+    max-width: 800px;
+    margin: auto;
+    flex: 0 0 auto;			/* 내용이 적어도 줄지 않는다 */
+    min-width: 0;
+}
+
+.campaign-create-modal form[name="campaignForm"] > .create-modal-content {
+    width: 100%;
+    max-width: none;
+}
+
+.campaign-create-modal .create-modal-content {
+    margin: auto;
+}
+
+.create-modal-content {
+    max-width: 800px;
+    width: 95%;
+    max-height: 90vh;
+    border-radius: 20px;
+    padding: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    position: relative; /* 에디터 로딩 오버레이 기준 */
+}
+
+/* 에디터 로딩 오버레이 */
+.editor-loading {
+    position: absolute;
+    inset: 0;
+    z-index: 30;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(2px);
+}
+
+.editor-loading-spinner {
+    width: 44px;
+    height: 44px;
+    border: 4px solid #e5e7eb;
+    border-top-color: #7346f3;
+    border-radius: 50%;
+    animation: editorLoadingSpin 0.8s linear infinite;
+}
+
+.editor-loading-text {
+    font-size: 14px;
+    font-weight: 600;
+    color: #7346f3;
+}
+
+@keyframes editorLoadingSpin {
+    to { transform: rotate(360deg); }
+}
+
+.create-modal-header {
+    padding: 30px 40px 10px;
+    text-align: center;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.create-modal-header .modal-title {
+    font-size: 28px;
+    font-weight: 800;
+    color: #111;
+    margin-bottom: 30px;
+}
+
+.create-modal-header .btn-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid #ddd;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.create-modal-header .btn-close:hover {
+    background: #f5f5f5;
+}
+
+/* 스텝 인디케이터 */
+.step-indicator {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0;
+    margin-bottom: 40px;
+    padding: 0 40px;
+}
+
+.step-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    position: relative;
+    z-index: 1;
+}
+
+.step-num {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #e5e7eb;
+    color: var(--color-text-14); /* [10-21] ← #9ca3af */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 16px;
+    transition: all 0.3s;
+}
+
+.step-label {
+    font-size: 13px;
+    color: var(--color-text-14); /* [10-21] ← #9ca3af */
+    font-weight: 600;
+}
+
+.step-line {
+    flex: 1;
+    height: 2px;
+    background: #e5e7eb;
+    margin: -25px 10px 0;
+    max-width: 80px;
+}
+
+.step-item.active .step-num {
+    background: #7346f3;
+    color: #fff;
+    box-shadow: 0 4px 10px rgba(124, 58, 237, 0.3);
+}
+
+.step-item.active .step-label {
+    color: #7346f3;
+}
+
+.step-item.completed .step-num {
+    background: #7346f3;
+    color: #fff;
+}
+
+.step-line.active {
+    background: #7346f3;
+}
+
+/* 모달 본문 폼 스타일 */
+.create-modal-body {
+    padding: 0 40px 40px;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.step-content {
+    display: none;
+}
+
+.step-content.active {
+    display: block;
+}
+
+.step-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #111;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #333;
+}
+
+.form-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.form-table tr {
+    border-bottom: 1px solid #eee;
+}
+
+.form-table th {
+    width: 140px;
+    padding: 20px 10px;
+    text-align: left;
+    font-size: 15px;
+    font-weight: 700;
+    color: #333;
+    vertical-align: middle;
+}
+
+.form-table td {
+    padding: 20px 0;
+    vertical-align: middle;
+}
+
+.cc-form-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.cc-form-group.align-start {
+    align-items: flex-start;
+}
+
+.cc-sub-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    width: 60px;
+    flex-shrink: 0;
+}
+
+.cc-form-group.align-start .cc-sub-title {
+    margin-top: 12px;
+}
+
+/* 입력 요소들 */
+.input-with-btn {
+    display: flex;
+    /*
+    ★ [2026-09-02] align-items: center 추가
+
+      원래 align-items 가 없어 기본값 stretch 였다.
+      자식이 INPUT(44px) + BUTTON 인 경우는 둘 다 44px 이라 티가 안 났지만,
+      자식에 그냥 SPAN 이 들어가는 두 자리에서 어긋났다.
+
+        보유 포인트   : SPAN "0 P"(13px) + BUTTON "포인트 충전"(14px)
+        총사용 포인트 : INPUT(44px) + SPAN 안내문구(13px)
+
+      stretch 라 SPAN 의 '박스' 는 44px 로 늘어나는데
+      그 안의 '글자' 는 박스 위쪽에 붙는다.
+      버튼은 제 라벨을 안에서 가운데 두므로, 결과적으로
+      박스는 맞고 글자만 위로 뜬 상태가 됐다.
+
+      center 로 두면 SPAN 박스가 글자 높이만큼만 잡히고
+      버튼과 가운데가 맞는다.
+      ※ INPUT·BUTTON 은 높이가 고정이라 영향 없다 (실측 확인).
+    */
+    align-items: center;
+    gap: 10px;
+}
+
+.cc-input {
+    height: 44px;
+    padding: 0 15px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+}
+
+.cc-form-group>.cc-input,
+.input-with-btn>.cc-input {
+    flex: 1;
+}
+
+/*
+★ [2026-09-02] span 으로 만든 .cc-input 의 글자 세로 정렬
+
+  지역 칸은 읽기 전용이라 <input> 이 아니라 <span class="cc-input"> 으로 되어 있다.
+  .cc-input 은 height:44px · padding:0 15px 인데,
+  진짜 <input> 은 브라우저가 글자를 세로 가운데에 놓아 주지만
+  <span> 은 그런 처리가 없어 글자가 박스 위에 붙는다.
+
+  실측 (지역 "전국")
+    수정 전 : 글자 위 여백 1px / 아래 여백 23px   ← 22px 어긋남
+    수정 후 : 위 12px / 아래 12px
+
+  ※ <input> 에는 이 규칙이 걸리지 않게 span 으로 한정한다.
+    input 에 이 값을 주면 브라우저 기본 처리와 충돌한다.
+
+  ※ display:flex + align-items:center 로도 가운데는 맞출 수 있지만
+    그렇게 하면 말줄임(…)이 동작하지 않는다.
+    지역 값은 요소로 감싸이지 않은 순수 텍스트라
+    flex 안에서 익명 항목이 되어 text-overflow 가 걸리지 않기 때문이다.
+    → 블록 박스를 유지한 채 line-height 로 가운데를 맞춘다.
+      42px = 높이 44px − 위아래 테두리 1px 씩 (box-sizing: border-box)
+
+  ※ 지역을 여러 개 고르면 글자가 길어진다.
+    한 줄로 두고 넘치면 …으로 자른다 — 줄바꿈되면 박스를 뚫고 나간다.
+*/
+span.cc-input {
+    line-height: 42px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.cc-input:focus {
+    border-color: #7346f3;
+}
+
+.cc-input:read-only {
+    background-color: #f7f7f7;
+    color: #ababab;
+    border-color: #efefef;
+}
+
+/*
+★ [2026-09-02] 태그 결과 목록 — .cc-hashtag-list / .cc-hash-tag
+
+  이 두 클래스에는 CSS 가 한 줄도 없었다.
+  마크업(inc/campaign/campaignCreate.inc.html)과 script/campaign/campaign.js 가
+  아래 형태로 만들어 내는데 받아 줄 스타일이 없어서,
+  추가한 태그가 맨 글자로 죽 이어져 나왔다.
+
+    <span class="cc-hash-tag" tagval="청주맛집">청주맛집
+      <span class="material-symbols-outlined">close</span>
+    </span>
+
+  실측 (수정 전)
+    · 박스 없음      display:inline / padding:0 / 배경·테두리 없음
+    · 세로줄 어긋남  결과 목록 x=588.8 vs 입력란 x=658.8  → 70px 왼쪽
+    · 닫기 정렬      아이콘 중심 420.8 vs 글자 중심 426.8 → 6px 위로 뜸
+                     아이콘이 24px 라 14px 글자보다 훨씬 컸다
+
+  ※ 이 클래스는 인스타 해시태그뿐 아니라
+    유튜브 해시태그·검색키워드, 틱톡 해시태그·검색키워드 등이 함께 쓴다.
+    한 곳만 고치는 게 아니라 그 전부에 적용된다.
+*/
+.cc-hashtag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    /*
+    입력란과 왼쪽 시작선을 맞춘다.
+      .cc-form-group 은 flex · gap 10px
+      .cc-sub-title 는 width 60px
+      → 입력란은 왼쪽에서 70px 지점에서 시작한다.
+    이 목록은 .cc-form-group 의 형제라 그 들여쓰기를 물려받지 못하므로
+    같은 값을 직접 준다.
+    */
+    margin-left: 70px;
+}
+
+/* 목록이 비어 있을 때 gap 때문에 빈 자리가 생기지 않게 한다 */
+.cc-hashtag-list:empty {
+    display: none;
+}
+
+.cc-hash-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    height: 32px;
+    padding: 0 6px 0 12px;
+    border: 1px solid var(--color-main);
+    border-radius: var(--r-full);
+    background: var(--color-main-light);
+    color: var(--color-main);
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.cc-hash-tag .material-symbols-outlined {
+    /*
+    닫기(×) — 글자와 같은 줄에 맞춘다.
+      24px(기본) → 16px. 13px 글자 옆에 붙는 아이콘이라 이 정도가 맞다.
+      inline-flex 의 align-items:center 가 세로 중심을 맞춰 준다.
+    */
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+    border-radius: var(--r-full);
+    transition: background .15s ease;
+}
+
+.cc-hash-tag .material-symbols-outlined:hover {
+    background: rgba(115, 70, 243, 0.15);
+}
+
+@media (max-width: 768px) {
+    /*
+    모바일에서는 .cc-sub-title 이 width:100% 로 바뀌어
+    입력란이 왼쪽 끝(0)에서 시작한다. 들여쓰기를 없앤다.
+    */
+    .cc-hashtag-list {
+        margin-left: 0;
+    }
+}
+
+.cc-input-md {
+    max-width: 500px;
+}
+
+.cc-input-sm {
+    max-width: 140px;
+}
+
+.cc-input-zip {
+    width: 110px;
+    flex: none;
+}
+
+.cc-btn-sub {
+    height: 44px;
+    padding: 0 15px;
+    background: #fff;
+    border: 1px solid #111;
+    border-radius: 10px;
+    font-size: 14px;
+    font-family: inherit;
+    font-weight: 600;
+    color: #111;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.cc-btn-sub:hover {
+    background: #f9f9f9;
+}
+
+/*
+★ [2026-09-02] span 으로 만든 .cc-btn-sub 의 글자 세로 정렬
+
+  상세이미지의 '이미지 첨부' 는 파일 선택 <label> 안에 들어 있어
+  <button> 이 아니라 <span class="cc-btn-sub cc-btn-sub-sm"> 으로 되어 있다.
+  브라우저는 진짜 <button> 의 라벨만 세로 가운데에 놓아 주므로
+  span 은 글자가 박스 위에 붙는다.
+
+  실측 (상세이미지 '이미지 첨부', 높이 36px)
+    수정 전 : 글자 위 1px / 아래 15px     ← span
+    비교군   : 글자 위 12px / 아래 12px   ← button.cc-btn-sub (높이 44px)
+    수정 후 : 위 8px / 아래 8px
+
+  ※ line-height 로 맞추지 않는다.
+    .cc-btn-sub 는 높이가 세 가지다 — 44px / 36px(-sm) / 40px(모바일).
+    flex 로 두면 어느 높이에서나 가운데가 맞는다.
+  ※ <button> 에는 걸지 않는다. 이미 올바르게 가운데 정렬돼 있고,
+    괜히 display 를 바꾸면 기존 배치가 흔들린다.
+*/
+span.cc-btn-sub {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cc-btn-sub-sm {
+    height: 36px;
+    padding: 0 12px;
+}
+
+/* 유틸리티 클래스 */
+.cc-flex-column {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.cc-flex-row {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.cc-flex-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.cc-gap-8 {
+    gap: 8px;
+}
+
+.cc-gap-5 {
+    gap: 5px;
+}
+
+.cc-gap-10 {
+    gap: 10px;
+}
+
+.cc-gap-15 {
+    gap: 15px;
+}
+
+.cc-gap-20 {
+    gap: 20px;
+}
+
+.cc-mb-5 {
+    margin-bottom: 5px;
+}
+
+.cc-mb-10 {
+    margin-bottom: 10px;
+}
+
+.cc-mb-16 {
+    margin-bottom: 16px;
+}
+
+.cc-mb-20 {
+    margin-bottom: 20px;
+}
+
+.cc-mb-24 {
+    margin-bottom: 24px;
+}
+
+.cc-mt-10 {
+    margin-top: 10px;
+}
+
+.cc-mt-12 {
+    margin-top: 12px;
+}
+
+.cc-ml-0 {
+    margin-left: 0;
+}
+
+.cc-ml-10 {
+    margin-left: 10px;
+}
+
+.cc-w-full {
+    width: 100%;
+}
+
+.cc-w-auto {
+    width: auto;
+}
+
+.cc-flex-none {
+    flex: none;
+}
+
+.cc-text-gray {
+    color: var(--color-text-14); /* [10-21] ← #999 */
+}
+
+.cc-text-orange {
+    color: #f59e0b;
+}
+
+.cc-text-lightgray {
+    color: #ccc;
+}
+
+.cc-text-black {
+    color: #333;
+}
+
+.cc-fs-13 {
+    font-size: 13px;
+}
+
+.cc-fs-14 {
+    font-size: 14px;
+}
+
+.cc-fs-16 {
+    font-size: 16px;
+}
+
+.cc-fw-500 {
+    font-weight: 500;
+}
+
+.cc-fw-600 {
+    font-weight: 600;
+}
+
+.cc-fw-700 {
+    font-weight: 700;
+}
+
+/* 추가 유틸리티 */
+.cp-pointer {
+    cursor: pointer;
+}
+
+.cc-hide {
+    display: none !important;
+}
+
+.cc-db {
+    display: block;
+}
+
+.cc-va-bottom {
+    vertical-align: bottom;
+}
+
+.cc-pt-5 {
+    padding-top: 5px;
+}
+
+.cc-pb-5 {
+    padding-bottom: 5px;
+}
+
+.cc-mr-4 {
+    margin-right: 4px;
+}
+
+.cc-text-white {
+    color: #fff !important;
+}
+
+.cc-text-darkgray {
+    color: var(--color-text-14); /* [10-21] ← #666 */
+}
+
+.cc-text-red {
+    color: #ef4444;
+}
+
+.td-no-border {
+    border-bottom: none !important;
+}
+
+.cc-bb {
+    border-bottom: 1px solid var(--color-text-4) !important;
+}
+
+.badge-radius {
+    border-radius: 4px !important;
+}
+
+.br-black {
+    border: 1px solid #333 !important;
+}
+
+.cc-tag-check.active {
+    border: 1px solid #7346f3;
+    background: #7346f3;
+}
+
+/* 체크박스 & 라디오 태그 스타일 */
+.cc-tag-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 12px;
+}
+
+.cc-tag-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-text-14); /* [10-21] ← #666 */
+    user-select: none;
+}
+
+.cc-tag-label input {
+    display: none;
+}
+
+.cc-tag-check {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 1px solid #ddd;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.cc-tag-check::after {
+    content: 'check';
+    font-family: 'Material Symbols Outlined';
+    font-size: 14px;
+    color: #fff;
+    display: none;
+}
+
+.cc-tag-label input:checked+.cc-tag-check {
+    background: #7346f3;
+    border-color: #7346f3;
+}
+
+.cc-tag-label input:checked+.cc-tag-check::after {
+    display: block;
+}
+
+.cc-tag-label input:checked~.cc-tag-text {
+    color: #7346f3;
+    font-weight: 700;
+}
+
+/* 일정 입력 */
+.date-range-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--color-text-14); /* [10-21] ← #666 */
+    font-size: 14px;
+}
+
+.date-input-box {
+    position: relative;
+    width: 140px;
+}
+
+.date-input-box .cc-input {
+    width: 100%;
+}
+
+.date-icon {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #999;
+    font-size: 20px;
+    pointer-events: none;
+}
+
+/* 모집인원 */
+.recruit-row {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+}
+
+.recruit-count-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.recruit-count-box .cc-input {
+    width: 80px;
+    text-align: right;
+}
+
+/* 이미지 업로드 영역 */
+.upload-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.upload-box {
+    width: 120px;
+    height: 120px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #f9f9f9;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--color-text-14); /* [10-21] ← #999 */
+    transition: all 0.2s;
+    /*
+    ★ [2026-09-02] 아이콘–글자 사이 간격을 margin 에서 gap 으로 옮겼다.
+
+      원래 `.upload-box span { margin-top: 4px }` 였는데 이 셀렉터가
+      아이콘 span(.material-symbols-outlined) 에도 걸려서
+      아이콘 위에도 4px 이 붙었다.
+
+      flex 는 마진까지 포함해 가운데를 맞추므로 '박스 기준' 으로는 정확했지만,
+      아이콘 위 4px 은 빈 공간이고 글자 아래에는 짝이 되는 여백이 없어
+      눈에 보이는 내용은 4px 아래로 처져 보였다.
+
+      실측 (120×120 박스)
+        수정 전 : 내용 위 40px / 아래 36px   ← 4px 어긋남
+        수정 후 : 위 37px / 아래 37px
+    */
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.upload-box:hover {
+    border-color: #7346f3;
+    background: var(--color-main-light);
+}
+
+.upload-box .material-symbols-outlined {
+    font-size: 24px;
+}
+
+.upload-box span {
+    font-size: 11px;
+    /* ★ [2026-09-02] margin-top: 4px 제거 → .upload-box 의 gap 으로 옮겼다 */
+}
+
+.upload-box.attached {
+    position: relative;
+    border: none;
+    overflow: hidden;
+}
+
+.upload-box[draggable="true"] {
+    cursor: grab;
+}
+
+.upload-box.dragging {
+    opacity: 0.35;
+    cursor: grabbing;
+}
+
+.upload-box.drag-over {
+    outline: 2px dashed #7346f3;
+    outline-offset: 2px;
+    border-radius: 8px;
+}
+
+.upload-box.attached img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.upload-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    /* 이미지 어둡게 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.upload-box.attached:hover .upload-overlay {
+    opacity: 1;
+}
+
+.btn-upload-action {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #fff;
+    border: none;
+    color: var(--color-text-14); /* [10-21] ← #444 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transition: all 0.2s;
+}
+
+.btn-upload-action:hover {
+    transform: scale(1.1);
+}
+
+.btn-upload-action.delete:hover {
+    background: #ef4444;
+    color: #fff;
+}
+
+.btn-upload-action.update:hover {
+    background: #7346f3;
+    color: #fff;
+}
+
+.btn-upload-action span {
+    font-size: 18px !important;
+    margin-top: 0 !important;
+}
+
+.upload-help {
+    font-size: 12px;
+    color: #f59e0b;
+    /* margin-left: 12px; */
+}
+
+/* 텍스트 영역 */
+.cc-textarea {
+    width: 100%;
+    height: 120px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    resize: none;
+    transition: border-color 0.2s;
+}
+
+/* 키워드 태그 */
+.cc-keyword-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.cc-keyword-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    background: #f3eeff;
+    color: #7346f3;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.cc-keyword-tag.white {
+    background: #fff;
+    border: 1px solid #ddd;
+    color: #333;
+}
+
+.cc-keyword-tag .material-symbols-outlined {
+    font-size: 14px;
+    cursor: pointer;
+}
+
+/* 안내 박스 */
+.guide-box {
+    background: #f9f9f9;
+    border-radius: 8px;
+    padding: 20px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #333;
+    position: relative;
+}
+
+.guide-box.white {
+    background: #fff;
+    border: 1px solid #ddd;
+}
+
+.btn-reset-small {
+    position: absolute;
+    right: 15px;
+    top: 15px;
+    background: none;
+    border: none;
+    font-size: 11px;
+    font-family: inherit;
+    color: var(--color-text-14); /* [10-21] ← #999 */
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+}
+
+.btn-reset-small:hover {
+    color: var(--color-text-14); /* [10-21] ← #666 */
+}
+
+/* 미션 그리드 */
+.mission-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 5px;
+}
+
+.mission-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: #f9f9f9;
+    padding: 10px 5px;
+    border-radius: 10px;
+    letter-spacing: -0.5px;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+}
+
+.mission-item:has(input:checked) {
+    background: #fff;
+    border-color: #7346f3;
+    box-shadow: 0 4px 10px rgba(124, 58, 237, 0.1);
+}
+
+.mission-item .cc-tag-label {
+    margin: 0;
+}
+
+.mission-sub {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    color: var(--color-text-14); /* [10-21] ← #666 */
+    transition: opacity 0.2s;
+}
+
+.mission-item:not(:has(input:checked)) .mission-sub {
+    opacity: 0.3;
+    pointer-events: none;
+}
+
+.mission-sub select {
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 2px 4px;
+    font-size: 12px;
+    font-family: inherit;
+    color: #111;
+}
+
+/* 푸터 버튼 배치 */
+.btn-cc-wrap {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+}
+
+.cc-flex-end {
+    margin-left: auto;
+    display: flex;
+    gap: 10px;
+}
+
+/* 가이드 내용 박스 */
+.guide-box {
+    background: #fff;
+    border: 1px solid #ddd;
+    padding: 20px;
+    border-radius: 6px;
+    font-size: 13px;
+    color: var(--color-text-14); /* [10-21] ← #555 */
+    line-height: 1.6;
+}
+
+
+/* 모달 푸터 */
+.create-modal-footer {
+    padding: 20px 40px 40px;
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-shrink: 0;
+    border-top: 1px solid #eee;
+}
+
+.btn-cc {
+    height: 48px;
+    padding: 0 30px;
+    border-radius: 10px;
+    font-size: 15px;
+    font-family: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-cc-white {
+    background: #fff;
+    border: 1px solid #ddd;
+    color: var(--color-text-14); /* [10-21] ← #666 */
+}
+
+.btn-cc-black {
+    background: #fff;
+    border: 1px solid #333;
+    color: #333;
+}
+
+.btn-cc-primary {
+    background: #7346f3;
+    border: none;
+    color: #fff;
+    padding: 0 40px;
+}
+
+.btn-cc-primary:hover {
+    background: #6236e7;
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+}
+
+/* 데이트 피커 레이어 스타일 */
+.dp-layer {
+    display: none;
+    position: absolute;
+    /* fixed 대신 absolute를 사용하여 부모 스크롤 대응 가능하게 하거나 필요한 경우 fixed 유지 */
+    z-index: 13000;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    width: 280px;
+    padding: 20px;
+    font-family: inherit;
+}
+
+.dp-header {
+    display: grid;
+    grid-template-columns: 32px 1fr 32px 32px;
+    /* 이전, 정보, 다음, 닫기 순서대로 공간 배분 */
+    align-items: center;
+    gap: 0;
+    margin-bottom: 20px;
+}
+
+.dp-month-info {
+    font-size: 16px;
+    font-weight: 800;
+    color: #111;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+}
+
+.dp-month-info select {
+    border: none;
+    background: none;
+    font-size: 16px;
+    font-weight: 800;
+    color: #111;
+    cursor: pointer;
+    padding: 2px 4px;
+    border-bottom: 2px solid #111;
+    outline: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+.dp-month-info select:hover {
+    background: #f9f9f9;
+}
+
+.dp-nav-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #111;
+}
+
+.dp-nav-btn.prev {
+    justify-self: start;
+}
+
+.dp-nav-btn.next {
+    justify-self: end;
+}
+
+.dp-close-btn {
+    justify-self: end;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #111;
+    padding: 0;
+    display: flex;
+    align-items: center;
+}
+
+.dp-nav-btn span,
+.dp-close-btn span {
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.dp-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    margin-bottom: 10px;
+}
+
+.dp-weekdays span {
+    text-align: center;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-text-14); /* [10-21] ← #666 */
+}
+
+.dp-weekdays span.sun {
+    color: #ef4444;
+}
+
+.dp-weekdays span.sat {
+    color: #3b82f6;
+}
+
+.dp-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px 0;
+}
+
+.dp-day {
+    text-align: center;
+    font-size: 15px;
+    font-weight: 500;
+    height: 36px;
+    line-height: 36px;
+    cursor: pointer;
+    border-radius: 50%;
+    transition: all 0.2s;
+    position: relative;
+    color: #333;
+}
+
+.dp-day:hover:not(.empty) {
+    background: #f3f4f6;
+}
+
+.dp-day.other {
+    color: #d1d5db;
+}
+
+.dp-day.sun {
+    color: #ef4444;
+}
+
+.dp-day.sat {
+    color: #3b82f6;
+}
+
+.dp-day.sun.other,
+.dp-day.sat.other {
+    color: #fecaca;
+}
+
+/* 연한 색상 */
+
+.dp-day.selected {
+    background: #14b8a6 !important;
+    /* 캡처와 비슷한 바다색 */
+    color: #fff !important;
+    font-weight: 700;
+}
+
+.dp-day.today::after {
+    content: '';
+    position: absolute;
+    bottom: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 14px;
+    height: 2px;
+    background: #111;
+}
+
+/* 캡처의 30일과 같은 굵은 밑줄 스타일 */
+.dp-day.highlight {
+    font-weight: 800;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    text-decoration-thickness: 2px;
+}
+
+/* 이전 캠페인 불러오기 모달 스타일 */
+.campaign-load-modal {
+    z-index: 13000;
+    /* 캠페인 등록 모달(12000) 위에 위치 */
+}
+
+.load-modal-content {
+    max-width: 580px;
+    width: 95%;
+    max-height: 90vh;
+    border-radius: 20px;
+    padding: 30px 0;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+}
+
+.load-modal-content .btn-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #333;
+    color: #fff;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 1;
+}
+
+.load-modal-header {
+    margin-bottom: 25px;
+    text-align: center;
+    position: relative;
+    flex-shrink: 0;
+    padding: 0 40px;
+}
+
+.load-modal-header .modal-title {
+    font-size: 24px;
+    font-weight: 800;
+    color: #111;
+}
+
+.load-search-wrap {
+    margin-bottom: 20px;
+    flex-shrink: 0;
+    padding: 0 40px;
+}
+
+.load-search-box {
+    display: flex;
+    border: 1px solid #7346f3;
+    border-radius: 10px;
+    overflow: hidden;
+    height: 48px;
+    box-sizing: border-box;
+}
+
+.load-search-box input {
+    flex: 1;
+    border: none;
+    padding: 0 20px;
+    font-size: 16px;
+    outline: none;
+}
+
+.load-search-box .btn-search {
+    background: #fff;
+    border: none;
+    color: #7346f3;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 20px;
+    font-weight: 800;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.load-filter-row {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 15px;
+    flex-shrink: 0;
+    padding: 0 40px;
+}
+
+.load-sort-select {
+    height: 32px;
+    padding: 0 25px 0 5px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-text-14);
+    border: none;
+    background: #fff url('data:image/svg+xml;utf8,<svg width="10" height="6" xmlns="http://www.w3.org/2000/svg"><path d="M1 1l4 4 4-4" stroke="%23999" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>') no-repeat right center;
+    appearance: none;
+    cursor: pointer;
+    outline: none;
+}
+
+.load-list-body {
+    flex: 1;
+    overflow-y: auto;
+    margin-bottom: 25px;
+    padding: 1px 16px;
+    /* 측면 패딩 추가하여 외곽선 짤림 방지 */
+    border-top: 1px solid #eee;
+}
+
+/* 스크롤바 미려하게 */
+.load-list-body::-webkit-scrollbar {
+    width: 5px;
+}
+
+.load-list-body::-webkit-scrollbar-thumb {
+    background: #eee;
+    border-radius: 10px;
+}
+
+.load-list-body::-webkit-scrollbar-thumb:hover {
+    background: #ddd;
+}
+
+.load-item {
+    display: flex;
+    align-items: center;
+    padding: 20px 0;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+}
+
+.load-item:hover {
+    background: #fdfbff;
+}
+
+.load-item.selected {
+    background: var(--color-main-light);
+    padding-left: 15px;
+    padding-right: 15px;
+    border-radius: 12px;
+    border: 1px solid #7346f3;
+    margin-top: -1px;
+    z-index: 1;
+}
+
+.load-item-check {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 1px solid #ddd;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 20px;
+    flex-shrink: 0;
+    transition: all 0.2s;
+}
+
+.load-item.selected .load-item-check {
+    background: #7346f3;
+    border-color: #7346f3;
+}
+
+.load-item-check .material-symbols-outlined {
+    font-size: 18px;
+    color: #fff;
+    display: block;
+    opacity: 0;
+}
+
+.load-item.selected .load-item-check .material-symbols-outlined {
+    opacity: 1;
+}
+
+.load-item-img {
+    width: 90px;
+    height: 90px;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-right: 20px;
+    flex-shrink: 0;
+    border: 1px solid #eee;
+}
+
+.load-item-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.load-item-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.load-item-badges {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 8px;
+}
+
+.badge-sns {
+    height: 24px;
+    padding: 0 4px;
+    /* 아이콘 위주이므로 패딩 축소 */
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+}
+
+.badge-sns img {
+    height: 16px;
+    display: block;
+}
+
+.badge-sns-icon {
+    font-size: 16px;
+    color: #fff;
+    display: none;
+    /* 이미지가 있으면 숨김 */
+}
+
+.badge-sns.naver-blog {
+    background: #03c75a;
+}
+
+.badge-sns.naver-blog img {
+    filter: brightness(0) invert(1);
+}
+
+.badge-sns.instagram {
+    background: #fff;
+    border: 1px solid #eee;
+}
+
+/* 인스타 아이콘 칼라가 있으므로 흰배경 */
+.badge-sns.youtube {
+    background: #fff;
+    border: 1px solid #eee;
+}
+
+.badge-sns.tiktok {
+    background: #000;
+}
+
+.badge-sns.tiktok img {
+    filter: brightness(0) invert(1);
+}
+
+.badge-type-outline {
+    height: 22px;
+    padding: 0 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 12px;
+    color: var(--color-text-14); /* [10-21] ← #666 */
+    display: flex;
+    align-items: center;
+    background: #fff;
+}
+
+.badge-campaign-id {
+    height: 24px;
+    padding: 0 10px;
+    background: #f1f5f9;
+    border-radius: 4px;
+    font-size: 12px;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+}
+
+.load-item-title {
+    font-size: 16px;
+    font-weight: 800;
+    color: #111;
+    margin-bottom: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.load-item-subtext {
+    font-size: 14px;
+    color: var(--color-text-14); /* [10-21] ← #666 */
+    margin-bottom: 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.load-item-footer {
+    font-size: 13px;
+    color: #94a3b8;
+    font-weight: 500;
+}
+
+.load-modal-footer {
+    flex-shrink: 0;
+    text-align: center;
+    padding-top: 10px;
+}
+
+.btn-load-confirm {
+    width: 200px;
+    height: 52px;
+    border: 1px solid #333;
+    background: #fff;
+    border-radius: 10px;
+    font-size: 17px;
+    font-weight: 800;
+    color: #333;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-load-confirm:hover {
+    background: #333;
+    color: #fff;
+}
+
+/* 연관키워드 모달 스타일 */
+.keyword-modal-content {
+    background: #fff;
+    max-width: 400px;
+    width: 90%;
+    max-height: 80vh;
+    border-radius: 12px;
+    padding: 0;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.keyword-modal-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.keyword-modal-header .modal-title {
+    font-size: 18px;
+    font-weight: 800;
+    color: #111;
+}
+
+.keyword-modal-header .btn-close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #333;
+    display: flex;
+    align-items: center;
+}
+
+.keyword-modal-body {
+    padding: 20px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.keyword-guide {
+    font-size: 13px;
+    color: var(--color-text-14); /* [10-21] ← #888 */
+    line-height: 1.5;
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #eee;
+}
+
+.keyword-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.keyword-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 0;
+    border-bottom: 1px solid #f5f5f5;
+}
+
+.keyword-item:last-child {
+    border-bottom: none;
+}
+
+.keyword-info {
+    flex: 1;
+}
+
+.keyword-title-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+.tag-recommend {
+    font-size: 12px;
+    font-weight: 800;
+    color: #7346f3;
+}
+
+/* 추천 사유 뱃지 */
+.tag-mine {
+    font-size: 12px;
+    font-weight: 800;
+    color: #2563eb;
+}
+
+.tag-local {
+    font-size: 12px;
+    font-weight: 800;
+    color: #0d9488;
+}
+
+.tag-season {
+    font-size: 12px;
+    font-weight: 800;
+    color: #ea580c;
+}
+
+.keyword-text {
+    font-size: 16px;
+    font-weight: 800;
+    color: #333;
+}
+
+/* 연관키워드 - 광고주 입력 팁 */
+.keyword-tip {
+    margin: 0 0 14px;
+    padding: 12px 14px;
+    background: #f6f8ff;
+    border: 1px solid #e2e8f8;
+    border-radius: 8px;
+}
+
+.keyword-tip-title {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 8px;
+    font-size: 13px;
+    font-weight: 800;
+    color: #4054b2;
+}
+
+.keyword-tip-title .material-symbols-outlined {
+    font-size: 18px;
+}
+
+.keyword-tip-list {
+    margin: 0;
+    padding-left: 16px;
+    list-style: disc;
+}
+
+.keyword-tip-list li {
+    margin-bottom: 6px;
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--color-text-14); /* [10-21] ← #555 */
+}
+
+.keyword-tip-list b {
+    color: #333;
+    font-weight: 700;
+}
+
+.keyword-tip-ex {
+    color: var(--color-text-14); /* [10-21] ← #888 */
+}
+
+.keyword-tip-ex s {
+    color: var(--color-text-14); /* [10-21] ← #bbb */
+}
+
+.keyword-tip-note {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px dashed #dde3f5;
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--color-text-14); /* [10-21] ← #777 */
+}
+
+.keyword-loading {
+    padding: 30px 10px;
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--color-text-14); /* [10-21] ← #999 */
+    text-align: center;
+}
+
+.keyword-stats {
+    font-size: 12px;
+    color: var(--color-text-14); /* [10-21] ← #999 */
+}
+
+.keyword-stats .num {
+    color: #333;
+}
+
+.keyword-stats .status {
+    color: #333;
+    font-weight: 600;
+}
+
+.btn-keyword-add {
+    width: 60px;
+    height: 32px;
+    background: #fff;
+    border: 1px solid #333;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 800;
+    color: #333;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn-keyword-add:hover {
+    background: #333;
+    color: #fff;
+}
+
+/* =====================================================
+   반응형 스타일 (모바일/태블릿)
+   ===================================================== */
+@media (max-width: 1024px) {
+    /* 공통 모달 래퍼 조정 */
+    .campaign-create-modal.modal-wrap,
+    .campaign-load-modal.modal-wrap,
+    .keyword-modal.modal-wrap {
+        padding: 0;
+        align-items: stretch;
+    }
+
+    /* 폼도 함께 꽉 채운다 (실제 flex 항목이 폼이다 — 위 '등록창 폭 고정' 참고) */
+    .campaign-create-modal form[name="campaignForm"] {
+        width: 100%;
+        max-width: 100%;
+        margin: 0;
+        height: 100%;
+    }
+
+    /* 캠페인 등록 모달 모바일 */
+    .create-modal-content,
+    .load-modal-content,
+    .keyword-modal-content {
+        width: 100% !important;
+        max-width: 100% !important;
+        height: 100% !important;
+        max-height: 100% !important;
+        margin: 0 !important;
+        border-radius: 0 !important;
+    }
+
+    /* 헤더 조정 */
+    .create-modal-header,
+    .load-modal-header,
+    .keyword-modal-header {
+        padding: 20px 16px 10px;
+    }
+
+    .create-modal-header .modal-title,
+    .load-modal-header .modal-title {
+        font-size: 22px;
+        margin-bottom: 20px;
+    }
+
+    /* 스텝 인디케이터 축소 */
+    .step-indicator {
+        padding: 0 16px;
+        margin-bottom: 30px;
+        gap: 5px;
+    }
+    .step-num {
+        width: 30px;
+        height: 30px;
+        font-size: 14px;
+    }
+    .step-label {
+        font-size: 11px;
+    }
+    .step-line {
+        margin-top: -24px;
+    }
+
+    /* 폼 테이블을 세로형으로 변환 */
+    .form-table tr {
+        display: flex;
+        flex-direction: column;
+        border-bottom: 1px solid #f5f5f5;
+        padding: 15px 0;
+    }
+
+    .form-table th {
+        width: 100% !important;
+        padding: 0 0 10px 0 !important;
+        font-size: 16px;
+        font-weight: 800;
+        color: #111;
+    }
+
+    .form-table td {
+        width: 100% !important;
+        padding: 0 !important;
+    }
+
+    /* 입력창 및 레이아웃 조정 */
+    .create-modal-body,
+    .load-modal-header,
+    .load-search-wrap,
+    .load-filter-row,
+    .load-list-body {
+        padding: 0 16px 20px !important;
+    }
+
+    .cc-form-group {
+        flex-wrap: wrap;
+    }
+
+    .cc-input-md {
+        max-width: 100%;
+    }
+
+    .cc-sub-title {
+        width: 100%;
+        margin-bottom: 8px;
+        font-size: 13px;
+        color: var(--color-text-14); /* [10-21] ← #666 */
+        font-weight: 700;
+    }
+    
+    .cc-sub-title::before {
+        content: "·";
+        margin-right: 4px;
+    }
+
+    .cc-tag-group {
+        gap: 8px 10px;
+    }
+
+    /* 미션 그리드 2열로 (모바일에서는 3열이 너무 좁을 수 있음) */
+    .mission-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+
+    /* 이미지 업로드 그리드 조정 */
+    .upload-grid {
+        justify-content: flex-start;
+    }
+    .upload-box {
+        width: calc(33.33% - 8px);
+        height: 100px;
+    }
+
+    /* 푸터 하단 고정 느낌으로 */
+    .create-modal-footer,
+    .load-modal-footer {
+        padding: 16px;
+        gap: 8px;
+        display: flex;
+    }
+
+    .create-modal-footer .cc-flex-end {
+        display: contents;
+    }
+
+    .btn-cc, .btn-load-confirm {
+        flex: 1;
+        padding: 0 10px !important;
+        font-size: 14px;
+        height: 48px;
+    }
+
+    /* 임시저장 버튼은 크기 최소화, 이전/다음은 균등하게 */
+    .create-modal-footer .btn-cc-white {
+        flex: 0 0 auto;
+        padding: 0 20px !important;
+    }
+
+    /* 블로그 키워드 추천창 모바일 */
+    .keyword-modal-body {
+        padding: 16px;
+    }
+    
+    .keyword-text {
+        font-size: 15px;
+    }
+
+    .btn-reset-small {
+        top: 10px;
+        right: 10px;
+    }
+
+    /* 일정/모집인원 등 모바일 대응 */
+    .recruit-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+        width: 100%;
+    }
+
+    .date-range-wrap {
+        flex-wrap: wrap;
+        gap: 10px 5px;
+    }
+
+    .date-input-box {
+        width: calc(50% - 25px);
+        min-width: 110px;
+    }
+
+    .cc-tag-group {
+        width: 100%;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px 8px;
+    }
+
+    .cc-tag-label {
+        font-size: 13px;
+        white-space: nowrap;
+    }
+
+    .recruit-count-box {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    /* 상세 섹션 내부 텍스트 겹침 방지 */
+    .cc-form-group {
+        width: 100%;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .cc-input-md, .cc-input-zip, .cc-textarea {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    .input-with-btn {
+        width: 100%;
+        flex-wrap: nowrap;
+        gap: 6px;
+    }
+
+    .input-with-btn .cc-btn-sub {
+        flex-shrink: 0;
+        white-space: nowrap;
+        min-width: auto;
+    }
+
+    /* 총사용 포인트 안내 문구 좌우 짤림 방지 */
+    .cc-text-gray.cc-fs-13 {
+        display: block;
+        width: 100%;
+        margin-top: 5px;
+        line-height: 1.4;
+        word-break: keep-all;
+    }
+
+    /* 버튼 크기 및 간격 미세 조정 */
+    .cc-btn-sub {
+        font-size: 13px;
+        padding: 0 10px;
+        height: 40px;
+    }
+
+    /* 스텝 1의 '이전 캠페인 불러오기' 버튼 대응 */
+    .cc-form-group:has(.cc-input) {
+        align-items: stretch;
+    }
+
+    .cc-form-group:has(.cc-input) .cc-btn-sub {
+        flex: 1;
+        min-width: 120px;
+    }
+}
+/* ==========================================
+   닫기 확인 : 배경(dim)·X 클릭 시 작성 중인 내용이 있으면 뜬다
+   (campaignCreate.inc.html #ccCloseConfirm / campaign.js requestCloseCampaignCreate)
+========================================== */
+.cc-close-confirm {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 1200;              /* 등록 모달 위 */
+    background: rgba(0, 0, 0, 0.45);
+    align-items: center;
+    justify-content: center;
+}
+
+.cc-close-confirm.open {
+    display: flex;
+}
+
+.cc-close-confirm__box {
+    width: 100%;
+    max-width: 460px;
+    margin: 0 20px;
+    padding: 28px 24px 22px;
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.22);
+    text-align: center;
+}
+
+.cc-close-confirm__title {
+    margin: 0 0 10px;
+    font-size: 17px;
+    font-weight: 700;
+    color: #222;
+}
+
+.cc-close-confirm__desc {
+    margin: 0 0 22px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--color-text-14); /* [10-21] ← #666 */
+}
+
+.cc-close-confirm__btns {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.cc-close-confirm__btns .btn-cc {
+    height: 44px;
+    padding: 0 18px;
+    font-size: 14px;
+}
+
+.cc-close-confirm__btns .btn-cc-primary {
+    padding: 0 22px;
+}
+
+/* 채널에 따라 감추는 키워드 행 (campaign.js channelKeywordToggle)
+   블로그·클립 → 블로그키워드 / 인스타·릴스 → 인스타키워드 */
+.form-table tr.kw-hidden {
+    display: none !important;
+}
+
+/* 항목명 아래 붙는 작은 안내 (예: 블로그키워드 → "블로그·클립") */
+.cc-th-hint {
+    display: block;
+    margin-top: 3px;
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--color-text-14); /* [10-21] ← #999 */
+}
+
+
+/* =====================================================
+   글상자(에디터 자리)   [2026-08-14]
+
+   캠페인 등록의 준수사항·미션 칸은 광고주에 따라
+   서식 편집기(CKEditor)로 열리기도 하고 글상자로 열리기도 한다.
+   (광고주 상세보기 → '캠페인 등록 에디터')
+
+   ★ 예전에는 이 칸들에 style="visibility:hidden" 이 박혀 있었다.
+     편집기가 곧 덮어쓸 자리라 잠깐 보이는 것을 막으려던 것인데,
+     편집기를 안 쓰는 광고주에게는 칸이 통째로 안 보였다.
+     (style="diaplay:none" 은 오타라 아무 효과도 없었다)
+   → 숨기는 것은 '편집기를 쓸 때만' 로 좁히고,
+     글상자로 쓸 때는 넉넉한 크기로 보이게 한다.
+   ===================================================== */
+.cc-editor-area {
+	width: 100%;
+	min-height: 220px;			/* 열 줄 남짓 — 준수사항은 보통 이 정도를 쓴다 */
+	padding: 14px 15px;
+	border: 1px solid #ddd;
+	border-radius: 10px;
+	font-size: 14px;
+	font-family: inherit;
+	line-height: 1.7;
+	outline: none;
+	resize: vertical;			/* 세로로 늘릴 수 있게 (가로는 칸을 깨뜨린다) */
+	transition: border-color 0.2s;
+}
+
+.cc-editor-area:focus {
+	border-color: var(--color-main, #7346f3);
+}
+
+/*
+편집기를 쓰는 광고주일 때만 잠깐 감춘다.
+  ★ CKEDITOR.replace 가 끝나면 원본 textarea 는 어차피 화면에서 빠진다.
+    그 사이 한 번 깜빡이는 것을 막는 용도다.
+*/
+form[data-use-editor="Y"] .cc-editor-area {
+	visibility: hidden;
+	min-height: 0;
+}
+
+/*
+짧아도 되는 칸은 조금 작게 (운영시간·휴무일)
+  ※ .cc-input 을 함께 쓰는 textarea 들이다.
+*/
+textarea.cc-input {
+	min-height: 90px;
+	line-height: 1.7;
+	resize: vertical;
+}
+
+/*
+글상자를 .cc-input 과 같은 방식으로 늘린다   [2026-08-14]
+  .cc-form-group 은 flex 다. 라벨(60px) 옆의 남은 자리를 채우려면
+  .cc-input 처럼 flex:1 이 있어야 폭이 맞는다.
+*/
+.cc-form-group > .cc-editor-area {
+	flex: 1;
+	min-width: 0;		/* flex 항목이 내용 때문에 줄지 않는 것을 막는다 */
+}
+
+/*
+방문 및 예약안내 준수사항 — 제공내용상세와 같은 폭으로   [2026-08-14]
+
+  ★ 이 칸만 .guide-box 안에 들어 있었다.
+    회색 배경 상자가 좌우로 20px 씩 안쪽 여백을 갖고 있어,
+    같은 글상자인데도 제공내용상세보다 눈에 띄게 좁았다.
+  → 상자의 여백·배경을 걷어내 다른 칸과 같은 자리에서 시작하게 한다.
+    (상자로 감싼 이유가 '구분' 이었다면 라디오 줄이 이미 그 역할을 한다)
+*/
+#visitAbidanceArea {
+	flex: 1;
+	min-width: 0;			/* flex 항목이 내용 때문에 안 줄어드는 것을 막는다 */
+	padding: 0;
+	background: transparent;
+}
+
+#visitAbidanceArea > #visitDetailArea > .cc-editor-area {
+	width: 100%;
+}
+
+/* =====================================================
+   글상자 폭 고정   [2026-08-14]
+
+   ★ 왜 좁아 보였나
+     textarea 는 cols 속성에서 오는 '본래 폭'(대략 20글자)이 있다.
+     flex:1 만 주면 늘어나기는 하지만, min-width 가 auto 라
+     칸이 좁아질 때 본래 폭 아래로는 안 줄고 옆 칸을 밀어낸다.
+     그래서 모달을 넓히지 않는 한 자리를 못 잡는다.
+   → flex:1 + min-width:0 + width:100% 를 함께 준다.
+     라벨(60px) 옆 남은 자리를 정확히 채우고, 모달 크기는 그대로다.
+   ===================================================== */
+.cc-form-group > .cc-area-wide {
+	flex: 1;			/* '제공내용'(.cc-input) 과 똑같은 규칙 */
+	min-width: 0;
+	min-height: 90px;
+	resize: vertical;
+}

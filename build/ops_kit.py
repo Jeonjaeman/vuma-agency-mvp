@@ -96,12 +96,18 @@ CTOP = [("camp", "캠페인 리스트", "campaigns.html"), ("rvw", "리뷰어 �
 
 
 def camp_tabs(active):
+    """[2026-11-11 v0.9] 광고주 campaignTabs.inc.html 마크업(.cmp-top-tabs > .cmp-tab-btn) — 버튼 대신 링크.
+       gen_campaigns.adv_camp_tabs 와 같은 모양(모든 운영 화면이 이 함수를 쓴다)"""
     n = G.COUNTS.get("review", 0)
-    em = f'<em>{n if n < 100 else "99+"}</em>' if n else ""      # 검수 대기 수(99 넘으면 99+)
-    links = "".join(f'<a href="{href}" class="{"on" if k == active else ""}"{" aria-current=page" if k == active else ""}>{lab}'
-                    f'{em if k == "insp" else ""}</a>'
-                    for k, lab, href in CTOP)
-    return f'<nav class="ctop" aria-label="캠페인 관리 탭">{links}</nav>'
+    cnt = f'<span class="cmp-tab-cnt">{n if n < 100 else "99+"}</span>' if n else ""   # 검수 대기 수(99 넘으면 99+)
+    btns = "".join(f'<a class="cmp-tab-btn{" active" if k == active else ""}" href="{href}"'
+                   f'{" aria-current=page" if k == active else ""}>{lab}{cnt if k == "insp" else ""}</a>'
+                   for k, lab, href in CTOP)
+    style = ('<style>.cmp-tab-cnt{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;'
+             'margin-left:6px;border-radius:9px;background:#e74c3c;color:#fff;font-size:11px;font-weight:700;line-height:1;vertical-align:middle}'
+             '.cmp-tab-btn.active .cmp-tab-cnt{background:#fff;color:var(--color-main,#7346f3)}'
+             'a.cmp-tab-btn{display:inline-block;text-decoration:none}</style>')
+    return f'<div class="cmp-top-tabs">{btns}</div>{style}'
 
 
 def biz_cell(b):

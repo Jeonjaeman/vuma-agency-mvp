@@ -1,0 +1,437 @@
+/* =====================================================
+   캠페인 상세 · 리스트형 패널 공통 (신청자 탭 / 선정된 리뷰어 탭)
+   detail-panel-applicants, detail-panel-reviewers 겹치는 스타일
+   ===================================================== */
+
+/* 패널 컨테이너 */
+.detail-panel-applicants,
+.detail-panel-reviewers {
+	width: 100%;
+	flex-direction: column;
+	gap: 0;
+	min-width: 0;
+}
+
+/* 요약 바 */
+.applicants-summary,
+.reviewers-summary {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 15px;
+	padding: 0 0 20px 0;
+}
+
+.applicants-summary-item,
+.reviewers-summary-item {
+	font-size: 15px;
+	font-weight: 600;
+	color: var(--color-text-14);
+}
+
+.applicants-summary-divider,
+.reviewers-summary-divider {
+	width: 1px;
+	height: 13px;
+	background: var(--color-text-5);
+}
+
+/* 테이블 래퍼 */
+.applicants-table-wrap,
+.reviewers-table-wrap {
+	border: 1px solid var(--color-text-4);
+	border-radius: 5px;
+	overflow: hidden;
+	background: var(--color-text-4);
+}
+
+/* 테이블 공통 */
+.applicants-table,
+.reviewers-table {
+	width: 100%;
+	border-collapse: collapse;
+	background: #fff;
+	font-size: 12px;
+}
+
+.applicants-table th,
+.reviewers-table th {
+	background: var(--color-text-3);
+	font-weight: 500;
+	color: var(--color-text-14);
+	text-align: center;
+	padding: 10px 5px;
+	white-space: nowrap;
+}
+
+/* 행 공통 */
+.applicants-row,
+.reviewers-row {
+	background: #fff;
+}
+
+.applicants-row+.applicants-row,
+.reviewers-row+.reviewers-row {
+	border-top: 1px solid var(--color-text-3);
+}
+
+.applicants-row-selected,
+.reviewers-row-selected {
+	background: var(--color-main-light);
+}
+
+/* 번호·차단·관심 셀 (신청자: 참여이력 포함 / 선정된 리뷰어: 쪽지 포함) */
+.applicants-num,
+.applicants-block,
+.applicants-fav,
+.applicants-history,
+.reviewers-num,
+.reviewers-block,
+.reviewers-fav,
+.reviewers-message {
+	text-align: center;
+	vertical-align: middle;
+	padding: 16px 10px;
+	font-size: 14px;
+	color: var(--color-text-14);
+}
+
+.applicants-block,
+.applicants-fav,
+.reviewers-block,
+.reviewers-fav {
+	cursor: pointer;
+}
+
+.applicants-block .material-symbols-outlined,
+.reviewers-block .material-symbols-outlined {
+	font-size: 20px;
+	color: var(--color-text-5);
+	transition: color .15s ease;
+}
+
+.applicants-block.is-blocked .material-symbols-outlined,
+.reviewers-block.is-blocked .material-symbols-outlined {
+	color: var(--color-urgent);
+}
+
+.applicants-fav .material-symbols-outlined,
+.reviewers-fav .material-symbols-outlined {
+	font-size: 20px;
+	color: var(--color-text-5);
+	font-variation-settings: 'FILL' 0;
+	transition: color .15s ease, font-variation-settings .15s ease;
+}
+
+.applicants-fav.is-fav .material-symbols-outlined,
+.reviewers-fav.is-fav .material-symbols-outlined {
+	color: #f5c518;
+	font-variation-settings: 'FILL' 1;
+}
+
+/* 사진 셀 (td 자체는 flex 아님) */
+.applicants-photo,
+.reviewers-photo {
+	vertical-align: middle;
+	padding: 16px 10px;
+}
+
+/* 신청자: 내용 래퍼를 flex로 사용 */
+.applicants-photo-inner {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 7px;
+}
+
+/* 선정된 리뷰어: 내용 래퍼를 flex로 사용 */
+.reviewers-photo-inner {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 7px;
+}
+
+/* 아바타 (신청자·선정된 리뷰어 공통 사용) */
+.applicants-avatar {
+	width: 40px;
+	height: 40px;
+	border-radius: 50%;
+	overflow: hidden;
+	background: var(--color-text-3);
+}
+
+.applicants-avatar img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+/*
+이니셜 아바타   [2026-09-15]
+
+  ★ 리뷰어에게는 프로필 사진 기능이 없다. 올릴 자리도, 저장할 칸도 없다.
+    그래서 닉네임 첫 글자를 대신 그린다.
+  ※ 리뷰어 관리 화면(.rev-avatar--text)이 이미 같은 방식을 쓰고 있다.
+    두 화면이 달라 보이지 않도록 색·굵기를 그대로 맞췄다.
+  ※ 나중에 사진이 생기면 위 .applicants-avatar img 규칙이 그대로 받는다.
+    <img> 만 끼우면 원에 꽉 차게 잘려 들어간다.
+*/
+.applicants-avatar--text {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 15px;
+	font-weight: 800;
+	color: #fff;
+	background: linear-gradient(135deg, #8a6bf5, #7346f3);
+	user-select: none;
+}
+
+/* 리뷰어 정보 셀 */
+.applicants-reviewer,
+.reviewers-reviewer {
+	padding: 16px 10px;
+	vertical-align: middle;
+}
+
+/* 1025px 이상: 리스트 패널 가로 전체 사용 */
+@media (min-width: 1025px) {
+	.detail-card:not(.detail-overview-active) .detail-content {
+		gap: 0;
+	}
+
+	.detail-panel-applicants.is-active,
+	.detail-panel-reviewers.is-active {
+		width: 100%;
+		align-items: stretch;
+	}
+}
+
+/* 1024px 이하: 요약·테이블 공통 */
+@media (max-width: 1024px) {
+
+	.applicants-summary,
+	.reviewers-summary {
+		padding: 14px 0;
+		gap: 10px;
+	}
+
+	.applicants-summary-item,
+	.reviewers-summary-item {
+		font-size: 14px;
+	}
+
+	.applicants-table-wrap,
+	.reviewers-table-wrap {
+		overflow-x: auto;
+		-webkit-overflow-scrolling: touch;
+	}
+
+	.applicants-table,
+	.reviewers-table {
+		font-size: 11px;
+	}
+
+	.applicants-table th,
+	.reviewers-table th {
+		padding: 8px 4px;
+		font-size: 11px;
+	}
+
+	.applicants-num,
+	.applicants-fav,
+	.applicants-history,
+	.reviewers-num,
+	.reviewers-fav,
+	.reviewers-message {
+		padding: 12px 8px;
+		font-size: 13px;
+	}
+
+	.applicants-photo,
+	.reviewers-photo {
+		padding: 12px 8px;
+	}
+
+	.applicants-avatar {
+		width: 36px;
+		height: 36px;
+	}
+
+	.applicants-reviewer,
+	.reviewers-reviewer {
+		padding: 12px 8px;
+	}
+}
+
+/* 770px 이하: 블로그 도메인 숨김 (신청자·선정된 리뷰어 공통) */
+@media (max-width: 768px) {
+	.applicants-blog-url-domain {
+		display: none;
+	}
+}
+
+/* 770px 이하: 테이블 → 카드형 공통 */
+@media (max-width: 768px) {
+
+	.applicants-table-wrap,
+	.reviewers-table-wrap {
+		overflow: visible;
+		border: none;
+		background: transparent;
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
+		padding: 0;
+	}
+
+	.applicants-table,
+	.reviewers-table {
+		display: block;
+		min-width: 0;
+		background: transparent;
+	}
+
+	.applicants-table thead,
+	.reviewers-table thead {
+		display: none;
+	}
+
+	.applicants-table tbody,
+	.reviewers-table tbody {
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
+	}
+
+	.applicants-table tr.applicants-row,
+	.reviewers-table tr.reviewers-row {
+		display: grid;
+		/*
+		  ★ [2026-09-15] 5칸 → 3칸
+		    가운데 두 칸은 관심(별)·차단 칸 자리였다. 그 칸들은 지금 없다.
+		    빈 칸이 남아 있으면 자리를 지정하지 않은 셀(신청메세지)이
+		    그리로 흘러들어가 첫 줄에 끼어든다.
+		*/
+		grid-template-columns: auto auto 1fr;
+		gap: 10px 12px;
+		padding: 14px;
+		border: 1px solid var(--color-text-4);
+		border-radius: 12px;
+		background: #fff;
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+		position: relative;
+	}
+
+	.applicants-table tr.applicants-row-selected,
+	.reviewers-table tr.reviewers-row-selected {
+		background: var(--color-main-light);
+		border-color: var(--color-main);
+	}
+
+	.applicants-table .applicants-num,
+	.reviewers-table .reviewers-num {
+		grid-column: 1;
+		grid-row: 1;
+		padding: 0;
+		text-align: left;
+		font-size: 13px;
+		font-weight: 600;
+		color: var(--color-text-14); /* [10-21] ← var(--color-text-9) */
+		display: flex;
+		align-items: center;
+		height: 32px;
+	}
+
+	.applicants-table .applicants-num::before,
+	.reviewers-table .reviewers-num::before {
+		display: none;
+	}
+
+	.applicants-table .applicants-fav,
+	.reviewers-table .reviewers-fav {
+		grid-column: 2;
+		grid-row: 1;
+		padding: 0;
+		display: flex;
+		align-items: center;
+		margin-left: 12px;
+		height: 32px;
+	}
+
+	.applicants-table .applicants-fav::before,
+	.reviewers-table .reviewers-fav::before {
+		display: none;
+	}
+
+	.applicants-table .applicants-block,
+	.reviewers-table .reviewers-block {
+		grid-column: 3;
+		grid-row: 1;
+		padding: 0;
+		display: flex;
+		align-items: center;
+		margin-left: 4px;
+		height: 32px;
+	}
+
+	.applicants-table .applicants-block::before,
+	.reviewers-table .reviewers-block::before {
+		display: none;
+	}
+
+	/*
+	  ★ [2026-09-15] grid-column 4 → 2
+	    4번 자리는 관심(별)·차단 칸이 있던 시절의 값이다.
+	    그 두 칸은 지금 마크업에 없어, 사진이 빈 자리 두 칸을 건너뛰고
+	    카드 오른쪽에 혼자 떨어져 있었다. 번호 바로 옆으로 붙인다.
+	*/
+	.applicants-table .applicants-photo,
+	.reviewers-table .reviewers-photo {
+		grid-column: 2;
+		grid-row: 1;
+		padding: 0;
+	}
+
+	.applicants-table .applicants-photo-inner,
+	.reviewers-table .reviewers-photo-inner {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		gap: 6px;
+	}
+
+	.applicants-table .applicants-photo::before,
+	.reviewers-table .reviewers-photo::before {
+		display: none;
+	}
+
+	.applicants-table .applicants-reviewer,
+	.reviewers-table .reviewers-reviewer {
+		grid-column: 1 / -1;
+		grid-row: 2;
+		padding: 0;
+		padding-top: 10px;
+		border-top: 1px solid var(--color-text-3);
+	}
+
+	.applicants-table .applicants-reviewer::before,
+	.reviewers-table .reviewers-reviewer::before {
+		display: none;
+	}
+
+	.applicants-avatar {
+		width: 32px;
+		height: 32px;
+	}
+
+	.applicants-table .applicants-fav .material-symbols-outlined,
+	.reviewers-table .reviewers-fav .material-symbols-outlined,
+	.applicants-table .applicants-block .material-symbols-outlined,
+	.reviewers-table .reviewers-block .material-symbols-outlined {
+		display: inline-flex;
+		align-items: center;
+		line-height: 1;
+	}
+}

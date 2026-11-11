@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 [2026-11-10 v0.7] 정산 화면 생성기 (기획서 v0.7 6-8 · 8-4)
-  탭 3개(통포인트 · 리뷰어 지급 · 업체별 사용내역) = 라디오 + CSS. 보는 사람(관리자 / 팀장·조회 = 열람) = 라디오 + CSS.
+  탭 3개(포인트 · 리뷰어 지급 · 업체별 사용내역) = 라디오 + CSS. 보는 사람(관리자 / 팀장·조회 = 열람) = 라디오 + CSS.
   충전 창 = popover 속성(JS 없음). 묶음 확정 표시 · 링크 복사 안내만 js/settle.js.
   돈 흐름(8-4): 충전 → 사용 가능 잔액, 캠페인 시작 = 잔액 → 예치, 지급 = 예치에서 차감(지급액 + 수수료), 완료·중단 = 남은 예치 → 잔액 복귀.
   실행: python -I build/gen_settle.py  →  mvp/settle.html
@@ -28,7 +28,7 @@ def signed(n):
     return f'<b class="{"plus" if n > 0 else "minus" if n < 0 else ""}">{"+" if n > 0 else ""}{n:,}P</b>'
 
 
-# ════════════════ 통포인트: 포인트 내역 ════════════════
+# ════════════════ 포인트: 포인트 내역 ════════════════
 def ledger():
     """포인트 내역 — 새 것부터. '사용 가능 잔액'은 지금 잔액에서 거꾸로 계산
       지급(예치에서 빠짐)은 사용 가능 잔액을 바꾸지 않는다 → 칸에 '예치에서'"""
@@ -76,7 +76,7 @@ def tab_wallet():
         f'<td class="num">{signed(amt)}</td><td class="num">{won(bal) if bal is not None else "<span class=muted>예치에서</span>"}</td></tr>'
         for off, hm, kind, b, c, amt, bal in rows)
     return f'''<div class="kpis">
-		<div class="kpi"><p>통포인트</p><b>{won(D.BALANCE + held)}</b><small>사용 가능 + 예치 중</small></div>
+		<div class="kpi"><p>포인트</p><b>{won(D.BALANCE + held)}</b><small>사용 가능 + 예치 중</small></div>
 		<div class="kpi main"><p>사용 가능 잔액</p><b>{won(D.BALANCE)}</b><small>새 캠페인·추가모집에 쓸 수 있는 돈</small></div>
 		<div class="kpi"><p>예치 중</p><b>{won(held)}</b><small>진행 캠페인 {sum(1 for c in D.CAMPS if c["group"] in D.ACTIVE)}개에 묶여 있음</small></div>
 		<div class="kpi act"><button type="button" class="btn primary w-admin" popovertarget="pop-charge">충전하기</button>
@@ -224,14 +224,14 @@ def charge_pop():
 
 
 def settle_page():
-    tabs = [("w", "통포인트"), ("p", "리뷰어 지급"), ("u", "업체별 사용내역")]
+    tabs = [("w", "포인트"), ("p", "리뷰어 지급"), ("u", "업체별 사용내역")]
     radios = "".join(f'<input type="radio" name="st" id="st-{k}" class="vr"{" checked" if k == "w" else ""}>' for k, _l in tabs)
     bar = "".join(f'<label for="st-{k}" class="stab stab-{k}">{lab}</label>' for k, lab in tabs)
     body = f'''<section class="board settle" aria-labelledby="t-settle">
 	<input type="radio" name="role" id="role-admin" class="vr" checked><input type="radio" name="role" id="role-view" class="vr">
 	{radios}
 	<div class="board-h"><div><h1 id="t-settle">정산</h1>
-		<p class="sub">관리자 = 쓰기(충전 · 지급 확정) · 팀장/조회 = 열람만 · 통포인트 1개를 모든 업체가 함께 씁니다</p></div>
+		<p class="sub">관리자 = 쓰기(충전 · 지급 확정) · 팀장/조회 = 열람만 · 포인트 1개를 모든 업체가 함께 씁니다</p></div>
 		<div class="seg sm role-seg" role="group" aria-label="보는 사람(시안)"><label for="role-admin">대표(관리자)로 보기</label><label for="role-view">김지은(팀장 · 열람)으로 보기</label></div></div>
 	<nav class="stabs" aria-label="정산 탭">{bar}</nav>
 	<div class="spane sp-w">{tab_wallet()}</div>
@@ -242,6 +242,6 @@ def settle_page():
 
 
 if __name__ == "__main__":
-    # [2026-11-10 v0.8] 정산 화면은 나뉨 — 통포인트(point.html · gen_account) / 지급 묶음(payout.html · gen_ops).
+    # [2026-11-10 v0.8] 정산 화면은 나뉨 — 포인트(point.html · gen_account) / 지급 묶음(payout.html · gen_ops).
     #   이 파일은 그 두 화면이 가져다 쓰는 함수 모음으로만 남는다(settle.html 은 더 만들지 않음)
     print("v0.8: settle.html 은 만들지 않습니다 — gen_account.py · gen_ops.py 를 돌리세요")

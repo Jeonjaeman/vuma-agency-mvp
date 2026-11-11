@@ -114,23 +114,15 @@ def page(title, active, body, panel, extra_style="", js="pages.js"):
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{title} · 뷰마 대행사 ({G.VERSION} 시안)</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+{G.HEAD_ADV}
 <link rel="stylesheet" href="css/agency.css">
 <link rel="stylesheet" href="css/pages.css">
 {extra_style}
 </head>
 <body>
-<!-- [2026-11-10] 대행사 {title} 시안 {G.VERSION}. build/gen_pages.py 로 생성(직접 수정 금지) -->
-<div class="shell">
-{G.sidebar(TOTAL_ISSUE, active)}
-<div class="main">
-{G.topbar()}
-<div class="work{" solo" if panel is None else ""}{" scoped" if active in G.OPS else ""}">
-{body}
-{aside}
-</div>
-</div>
-</div>
+<!-- [2026-11-10] 대행사 {title} 시안 {G.VERSION}. build/gen_pages.py 로 생성(직접 수정 금지)
+     [2026-11-11 v0.9] 틀 = 광고주 index.html(.dashboard > .sidebar + .main-content > .main-view) -->
+{G.shell(TOTAL_ISSUE, active, f'<div class="work{" solo" if panel is None else ""}{" scoped" if active in G.OPS else ""}">{body}{aside}</div>')}
 <script src="js/scope.js"></script>
 {"".join(f'<script src="js/{j}"></script>' for j in (js or "").split())}
 </body>
@@ -401,7 +393,7 @@ def biz_drawer(b):
             f'<div class="pane-b">'
             f'<div class="tp tp-ov">{ov}</div><div class="tp tp-cp"><ul class="cplist">{cps}</ul></div>'
             f'<div class="tp tp-use"><table class="mini"><thead><tr><th>일자</th><th>캠페인</th><th>구분</th><th>금액</th></tr></thead>'
-            f'<tbody>{use}</tbody></table><p class="note">통포인트 1개에서 쓰고, 업체별로 사용내역만 나눠 봅니다.</p></div>'
+            f'<tbody>{use}</tbody></table><p class="note">포인트 1개에서 쓰고, 업체별로 사용내역만 나눠 봅니다.</p></div>'
             f'<div class="tp tp-rep">{rep}</div><div class="tp tp-memo">{memo}</div><div class="tp tp-log"><ul class="logs">{log}</ul></div>'
             f'</div><footer class="pane-f"><div class="arch">{arch_btn}</div><button type="button" class="btn">정보 수정</button></footer></section>')
 

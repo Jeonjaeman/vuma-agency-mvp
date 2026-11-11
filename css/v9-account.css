@@ -1,0 +1,179 @@
+/* [2026-11-11 v0.9] 계정 6화면(통포인트 · 사용료 · 문자설정 · 패널티 · 대행사 정보 · 고객센터) 붙임 CSS
+   본문은 광고주 조각 마크업 그대로 — 모양은 css/adv/*.css 가 그린다. 여기는
+   ① 광고주가 JS 로 하던 탭 · 창 · 거르기 · 펼치기를 CSS(숨은 라디오/체크 + :has() · popover)로
+   ② 광고주가 조각 안 <style> 이나 core/css 에 두어 css/adv 로 복사되지 않은 규칙(viCard · sn* · nv-* · help.html)을 옮겨 적음
+   build/gen_account.py 가 부른다. */
+
+/* ── 숨은 라디오 · 체크 (탭 · 거르기 · 펼치기 스위치) ── */
+.v9r{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+
+/* ── 탭: .v9t 바로 아래 input.v9r ×N · 탭 줄 안 label.v9l ×N · 본문 .v9p ×N (같은 순서) ── */
+.v9t .v9p{display:none}
+:is(.v9t:has(> .v9r:nth-of-type(1):checked) .v9p:nth-child(1 of .v9p),
+    .v9t:has(> .v9r:nth-of-type(2):checked) .v9p:nth-child(2 of .v9p),
+    .v9t:has(> .v9r:nth-of-type(3):checked) .v9p:nth-child(3 of .v9p),
+    .v9t:has(> .v9r:nth-of-type(4):checked) .v9p:nth-child(4 of .v9p),
+    .v9t:has(> .v9r:nth-of-type(5):checked) .v9p:nth-child(5 of .v9p),
+    .v9t:has(> .v9r:nth-of-type(6):checked) .v9p:nth-child(6 of .v9p),
+    .v9t:has(> .v9r:nth-of-type(7):checked) .v9p:nth-child(7 of .v9p),
+    .v9t:has(> .v9r:nth-of-type(8):checked) .v9p:nth-child(8 of .v9p)){display:block}
+/* 고른 탭 = 광고주 .cmp-tab-btn.active / .profile-tab-btn.active 모양 */
+:is(.v9t:has(> .v9r:nth-of-type(1):checked) .v9l:nth-child(1 of .v9l),
+    .v9t:has(> .v9r:nth-of-type(2):checked) .v9l:nth-child(2 of .v9l),
+    .v9t:has(> .v9r:nth-of-type(3):checked) .v9l:nth-child(3 of .v9l),
+    .v9t:has(> .v9r:nth-of-type(4):checked) .v9l:nth-child(4 of .v9l),
+    .v9t:has(> .v9r:nth-of-type(5):checked) .v9l:nth-child(5 of .v9l),
+    .v9t:has(> .v9r:nth-of-type(6):checked) .v9l:nth-child(6 of .v9l),
+    .v9t:has(> .v9r:nth-of-type(7):checked) .v9l:nth-child(7 of .v9l),
+    .v9t:has(> .v9r:nth-of-type(8):checked) .v9l:nth-child(8 of .v9l)).cmp-tab-btn{
+	background:var(--color-main);color:#fff;border-color:var(--color-main);font-weight:600}
+:is(.v9t:has(> .v9r:nth-of-type(1):checked) .v9l:nth-child(1 of .v9l),
+    .v9t:has(> .v9r:nth-of-type(2):checked) .v9l:nth-child(2 of .v9l),
+    .v9t:has(> .v9r:nth-of-type(3):checked) .v9l:nth-child(3 of .v9l)).profile-tab-btn{background:#7346f3;color:#fff}
+.v9l{display:inline-flex;align-items:center}
+.v9t:has(> .v9r:focus-visible) .cmp-top-tabs{outline:2px solid var(--color-main);outline-offset:4px;border-radius:20px}
+a.cmp-tab-btn{text-decoration:none}
+
+/* ── 창: 광고주 .modal-wrap · .inquiry-modal 에 popover — 열림 = 광고주 .open / .is-open 과 같게 ── */
+:is(.modal-wrap,.inquiry-modal)[popover]{inset:0;margin:0;border:0;background:transparent;color:inherit;
+	width:100vw;max-width:none;height:100vh;height:100dvh;max-height:none}
+.modal-wrap[popover]{padding:20px 0}
+.inquiry-modal[popover]{padding:0}
+.modal-wrap:popover-open{opacity:1;visibility:visible;pointer-events:auto}
+.modal-wrap:popover-open .modal-content{transform:translateY(0) scale(1)}
+.inquiry-modal:popover-open{display:flex}
+/* 바탕(dim) = 닫기 버튼 */
+button:is(.modal-dim,.inquiry-modal__dim){border:0;padding:0;margin:0;cursor:default}
+/* 내 정보 수정 창: 광고주는 <form> 이 .modal-wrap 바로 아래 — 가운데 놓이게 */
+.profile-edit-modal > .v9-form{display:contents}
+
+/* ── 1. 통포인트 ── */
+.pm-desc .v9-held{display:inline-block;margin-left:10px;padding:0 6px;font-size:13px}
+.pm-panel-charge:has(input[name="payMethod"][value="VBANK"]:checked) .pm-card-info{display:none}
+.pm-panel-charge:has(input[name="payMethod"][value="VBANK"]:checked) .pm-vbank-info{display:block}
+.pm-evidence-section:has(input[name="evType"][value="tax"]:checked) #evFieldsTax,
+.pm-evidence-section:has(input[name="evType"][value="cash"]:checked) #evFieldsCash{display:block}
+.pm-hist-filter label.pm-preset-btn{cursor:pointer}
+/* 포인트 내역 분류 거르기(광고주 filterPointHistory · .is-on 모양) */
+.pm-hist-filter:has(#phf-all:checked) label[for="phf-all"],
+.pm-hist-filter:has(#phf-sms:checked) label[for="phf-sms"],
+.pm-hist-filter:has(#phf-campaign:checked) label[for="phf-campaign"],
+.pm-hist-filter:has(#phf-charge:checked) label[for="phf-charge"],
+.pm-hist-filter:has(#upp-m0:checked) label[for="upp-m0"],
+.pm-hist-filter:has(#upp-m1:checked) label[for="upp-m1"],
+.pm-hist-filter:has(#upp-m3:checked) label[for="upp-m3"]{background:#2f3a4a;border-color:#2f3a4a;color:#fff}
+.pm-panel-history:has(#phf-sms:checked) .js-pm-hist:not([data-cat="sms"]),
+.pm-panel-history:has(#phf-campaign:checked) .js-pm-hist:not([data-cat="campaign"]),
+.pm-panel-history:has(#phf-charge:checked) .js-pm-hist:not([data-cat="charge"]){display:none}
+/* 업체별 사용내역 기간 */
+.v9-use{display:none}
+.pm-panel-use:has(#upp-m0:checked) .v9-use-m0,.pm-panel-use:has(#upp-m1:checked) .v9-use-m1,
+.pm-panel-use:has(#upp-m3:checked) .v9-use-m3{display:block}
+
+/* ── 3. 문자설정 — verifyIdentity.inc.html <style> 그대로 ── */
+.viWrap{display:flex;align-items:center;justify-content:center;min-height:60vh;padding:24px}
+.viWrap--tabbed{padding:0;min-height:auto;justify-content:flex-start}
+.viWrap--tabbed .viCard{max-width:none}
+.viCard{width:100%;max-width:440px;background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:36px 28px;text-align:center;box-shadow:0 2px 12px rgba(0,0,0,.04)}
+.viIcon{width:56px;height:56px;margin:0 auto 16px;border-radius:50%;background:#f0edff;display:flex;align-items:center;justify-content:center}
+.viIcon .material-symbols-outlined{font-size:30px;color:var(--color-main,#7346f3)}
+.viTitle{font-size:19px;font-weight:700;margin:0 0 10px;color:#1a1a1a}
+.viDesc{font-size:14px;line-height:1.6;color:#0e0e0e;margin:0 0 18px}
+.viList{text-align:left;font-size:13px;color:#0e0e0e;line-height:1.7;margin:0 0 24px;padding-left:18px}
+.viMeta{font-size:12px;color:#0e0e0e;margin:-14px 0 20px}
+.viBtn{width:100%;padding:13px;border:none;border-radius:10px;background:var(--color-main,#7346f3);color:#fff;font-size:15px;font-weight:600;cursor:pointer}
+.viBtn:hover{filter:brightness(.95)}
+.viNote{margin:14px 0 0;font-size:13px;color:#c0392b;min-height:18px}
+/* sendNumber.inc.html <style> 그대로 */
+.snBar{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:10px;flex-wrap:wrap}
+.snBar span{font-size:13px;color:#0e0e0e}
+.snBar .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:38px;padding:0 18px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;border:1px solid transparent;white-space:nowrap}
+.snBar .btn-primary{background:var(--color-main,#7346f3);border-color:var(--color-main,#7346f3);color:#fff}
+.snBar .btn-primary:hover{background:#5f34e0}
+.pm-table--sendnumber td[data-label="등록일"]{white-space:nowrap}
+.snRowActions{display:flex;align-items:center;gap:6px;flex-wrap:nowrap}
+.snTableWrap{width:100%;overflow-x:auto}
+@media (max-width:768px){.snTableWrap{overflow-x:visible}}
+.snTag{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;margin-left:4px}
+.snTag--main{background:#eef2ff;color:#3b5bdb}
+.snTag--ok{background:#e9f7ef;color:#2b8a3e}
+.snTag--wait{background:#fff4e6;color:#b7791f}
+.snTag--bad{background:#fff0f0;color:#c53030}
+.snReject{margin:4px 0 0;font-size:12px;color:#c53030}
+.snHelp{margin-top:20px;padding:16px;background:#f7f8fb;border-radius:12px}
+.snHelp h4{margin:0 0 8px;font-size:14px}
+.snHelp ul{margin:0;padding-left:18px;line-height:1.9;font-size:13px;color:#0e0e0e}
+.snTypeList{display:flex;flex-direction:column;gap:8px}
+.snTypeItem{display:block;width:100%;text-align:left;cursor:pointer;border:1px solid #e3e5ec;border-radius:12px;background:#fff;padding:12px 14px}
+.snTypeItem:hover{background:#f7f8fb;border-color:#c9cede}
+.snTypeItem strong{display:block;font-size:14px;margin-bottom:2px}
+.snTypeItem span{font-size:13px;color:#0e0e0e}
+.snDocHint{margin:4px 0 0;font-size:12px;color:#0e0e0e}
+
+/* ── 6. 고객센터 ── */
+.v9-help .v9-hint{align-self:center;margin-left:auto;font-size:12px;color:#777;padding:2px 6px}
+/* 공지사항 — core/css/noticeView.css 그대로(광고주 notice.inc.html 이 loadCss 로 부름) */
+.nv-wrap{max-width:920px;margin:0 auto}
+.nv-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.nv-head__title{font-size:20px;font-weight:700;color:#1c1c22}
+.nv-list{border-top:2px solid #33343a}
+.nv-row{display:flex;align-items:center;gap:12px;padding:15px 12px;border-bottom:1px solid #ededf1;text-decoration:none;color:#2b2b31;cursor:pointer}
+.nv-row:hover{background:#f8f8fb}
+.nv-row__num{width:48px;text-align:center;color:#1b1b1b;font-size:13px;flex-shrink:0}
+.nv-row__title{flex:1;font-size:15px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.nv-row__date{width:96px;text-align:right;color:#1b1b1b;font-size:13px;flex-shrink:0}
+.nv-badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;color:#fff;flex-shrink:0}
+.nv-badge--info{background:#8a8f9c}
+.nv-badge--event{background:#ef4444}
+.nv-badge--update{background:#3b82f6}
+.nv-badge--inspect{background:#f59e0b}
+.nv-new{display:inline-flex;align-items:center;justify-content:center;min-width:16px;height:16px;padding:0 4px;border-radius:8px;background:#ef4444;color:#fff;font-size:10px;font-weight:700}
+.nv-search{display:flex;align-items:center;gap:8px;margin:0 0 14px}
+.nv-search input[type="search"]{flex:1 1 auto;min-width:0;height:40px;padding:0 14px;border:1px solid #e2e2e8;border-radius:8px;font-size:14px;color:#1b1b1b;background:#fff}
+.nv-search input[type="search"]:focus{outline:none;border-color:#7346f3}
+.nv-search button{flex:0 0 auto;height:40px;padding:0 14px;border:1px solid #7346f3;border-radius:8px;background:#7346f3;color:#fff;font-size:14px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:4px}
+.nv-search button:hover{background:#5f35db;border-color:#5f35db}
+.nv-search button .material-symbols-outlined{font-size:18px}
+@media (max-width:600px){.nv-search__label{display:none}.nv-search button{padding:0 12px}}
+@media (max-width:520px){.nv-row__num{display:none}.nv-row__date{width:auto}}
+/* 1:1 문의 — 줄 펼치기(광고주 inquiryOpenDetail) = 제목 칸 체크 */
+.inquiry-detail{display:none}
+.inquiry-row:has(.v9r:checked) + .inquiry-detail{display:table-row}
+.inquiry-subject label{cursor:pointer}
+.inquiry-subject .v9-who{margin-left:8px;padding:0 4px;font-size:12px;font-weight:400;color:#777}
+/* FAQ — 광고주 button[aria-expanded] 아코디언 → <details>/<summary> · 분류 = 라디오 */
+.faq-item > summary.faq-item__question{list-style:none}
+.faq-item > summary.faq-item__question::-webkit-details-marker{display:none}
+.faq-item[open] .faq-item__answer{max-height:none;padding:16px 20px 20px 58px}
+.faq-item[open] .faq-item__title{font-weight:700;color:var(--color-main,#7346f3)}
+.faq-item[open] .faq-item__arrow{transform:rotate(180deg);color:var(--color-main,#7346f3)}
+label.faq-cate__btn{cursor:pointer}
+.faq-page:has(#fqc-all:checked) label[for="fqc-all"],.faq-page:has(#fqc-account:checked) label[for="fqc-account"],
+.faq-page:has(#fqc-campaign:checked) label[for="fqc-campaign"],.faq-page:has(#fqc-point:checked) label[for="fqc-point"],
+.faq-page:has(#fqc-review:checked) label[for="fqc-review"],.faq-page:has(#fqc-etc:checked) label[for="fqc-etc"],
+.faq-page:has(#fqc-agency:checked) label[for="fqc-agency"]{background:var(--color-main,#7346f3);border-color:var(--color-main,#7346f3);color:#fff;font-weight:700}
+.faq-page:has(#fqc-account:checked) .faq-item:not([data-cate="account"]),
+.faq-page:has(#fqc-campaign:checked) .faq-item:not([data-cate="campaign"]),
+.faq-page:has(#fqc-point:checked) .faq-item:not([data-cate="point"]),
+.faq-page:has(#fqc-review:checked) .faq-item:not([data-cate="review"]),
+.faq-page:has(#fqc-etc:checked) .faq-item:not([data-cate="etc"]),
+.faq-page:has(#fqc-agency:checked) .faq-item:not([data-cate="agency"]){display:none}
+/* 도움말 — 광고주 help.html <style> 그대로(.help-wrap 안으로 묶음 · 위 고정 머리줄 높이만 뺌) */
+.help-wrap{display:flex;align-items:flex-start;max-width:1160px;gap:24px;font-size:15px;line-height:1.7;color:#333}
+.help-toc{position:sticky;top:0;flex:0 0 260px;background:#fff;border:1px solid #e9e9ee;border-radius:12px;padding:14px;max-height:calc(100vh - 140px);overflow-y:auto}
+.help-toc__search{display:flex;align-items:center;gap:6px;border:1px solid #ddd;border-radius:8px;padding:8px 10px;margin-bottom:12px}
+.help-toc__search input{border:none;outline:none;font-size:14px;width:100%;background:transparent}
+.help-toc__label{font-size:12px;font-weight:800;color:#0e0e0e;margin:14px 0 6px;letter-spacing:.02em}
+.help-toc [data-help-group]:first-child .help-toc__label{margin-top:0}
+.help-toc__item{display:block;padding:6px 8px;border-radius:6px;font-size:14px;color:#0e0e0e;text-decoration:none;line-height:1.4}
+.help-toc__item:hover{background:#f2f4f8}
+.help-body{flex:1;min-width:0}
+.help-article{background:#fff;border:1px solid #e9e9ee;border-radius:12px;padding:22px 24px;margin-bottom:16px;scroll-margin-top:16px}
+.help-article__crumb{font-size:12px;color:#0e0e0e;font-weight:700}
+.help-article__title{font-size:19px;font-weight:800;margin:4px 0 10px}
+.help-article__summary{font-weight:700;color:#333;margin:0 0 14px}
+.help-text{margin:0 0 12px;color:#0e0e0e}
+@media (max-width:860px){.help-wrap{flex-direction:column}.help-toc{position:static;width:100%;max-height:none}}
+/* [2026-11-11 v0.9] 포인트 충전 — 대행사 안내 줄(버튼 포함)이 아래 카드에 겹치지 않게 한 줄 flex + 아래 여백 */
+.v9p > .pm-amount-notice.add{display:flex;align-items:center;flex-wrap:wrap;gap:0;margin:0 0 16px;padding:8px 12px}
+.v9p > .pm-amount-notice.add > button{margin-left:8px}

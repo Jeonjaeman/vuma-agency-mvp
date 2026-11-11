@@ -1,0 +1,482 @@
+/**
+ * 뷰마 광고주 - 리뷰 검수 (review-inspect)
+ *
+ * 리스트·필터·모달 스타일. reviewer-manage 와 같은 톤(cmp-* 레이아웃 재사용).
+ * 인라인 스타일 대신 클래스로 정리해 다른 화면과 어긋나지 않게 한다.
+ */
+
+/* ── 상단 필터 바 ── */
+.ri-filter {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+	flex-wrap: wrap;
+	margin-bottom: 16px;
+}
+
+.ri-filter .cmp-select {
+	min-width: 160px;
+}
+
+.ri-filter__hint {
+	font-size: 13px;
+	color: var(--color-text-14); /* [10-21] ← #8e8e93 */
+}
+
+/* ── 일괄 처리 바 ── */
+.ri-bulk {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	flex-wrap: wrap;
+	margin-bottom: 12px;
+	padding: 8px 12px;
+	background: #f7f7f8;
+	border-radius: 8px;
+}
+
+.ri-bulk__count {
+	font-size: 14px;
+	color: var(--color-text-14); /* [10-21] ← #666 */
+}
+
+.ri-bulk__count b {
+	color: #3d5afe;
+}
+
+.ri-bulk .btn {
+	margin-left: auto;
+}
+
+/* ── 테이블 ── */
+.ri-table-wrap {
+	overflow-x: auto;
+}
+
+table.ri-table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 13px;
+}
+
+table.ri-table thead th {
+	padding: 10px 8px;
+	text-align: left;
+	color: var(--color-text-14); /* [10-21] ← #8e8e93 */
+	font-weight: 600;
+	border-bottom: 1px solid #ececf0;
+	white-space: nowrap;
+}
+
+table.ri-table tbody td {
+	padding: 10px 8px;
+	border-bottom: 1px solid #f4f4f6;
+	vertical-align: top;
+}
+
+table.ri-table .ri-col-center {
+	text-align: center;
+}
+
+.ri-empty {
+	padding: 44px 0;
+	text-align: center;
+	color: var(--color-text-14); /* [10-21] ← #b0b0b8 */
+}
+
+/* 캠페인 셀 */
+.ri-camp__name {
+	font-weight: 600;
+	color: #363636;
+}
+
+.ri-camp__code {
+	display: block;
+	margin-top: 2px;
+	font-size: 12px;
+	color: var(--color-text-14); /* [10-21] ← #b0b0b8 */
+}
+
+.ri-muted {
+	color: #8e8e93;
+}
+
+.ri-link {
+	color: #3d5afe;
+	text-decoration: none;
+}
+
+.ri-link:hover {
+	text-decoration: underline;
+}
+
+/* 미션 충족 컴팩트 */
+.ri-mission-ok    { color: #1a9c5b; font-weight: 600; margin-right: 6px; }
+.ri-mission-no    { color: #c0392b; font-weight: 600; margin-right: 6px; }
+.ri-mission-man   { color: var(--color-text-14); /* [10-21] ← #8e8e93 */ font-weight: 600; margin-right: 6px; }
+
+/* 상태 뱃지 */
+.ri-badge {
+	display: inline-block;
+	padding: 3px 9px;
+	border-radius: 11px;
+	font-size: 12px;
+	font-weight: 700;
+}
+
+.ri-badge--wait    { background: #fff5e5; color: #d68102; }   /* 검수대기 */
+.ri-badge--done    { background: #e6f8f1; color: #00875a; }   /* 승인 */
+.ri-badge--reject  { background: #ffece9; color: #c0392b; }   /* 반려 */
+.ri-badge--gray    { background: #eef1f5; color: var(--color-text-14); /* [10-21] ← #7b8492 */ }   /* 미제출 등 */
+
+.ri-reject-reason {
+	margin-top: 4px;
+	font-size: 12px;
+	color: #c0392b;
+	white-space: normal;
+	word-break: break-word;
+	text-align: left;
+}
+
+/* ==========================================================
+   검수 모달 (#rviModal, core modal.js)   [2026-09-02 헤더/바디/풋터 보강]
+
+   ★ 이 사이트는 공통 .modal-header/.modal-body/.modal-footer 스타일이 없다.
+     main.css 의 .modal-content 는 배경·모서리·그림자만 주고, 안쪽 뼈대는
+     모달마다 ID 로 따로 정의해야 한다(#vrModal 쪽 주석 참고).
+     여기(#rviModal)에 그 규칙이 빠져 있어서 제목·닫기 버튼이 한 줄로
+     정렬되지 않고 아래로 떨어지는 등 뼈대만 나온 채 깨져 보였다.
+   ★ '더 크게' 요청 — 560px → 720px. 기준표(ri-mission)가 넓어질수록
+     보기 편해서 다른 소형 모달들보다 넓게 잡는다.
+   ========================================================== */
+#rviModal .modal-content {
+	width: 100%;
+	max-width: 720px;
+}
+
+#rviModal .modal-header {
+	padding: 24px 28px 16px;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	border-bottom: 1px solid #ececf0;
+}
+
+#rviModal .modal-title {
+	font-size: 18px;
+	font-weight: 700;
+	color: #1c1c1e;
+	line-height: 1.4;
+}
+
+#rviModal .modal-body {
+	padding: 20px 28px;
+}
+
+#rviModal .modal-footer {
+	padding: 16px 28px 24px;
+	border-top: 1px solid #ececf0;
+}
+
+.ri-modal-head {
+	font-size: 14px;
+	margin-bottom: 6px;
+}
+
+.ri-modal-url {
+	font-size: 13px;
+	margin-bottom: 14px;
+	word-break: break-all;
+}
+
+table.ri-mission {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 13px;
+	margin-bottom: 14px;
+}
+
+table.ri-mission thead th {
+	padding: 8px;
+	text-align: left;
+	color: var(--color-text-14); /* [10-21] ← #8e8e93 */
+	border-bottom: 1px solid #ececf0;
+}
+
+table.ri-mission tbody td {
+	padding: 8px;
+	border-bottom: 1px solid #f4f4f6;
+}
+
+.ri-reason-label {
+	font-size: 13px;
+	font-weight: 600;
+	display: block;
+	margin-bottom: 6px;
+}
+
+.ri-reason-input {
+	width: 100%;
+	height: 80px;
+	padding: 10px;
+	border: 1px solid #d1d1d6;
+	border-radius: 6px;
+	font-size: 13px;
+	box-sizing: border-box;
+	resize: vertical;
+}
+
+.ri-modal-notice {
+	font-size: 12px;
+	color: var(--color-text-14); /* [10-21] ← #8e8e93 */
+	margin-top: 6px;
+}
+
+/* ──────────────────────────────────────────────
+   버튼 (전역 .btn 베이스가 없어 컨테이너 스코프로 정의)
+   - .ri-bulk    : 일괄 승인 바
+   - .ri-table   : 목록의 '검수' 버튼
+   - .rv-review  : 캠페인 상세 '선정된 리뷰어'표의 '검수' 버튼
+   - #rviModal   : 검수 모달 하단 승인/반려
+   ────────────────────────────────────────────── */
+.ri-bulk .btn,
+.ri-table .btn,
+.rv-review .btn,
+#rviModal .btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	height: 36px;
+	padding: 0 14px;
+	border: 1px solid #d1d1d6;
+	border-radius: 8px;
+	background: #fff;
+	color: var(--color-text-14); /* [10-21] ← #444 */
+	font-size: 13px;
+	font-weight: 600;
+	line-height: 1;
+	cursor: pointer;
+	white-space: nowrap;
+	transition: background .18s ease, box-shadow .18s ease;
+}
+
+.ri-bulk .btn:hover,
+.ri-table .btn:hover,
+.rv-review .btn:hover,
+#rviModal .btn:hover {
+	box-shadow: 0 2px 6px rgba(0, 0, 0, .12);
+}
+
+.ri-bulk .btn .material-symbols-outlined,
+.ri-table .btn .material-symbols-outlined,
+.rv-review .btn .material-symbols-outlined,
+#rviModal .btn .material-symbols-outlined {
+	font-size: 18px;
+}
+
+.ri-bulk .btn-primary,
+.ri-table .btn-primary,
+.rv-review .btn-primary,
+#rviModal .btn-primary {
+	background: var(--color-main, #7346f3);
+	border-color: var(--color-main, #7346f3);
+	color: #fff;
+}
+
+.ri-bulk .btn-primary:hover,
+.ri-table .btn-primary:hover,
+.rv-review .btn-primary:hover,
+#rviModal .btn-primary:hover {
+	background: #5f34e0;
+	box-shadow: 0 4px 12px rgba(115, 70, 243, .3);
+}
+
+/* ── 검수정보(검수일자/검수자) ── */
+.ri-decide {
+	font-size: 13px;
+	color: var(--color-text-14); /* [10-21] ← #444 */
+}
+
+.ri-decide__by {
+	margin-top: 2px;
+	font-size: 12px;
+	color: var(--color-text-14); /* [10-21] ← #8e8e93 */
+}
+
+/* ── 재검수 요청 플래그 ── */
+.ri-recheck-flag {
+	display: inline-block;
+	margin-top: 4px;
+	padding: 2px 7px;
+	border-radius: 9px;
+	font-size: 11px;
+	font-weight: 700;
+	background: #fff5e5;
+	color: #d68102;
+}
+
+/* ── 재검수 요청 모달도 같은 이유로 헤더/바디/풋터가 빠져 있었다 ── */
+#rviRecheckModal .modal-content {
+	width: 100%;
+	max-width: 560px;
+}
+
+#rviRecheckModal .modal-header {
+	padding: 24px 28px 16px;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	border-bottom: 1px solid #ececf0;
+}
+
+#rviRecheckModal .modal-title {
+	font-size: 18px;
+	font-weight: 700;
+	color: #1c1c1e;
+	line-height: 1.4;
+}
+
+#rviRecheckModal .modal-body {
+	padding: 20px 28px;
+}
+
+#rviRecheckModal .modal-footer {
+	padding: 16px 28px 24px;
+	border-top: 1px solid #ececf0;
+}
+
+/* ── 재검수 요청 모달 버튼도 같은 톤으로 ── */
+#rviRecheckModal .btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	height: 36px;
+	padding: 0 14px;
+	border: 1px solid #d1d1d6;
+	border-radius: 8px;
+	background: #fff;
+	color: var(--color-text-14); /* [10-21] ← #444 */
+	font-size: 13px;
+	font-weight: 600;
+	line-height: 1;
+	cursor: pointer;
+	white-space: nowrap;
+	transition: background .18s ease, box-shadow .18s ease;
+}
+
+#rviRecheckModal .btn:hover {
+	box-shadow: 0 2px 6px rgba(0, 0, 0, .12);
+}
+
+#rviRecheckModal .btn-primary {
+	background: var(--color-main, #7346f3);
+	border-color: var(--color-main, #7346f3);
+	color: #fff;
+}
+
+#rviRecheckModal .btn-primary:hover {
+	background: #5f34e0;
+	box-shadow: 0 4px 12px rgba(115, 70, 243, .3);
+}
+
+/* ==========================================================
+   영상 제작 요청 모달 (#vrModal)   [2026-08-11]
+
+   ★ 이 사이트에는 공통 .modal-header / .modal-body / .modal-footer
+     스타일이 없다. 모달마다 ID 로 따로 정의하는 구조다.
+     (main.css 의 .modal-content 는 배경·모서리·그림자만 준다)
+     그래서 규칙을 안 적어두면 뼈대만 나오고 디자인이 통째로 빠진다.
+     검수 모달(#rviModal)과 같은 톤으로 맞춘다.
+   ========================================================== */
+#vrModal .modal-content {
+	width: 100%;
+	max-width: 520px;
+}
+
+#vrModal .modal-header {
+	padding: 24px 26px 14px;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+}
+
+#vrModal .modal-title {
+	font-size: 18px;
+	font-weight: 700;
+	color: #1c1c1e;
+	line-height: 1.4;
+}
+
+#vrModal .modal-body {
+	padding: 0 26px 4px;
+	max-height: 62vh;
+	overflow-y: auto;
+}
+
+#vrModal .modal-footer {
+	padding: 16px 26px 24px;
+}
+
+/* 종류 선택 라디오 */
+#vrModal .vr-type-box label {
+	padding: 10px 12px;
+	border: 1px solid #e4e4e8;
+	border-radius: 8px;
+	transition: border-color .15s ease, background .15s ease;
+}
+
+#vrModal .vr-type-box label:hover {
+	border-color: #b9a6f8;
+	background: #faf8ff;
+}
+
+/* 참고자료 파일 선택 */
+#vrModal .vr-file {
+	width: 100%;
+	box-sizing: border-box;
+	border: 1px solid #d1d1d6;
+	border-radius: 8px;
+	padding: 9px 10px;
+	font-size: 13px;
+	background: #fff;
+}
+
+/* 버튼 — 전역 .btn 베이스가 없어 컨테이너 스코프로 정의한다 */
+#vrModal .btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	height: 38px;
+	padding: 0 16px;
+	border: 1px solid #d1d1d6;
+	border-radius: 8px;
+	background: #fff;
+	color: var(--color-text-14); /* [10-21] ← #444 */
+	font-size: 14px;
+	font-weight: 600;
+	line-height: 1;
+	cursor: pointer;
+	white-space: nowrap;
+	transition: background .18s ease, box-shadow .18s ease;
+}
+
+#vrModal .btn:hover {
+	box-shadow: 0 2px 6px rgba(0, 0, 0, .12);
+}
+
+#vrModal .btn-primary {
+	background: var(--color-main, #7346f3);
+	border-color: var(--color-main, #7346f3);
+	color: #fff;
+}
+
+#vrModal .btn-primary:hover {
+	background: #5f34e0;
+	box-shadow: 0 4px 12px rgba(115, 70, 243, .3);
+}

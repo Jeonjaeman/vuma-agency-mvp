@@ -1,0 +1,60 @@
+/* [2026-11-11 v0.9] 리뷰어 관리 · 리뷰 검수 · 포인트 지급 확인 — 광고주 마크업을 JS 없이 움직이게 하는 이음 규칙만
+   광고주는 .active · .open · aria-hidden 을 JS 로 바꿈 → 여기서는 숨긴 radio/checkbox 의 :checked 와 popover 로 같은 모양을 낸다.
+   build/gen_ops.py 가 넣는다(직접 고친 html 은 다시 만들면 사라짐) */
+
+/* 틀: .work 가 이미 바깥 여백을 줌 → 광고주 .cmp-layout / .mp-container 여백은 겹치지 않게 뺌 */
+.work > .cmp-layout,.work > .mp-container{padding:0}
+
+/* ── 상태 탭(.status-tab) = label 안 radio. 고른 것 = 광고주 .status-tab.active 와 같은 값 ── */
+.status-tab:has(> input:checked){background:var(--color-main);color:#fff;font-weight:600}
+.status-tab:has(> input:checked) .count.highlight{color:#fff}
+.status-tab:has(> input:focus-visible){outline:2px solid var(--color-main);outline-offset:2px}
+
+/* ── 창(.modal-wrap) = popover. 광고주 .modal-wrap.open 과 같은 값 + popover 기본 테두리·여백 지우기 ── */
+.modal-wrap[popover]{inset:0;margin:0;border:0;padding:20px 0;background:transparent;max-width:none;max-height:none}
+.modal-wrap[popover]:not(:popover-open){display:none}
+.modal-wrap:popover-open{opacity:1;visibility:visible;pointer-events:auto}
+.modal-wrap:popover-open .modal-content{transform:translateY(0) scale(1)}
+.modal-wrap[popover]::backdrop{background:transparent}
+
+/* ── 리뷰어 관리 ── */
+.rvm .rv-pane{display:none}
+.rvm:has(input[name=rtab][value=all]:checked) .rv-pane--all,
+.rvm:has(input[name=rtab][value=fav]:checked) .rv-pane--fav,
+.rvm:has(input[name=rtab][value=cancelreq]:checked) .rv-pane--cancelreq,
+.rvm:has(input[name=rtab][value=blocked]:checked) .rv-pane--blocked,
+.rvm:has(input[name=rtab][value=reported]:checked) .rv-pane--reported{display:block}
+/* 선정취소한 리뷰어 보기(광고주 = rtab=canceled 로 이동) → 켜면 탭과 상관없이 선정취소 목록만 */
+.rvm:has(#rvcx:checked) .rv-pane{display:none}
+.rvm:has(#rvcx:checked) .rv-pane--cancelreq{display:block}
+.rv-pane--cancelreq .rev-canceled,.rvm:has(#rvcx:checked) .rev-cancelreq{display:none}
+.rvm:has(#rvcx:checked) .rv-pane--cancelreq .rev-canceled{display:block}
+.rvm:has(#rvcx:checked) .status-tab{background:var(--color-text-2);color:var(--color-text-11);font-weight:400}
+/* 참여 이력 칸 — 단추(label 안 checkbox)를 켠 칸만 펼침(광고주 .rev-history__toggle.open 과 같은 값) */
+.rev-history__body,.rev-history .rev-hist-sec{display:none}
+.rev-history:has(input:checked) .rev-history__body{display:block}
+.rev-history:has(input[value=camp]:checked) .rh-camp,.rev-history:has(input[value=note]:checked) .rh-note,
+.rev-history:has(input[value=sms]:checked) .rh-sms,.rev-history:has(input[value=mail]:checked) .rh-mail,
+.rev-history:has(input[value=inquiry]:checked) .rh-inquiry{display:block}
+/* 숨은 칸도 + 선택자에 잡혀 맨 위 칸에 줄이 생김 → 칸 사이 줄은 뺌 */
+.rev-history__body > .rev-hist-sec + .rev-hist-sec{margin-top:0;padding-top:0;border-top:0}
+.rev-history__toggle:has(input:checked){background:#efeaff;border-color:#d8cfff;color:#5b3fd6}
+.rev-history__toggle:has(input:checked) .material-symbols-outlined{rotate:180deg}
+.rev-hist-biz{margin:8px 0 2px;font-size:12px;font-weight:700;color:#6b5fa8}
+.rev-hist-biz b{font-weight:700;color:#8a8f98;margin-left:2px}
+a.rev-hist-name{color:inherit;text-decoration:none}
+a.rev-hist-name:hover{text-decoration:underline}
+
+/* ── 포인트 지급 확인 ── */
+.pc{gap:16px}
+.pc .mp-card{max-width:900px}        /* 광고주 620px — 대행사 업체 칸이 붙어 넓힘 */
+.pc .pc-pane{display:none}
+.pc:has(input[name=pctab][value=check]:checked) .pc-pane--check{display:flex}
+.pc:has(input[name=pctab][value=batch]:checked) .pc-pane--batch{display:block}
+/* 지급대기만 보기(광고주 = ?wait=1 로 다시 읽음) */
+.pc .pc-wait{cursor:pointer}
+.pc .pc-on,.pc:has(#pwait:checked) .pc-off{display:none}
+.pc:has(#pwait:checked) .pc-on{display:inline}
+.pc:has(#pwait:checked) .pc-wait{background:#f1f1f3;border-color:#ddd}
+.pc:has(#pwait:checked) .prow:not(.p-wait){display:none}
+.pm-table td a{color:inherit}

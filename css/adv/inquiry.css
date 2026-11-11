@@ -1,0 +1,370 @@
+/* ==========================================================
+   광고주 1:1 문의
+   ========================================================== */
+.inquiry-container {
+	background: #fff;
+	border-radius: 12px;
+	padding: 28px;
+}
+
+/* ── 헤더 ── */
+.inquiry-header {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 16px;
+	flex-wrap: wrap;
+	margin-bottom: 20px;
+}
+
+.inquiry-title {
+	font-size: 20px;
+	font-weight: 800;
+	color: #111;
+}
+
+.inquiry-title-cnt {
+	font-size: 16px;
+	color: #7346f3;
+}
+
+.inquiry-notice {
+	margin-top: 6px;
+	font-size: 13px;
+	color: var(--color-text-14); /* [10-21] ← #8e8e93 */
+}
+
+.btn-inquiry-write {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	height: 40px;
+	padding: 0 18px;
+	border: none;
+	border-radius: 8px;
+	background: #7346f3;
+	color: #fff;
+	font-size: 14px;
+	font-weight: 700;
+	cursor: pointer;
+}
+
+.btn-inquiry-write:hover {
+	background: #5f34d6;
+}
+
+.btn-inquiry-write .material-symbols-outlined {
+	font-size: 18px;
+}
+
+/* ── 목록 ── */
+.inquiry-table {
+	width: 100%;
+	border-collapse: collapse;
+}
+
+.inquiry-table thead th {
+	padding: 12px 10px;
+	border-top: 2px solid #333;
+	border-bottom: 1px solid #e5e5ea;
+	background: #fafafa;
+	font-size: 13px;
+	font-weight: 700;
+	color: var(--color-text-14); /* [10-21] ← #555 */
+	text-align: center;
+}
+
+.inquiry-table tbody td {
+	padding: 14px 10px;
+	border-bottom: 1px solid #f0f0f3;
+	font-size: 14px;
+	color: #333;
+	text-align: center;
+}
+
+.inquiry-row {
+	cursor: pointer;
+}
+
+.inquiry-row:hover {
+	background: #faf8ff;
+}
+
+.inquiry-subject {
+	text-align: left !important;
+	font-weight: 600;
+}
+
+.inquiry-type {
+	display: inline-block;
+	padding: 3px 10px;
+	border-radius: var(--r-full);
+	background: #f1f1f5;
+	font-size: 12px;
+	font-weight: 600;
+	color: var(--color-text-14); /* [10-21] ← #666 */
+}
+
+.inquiry-state {
+	font-size: 13px;
+	font-weight: 700;
+	color: #f08c00;
+}
+
+.inquiry-state--done {
+	color: #2b8a3e;
+}
+
+.inquiry-date {
+	font-size: 13px;
+	color: var(--color-text-14); /* [10-21] ← #8e8e93 */
+}
+
+.inquiry-empty {
+	padding: 50px 0 !important;
+	color: var(--color-text-14); /* [10-21] ← #999 */
+}
+
+/* ── 상세 (행 아래 펼침) ── */
+.inquiry-detail td {
+	padding: 0 !important;
+	background: #fbfbfd;
+}
+
+.inquiry-detail-box {
+	padding: 20px;
+	text-align: left;
+}
+
+.inquiry-detail-label {
+	display: inline-block;
+	min-width: 44px;
+	padding: 3px 10px;
+	border-radius: 4px;
+	background: #e9e9ef;
+	font-size: 12px;
+	font-weight: 700;
+	color: var(--color-text-14); /* [10-21] ← #555 */
+	text-align: center;
+}
+
+.inquiry-detail-label--a {
+	background: #7346f3;
+	color: #fff;
+}
+
+.inquiry-detail-text {
+	margin-top: 10px;
+	font-size: 14px;
+	line-height: 1.7;
+	color: #333;
+	word-break: break-all;
+}
+
+.inquiry-detail-a {
+	margin-top: 20px;
+	padding-top: 20px;
+	border-top: 1px dashed #ddd;
+}
+
+.inquiry-detail-a--wait {
+	font-size: 13px;
+	color: var(--color-text-14); /* [10-21] ← #8e8e93 */
+}
+
+.inquiry-detail-date {
+	margin-top: 8px;
+	font-size: 12px;
+	color: var(--color-text-14); /* [10-21] ← #8e8e93 */
+}
+
+.inquiry-detail-files {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin-top: 12px;
+}
+
+.inquiry-file {
+	display: inline-flex;
+	align-items: center;
+	gap: 2px;
+	padding: 5px 10px;
+	border: 1px solid #e5e5ea;
+	border-radius: 6px;
+	font-size: 12px;
+	color: var(--color-text-14); /* [10-21] ← #555 */
+	text-decoration: none;
+}
+
+.inquiry-file:hover {
+	border-color: #7346f3;
+	color: #7346f3;
+}
+
+.inquiry-file .material-symbols-outlined {
+	font-size: 15px;
+}
+
+/* ── 작성 모달 ── */
+.inquiry-modal {
+	position: fixed;
+	inset: 0;
+	z-index: 1000;
+	display: none;
+	align-items: center;
+	justify-content: center;
+}
+
+.inquiry-modal.is-open {
+	display: flex;
+}
+
+.inquiry-modal__dim {
+	position: absolute;
+	inset: 0;
+	background: rgba(0, 0, 0, .45);
+}
+
+.inquiry-modal__box {
+	position: relative;
+	width: 100%;
+	max-width: 520px;
+	max-height: 90vh;
+	overflow-y: auto;
+	border-radius: 12px;
+	background: #fff;
+}
+
+.inquiry-modal__head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 20px 24px;
+	border-bottom: 1px solid #f0f0f3;
+}
+
+.inquiry-modal__title {
+	font-size: 17px;
+	font-weight: 800;
+	color: #111;
+}
+
+.inquiry-modal__close {
+	border: none;
+	background: none;
+	font-size: 26px;
+	line-height: 1;
+	color: var(--color-text-14); /* [10-21] ← #999 */
+	cursor: pointer;
+}
+
+.inquiry-modal__form {
+	padding: 20px 24px 24px;
+}
+
+.inquiry-field {
+	margin-bottom: 16px;
+}
+
+.inquiry-label {
+	display: block;
+	margin-bottom: 6px;
+	font-size: 13px;
+	font-weight: 700;
+	color: #333;
+}
+
+.inquiry-input {
+	width: 100%;
+	height: 42px;
+	padding: 0 12px;
+	border: 1px solid #e0e0e6;
+	border-radius: 8px;
+	font-size: 14px;
+	color: #333;
+}
+
+.inquiry-textarea {
+	width: 100%;
+	height: 160px;
+	padding: 12px;
+	border: 1px solid #e0e0e6;
+	border-radius: 8px;
+	font-size: 14px;
+	line-height: 1.6;
+	color: #333;
+	resize: vertical;
+}
+
+.inquiry-input:focus,
+.inquiry-textarea:focus {
+	border-color: #7346f3;
+	outline: none;
+}
+
+.inquiry-file-input {
+	width: 100%;
+	font-size: 13px;
+	color: var(--color-text-14); /* [10-21] ← #555 */
+}
+
+.inquiry-modal__foot {
+	display: flex;
+	justify-content: flex-end;
+	gap: 8px;
+	margin-top: 20px;
+}
+
+.inquiry-btn {
+	height: 42px;
+	padding: 0 22px;
+	border-radius: 8px;
+	font-size: 14px;
+	font-weight: 700;
+	cursor: pointer;
+}
+
+.inquiry-btn--cancel {
+	border: 1px solid #ddd;
+	background: #fff;
+	color: var(--color-text-14); /* [10-21] ← #666 */
+}
+
+.inquiry-btn--send {
+	border: none;
+	background: #7346f3;
+	color: #fff;
+}
+
+.inquiry-btn--send:hover {
+	background: #5f34d6;
+}
+
+/* ── 모바일 ── */
+@media (max-width: 768px) {
+	.inquiry-container {
+		padding: 18px;
+	}
+
+	.inquiry-table thead {
+		display: none;
+	}
+
+	.inquiry-table tbody td {
+		display: block;
+		padding: 4px 0;
+		text-align: left;
+		border: none;
+	}
+
+	.inquiry-row {
+		display: block;
+		padding: 14px 0;
+		border-bottom: 1px solid #f0f0f3;
+	}
+
+	.inquiry-subject {
+		font-size: 15px;
+	}
+}

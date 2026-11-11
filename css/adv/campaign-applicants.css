@@ -1,0 +1,834 @@
+/* =====================================================
+   캠페인 신청자 탭 (tpl-campaign-detail 내 tab2) 전용 스타일
+   공통: campaign-detail-panels-common.css 참고
+   ===================================================== */
+
+.applicants-notice {
+	padding: 0 0 20px 0;
+	text-align: center;
+}
+
+.applicants-notice p {
+	font-size: 14px;
+	line-height: 22px;
+	color: var(--color-text-14);
+	margin: 0;
+}
+
+.applicants-notice-highlight {
+	color: #e85d04;
+	font-weight: 600;
+}
+
+/*
+테이블 컬럼 너비 (공통 외 신청자 전용)
+
+  ★ [2026-09-15] 7칸 시절 값이 그대로 남아 '선정' 칸이 남는 폭을 다 먹고 있었다.
+    마지막 칸에만 너비가 없어, 폭을 정하지 않은 유일한 칸이 되어
+    남는 공간을 전부 가져갔다.
+  ※ 같은 날 사진 칸을 되살려 지금은 6칸이다.
+    번호 · 사진 · 리뷰어 · 신청메세지 · 참여이력 · 선정
+  ※ 늘어나야 하는 칸은 '리뷰어' 하나뿐이라 그 칸만 너비를 비워 둔다.
+    칸을 더하거나 뺄 때는 아래 nth-child 번호를 반드시 같이 옮길 것.
+*/
+.applicants-table th:nth-child(1) {	/* 번호 */
+	width: 50px;
+	min-width: 50px;
+}
+
+.applicants-table th:nth-child(2) {	/* 사진 (이니셜 아바타 40px) */
+	width: 60px;
+	min-width: 60px;
+}
+
+/* 3번째(리뷰어)는 폭을 주지 않는다 — 남는 공간은 여기가 가져간다 */
+
+.applicants-table th:nth-child(4) {	/* 신청메세지 */
+	width: 180px;
+	min-width: 120px;
+}
+
+.applicants-table th:nth-child(5) {	/* 참여이력 */
+	width: 90px;
+	min-width: 90px;
+}
+
+.applicants-table th:nth-child(6) {	/* 선정 — 패널티+취소 한 줄이 들어갈 만큼만 */
+	width: 130px;
+	min-width: 130px;
+}
+
+/* 리뷰어 등급 뱃지 스타일은 campaign-manage.css의 통합 스타일을 사용합니다. */
+
+.applicants-info-line {
+	font-size: 13px;
+	color: var(--color-text-14);
+	letter-spacing: -0.13px;
+	margin-bottom: 7px;
+}
+
+.applicants-divider {
+	color: var(--color-text-5);
+	margin: 0 4px;
+}
+
+.applicants-blog-line {
+	display: flex;
+	align-items: center;
+	gap: 7px;
+	flex-wrap: wrap;
+	margin-bottom: 7px;
+}
+
+/* ══════════════════════════════════════════
+	 신청자 적합도 뱃지  [2026-07-30]
+	   캠페인 분야에 맞는 항목을 표시한다.
+	     반려동물 → 반려동물 있음/없음
+	     육아     → 자녀 있음/없음
+	     그 외    → 그 분야를 관심분야로 뒀는지
+	   회원이 입력하지 않았으면 '미입력'(회색)으로 두어 '없음'(빨강)과 구분한다.
+══════════════════════════════════════════ */
+.applicants-match-line {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px;
+	margin-bottom: 7px;
+}
+
+.applicants-match {
+	display: inline-flex;
+	align-items: center;
+	gap: 3px;
+	padding: 2px 9px 2px 6px;
+	/* ★ [2026-09-02] 100px → --r-full. css/_revert_260902_radiusFull.orig 참고 */
+	border-radius: var(--r-full);
+	font-size: 12px;
+	font-weight: 600;
+	letter-spacing: -0.12px;
+	white-space: nowrap;
+}
+
+.applicants-match .material-symbols-outlined {
+	font-size: 15px;
+	line-height: 1;
+}
+
+/* 조건에 맞음 */
+.applicants-match--yes {
+	background: #e8f7ee;
+	color: #17803d;
+}
+
+/* 조건에 맞지 않음 */
+.applicants-match--no {
+	background: #fdeaea;
+	color: #c62828;
+}
+
+/* 회원이 입력하지 않아 알 수 없음 */
+.applicants-match--unknown {
+	background: #f2f2f4;
+	color: var(--color-text-14); /* [10-21] ← #75757a */
+}
+
+.applicants-blog-line .campaign-sns-icon {
+	width: 14px;
+	height: 14px;
+	vertical-align: middle;
+}
+
+.applicants-blog-url {
+	font-size: 12px;
+	color: var(--color-text-14);
+	text-decoration: none;
+}
+
+.applicants-blog-url-domain,
+.applicants-blog-url-path {
+	display: inline;
+}
+
+.applicants-blog-url:hover {
+	text-decoration: underline;
+}
+
+/* 블로그 행 아이콘 (구글 Material Symbols 기본값보다 우선 적용되도록 더 구체적인 선택자 사용) */
+.applicants-blog-line .material-symbols-outlined.applicants-icon-link {
+	font-size: 14px;
+	color: var(--color-text-8);
+}
+
+.applicants-copy-btn {
+	border: none;
+	background: none;
+	padding: 0;
+	margin: 0;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+}
+
+.applicants-blog-line .material-symbols-outlined.applicants-copy-icon {
+	font-size: 14px;
+	color: var(--color-text-8);
+}
+
+.applicants-blog-line .material-symbols-outlined {
+	display: inline-flex;
+	align-items: center;
+	line-height: 1;
+}
+
+.applicants-visitors {
+	font-size: 12px;
+	color: var(--color-text-14); /* [10-21] ← var(--color-text-9) */
+}
+
+.applicants-message {
+	display: flex;
+	align-items: flex-start;
+	flex-wrap: wrap;
+	gap: 5px;
+	background: var(--color-text-2);
+	padding: 5px 10px;
+	border-radius: 5px;
+}
+
+.applicants-message .material-symbols-outlined {
+	font-size: 13px;
+	color: var(--color-text-9);
+	flex-shrink: 0;
+	margin-top: 3px;
+}
+
+.applicants-message-label {
+	font-size: 12px;
+	font-weight: 500;
+	color: var(--color-text-14); /* [10-21] ← var(--color-text-9) */
+}
+
+.applicants-message-text {
+	font-size: 12px;
+	text-align: left;
+	color: var(--color-text-14); /* [10-21] ← var(--color-text-9) */
+}
+
+.applicants-history-badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 3px;
+	background: #ffd900;
+	border: 1px solid #d4b400;
+	border-radius: var(--r-4);
+	padding: 4px 7px;
+	font-size: 12px;
+	font-weight: 500;
+	color: var(--color-text-14);
+}
+
+.applicants-history-badge .material-symbols-outlined {
+	font-size: 12px;
+}
+
+.applicants-action {
+	padding: 16px 10px;
+	text-align: center;
+	vertical-align: middle;
+}
+
+.btn-applicant-select {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 68px;
+	height: 34px;
+	padding: 0 10px;
+	border: 1px solid var(--color-text-11);
+	border-radius: var(--r-4);
+	background: #fff;
+	color: var(--color-text-14);
+	font-size: 13px;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, .15);
+	cursor: pointer;
+	transition: background .15s ease, color .15s ease;
+}
+
+.btn-applicant-select:hover {
+	background: var(--color-text-3);
+}
+
+/*
+  ★ [2026-09-15] flex → inline-flex
+    블록이라 밑줄이 칸 끝까지 그어져 '선정' 칸이 실제보다 넓어 보였다.
+    글자 폭만큼만 긋는다.
+*/
+.applicants-action-done {
+	display: inline-flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 5px;
+	padding: 8px 10px;
+	border-bottom: 1px solid var(--color-text-4);
+	margin-bottom: 5px;
+}
+
+.applicants-action-done .material-symbols-outlined {
+	font-size: 15px;
+	color: var(--color-main);
+}
+
+.applicants-action-done span:last-child {
+	font-size: 12px;
+	font-weight: 600;
+	color: var(--color-main);
+}
+
+/* 선정대기 표시 (확정 전) */
+.applicants-action-wait {
+	display: inline-flex;	/* 위와 같은 이유 — 밑줄을 글자 폭에 맞춘다 [2026-09-15] */
+	flex-direction: column;
+	align-items: center;
+	gap: 5px;
+	padding: 8px 10px;
+	border-bottom: 1px solid var(--color-text-4);
+	margin-bottom: 5px;
+}
+
+.applicants-action-wait .material-symbols-outlined {
+	font-size: 15px;
+	color: #ff8f00;
+}
+
+.applicants-action-wait span:last-child {
+	font-size: 12px;
+	font-weight: 600;
+	color: #ff8f00;
+}
+
+.applicants-row-waiting {
+	background: #fff8ec;
+}
+
+/* 신청메세지 컬럼 */
+.applicants-message-cell {
+	font-size: 13px;
+	color: var(--color-text-11);
+	line-height: 1.5;
+	max-width: 260px;
+	word-break: break-all;
+}
+
+/* 선정 확정/발표 바 */
+.applicants-confirm-bar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	flex-wrap: wrap;
+	margin-bottom: 16px;
+	padding: 14px 18px;
+	border: 1px solid #ff8f00;
+	border-radius: 8px;
+	background: #fff8ec;
+}
+
+.applicants-confirm-text {
+	font-size: 13px;
+	color: var(--color-text-13);
+	line-height: 1.5;
+	word-break: keep-all;
+}
+
+.applicants-confirm-text b {
+	color: #ff8f00;
+	font-weight: 700;
+}
+
+.btn-applicant-confirm {
+	flex-shrink: 0;
+	height: 40px;
+	padding: 0 20px;
+	border: none;
+	border-radius: 6px;
+	background: var(--color-main);
+	color: #fff;
+	font-size: 14px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: opacity .15s ease;
+}
+
+.btn-applicant-confirm:hover {
+	opacity: .9;
+}
+
+/* 패널티 부여 버튼 */
+.btn-applicant-penalty {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 5px 10px;
+	margin-bottom: 4px;
+	border: 1px solid var(--color-urgent);
+	border-radius: 4px;
+	background: #fff;
+	color: var(--color-urgent);
+	font-size: 12px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: background .15s ease, color .15s ease;
+}
+
+.btn-applicant-penalty:hover {
+	background: var(--color-urgent);
+	color: #fff;
+}
+
+.btn-applicant-cancel {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 3px;
+	padding: 5px 10px;
+	background: none;
+	border: 1px solid transparent;
+	border-radius: 6px;
+	color: var(--color-text-14);
+	font-size: 12px;
+	cursor: pointer;
+	transition: background .15s ease, border-color .15s ease, color .15s ease;
+}
+
+.btn-applicant-cancel .material-symbols-outlined {
+	/*
+	★ [2026-09-02] 9px → 15px
+
+	  9px 은 이 사이트에서 가장 작은 값이었다(본문 최소는 11px).
+	  Material Symbols 는 20~48px 을 기준으로 그려진 글꼴이라
+	  9px 에서는 획이 뭉개져 점처럼 보인다. 게다가 눌러야 하는 버튼 안이다.
+
+	  15px 을 고른 근거는 이 파일 안에 있다.
+	    .applicants-action-done  아이콘 15px + 라벨 12px
+	    .applicants-action-wait  아이콘 15px + 라벨 12px
+	  .btn-applicant-cancel 도 라벨이 12px 이라 같은 조합이 맞다.
+
+	  ※ 이 파일의 다른 아이콘들도 15/14/14/13/12px 로 12~15px 범위에 있고
+	    9px 하나만 동떨어져 있었다.
+	*/
+	font-size: 15px;
+}
+
+.btn-applicant-cancel:hover {
+	background: rgba(0, 0, 0, 0.1);
+	border-color: rgba(0, 0, 0, 0.15);
+	color: var(--color-text-13);
+}
+
+.btn-applicant-cancel:active {
+	background: rgba(0, 0, 0, 0.14);
+	border-color: rgba(0, 0, 0, 0.2);
+}
+
+/* 1024 이하 반응형 (캠페인 신청자 탭 전용) */
+@media (max-width: 1024px) {
+	.applicants-notice {
+		padding: 0 0 14px 0;
+	}
+
+	.applicants-notice p {
+		font-size: 13px;
+		line-height: 20px;
+	}
+
+	.applicants-table {
+		min-width: 640px;
+	}
+
+	.applicants-info-line {
+		font-size: 12px;
+		margin-bottom: 5px;
+	}
+
+	.applicants-message {
+		padding: 4px 8px;
+	}
+
+	.applicants-message-label,
+	.applicants-message-text {
+		font-size: 11px;
+	}
+
+	.applicants-action {
+		padding: 12px 8px;
+	}
+
+	.btn-applicant-select {
+		min-width: 60px;
+		height: 32px;
+		font-size: 12px;
+	}
+}
+
+/* 770 이하: 테이블 → 카드형 UI (공통 레이아웃은 campaign-detail-panels-common.css) */
+@media (max-width: 768px) {
+	.applicants-table {
+		min-width: 0;
+	}
+
+	/*
+	  카드 줄 배치   [2026-09-15]
+	    1줄 : 번호 · 아바타   (참여이력은 position:absolute 로 오른쪽 위 모서리)
+	    2줄 : 리뷰어 정보
+	    3줄 : 신청메세지
+	    4줄 : 선정 버튼
+	  ※ 신청메세지 칸에 자리를 지정하지 않아 첫 줄 빈 칸으로 흘러들어가고 있었다.
+	*/
+	.applicants-table tr.applicants-row {
+		grid-template-rows: auto auto auto auto;
+	}
+
+	.applicants-table .applicants-message-cell {
+		grid-column: 1 / -1;
+		grid-row: 3;
+		max-width: none;
+		padding: 0;
+		word-break: break-word;
+	}
+
+	.applicants-table .applicants-message-cell::before {
+		display: none;
+	}
+
+	.applicants-table .applicants-reviewer {
+		border-top: none;
+	}
+
+	.applicants-table .applicants-info-line {
+		font-size: 12px;
+		margin-bottom: 6px;
+	}
+
+	.applicants-table .applicants-blog-line {
+		margin-bottom: 6px;
+	}
+
+	.applicants-table .applicants-message {
+		/* 3번째 줄: 신청메세지 전체 폭 (타이틀+내용 줄나눔) */
+		margin-top: 6px;
+		padding: 6px 8px;
+		display: flex;
+		align-items: flex-start;
+		flex-wrap: wrap;
+		gap: 4px;
+	}
+
+	.applicants-table .applicants-message-label {
+		font-size: 11px;
+		font-weight: 600;
+	}
+
+	.applicants-table .applicants-message-text {
+		font-size: 12px;
+	}
+
+	/* 참여이력: 카드 우측 상단 모서리 */
+	.applicants-table .applicants-history {
+		position: absolute;
+		top: 8px;
+		right: 10px;
+		padding: 0;
+		text-align: right;
+		font-size: 12px;
+	}
+
+	.applicants-table .applicants-history::before {
+		display: none;
+	}
+
+	.applicants-table .applicants-action {
+		/* 마지막 줄: 버튼 (신청메세지가 3줄로 들어와 3 → 4) [2026-09-15] */
+		grid-column: 1 / -1;
+		grid-row: 4;
+		padding: 0;
+		display: flex;
+		flex-direction: column;
+		align-items: stretch;
+		gap: 6px;
+	}
+
+	.applicants-table .applicants-action::before {
+		display: none;
+	}
+
+	.applicants-table .applicants-action .btn-applicant-select {
+		width: 100%;
+		min-width: 0;
+	}
+
+	.applicants-table .applicants-action .applicants-action-done {
+		margin-bottom: 4px;
+		padding: 6px 8px;
+	}
+
+	.applicants-badge {
+		font-size: 10px;
+		padding: 2px 6px 3px;
+	}
+
+	.applicants-badge .material-symbols-outlined {
+		font-size: 12px;
+	}
+
+	.applicants-table .applicants-badge {
+		display: inline-flex;
+		align-items: center;
+	}
+}
+/* 블로그지수 (신청자 목록) — 선정 판단 근거   [2026-08-14] */
+.applicants-bi {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	vertical-align: middle;
+}
+
+.applicants-bi strong {
+	font-size: 13px;
+	color: #333;
+}
+
+/* ==========================================================================
+   선정취소 요청 (리뷰어 → 광고주)   [2026-10-20]
+
+     ★ 눈에 띄어야 한다. 알림함에만 있으면 못 보고 넘어가고,
+       리뷰어는 답이 없다고 생각한다.
+     ★ '추가 비용 없음' 을 같은 상자 안에 적는다 — 그걸 모르면
+       "취소하면 돈을 더 내야 하나" 싶어 그냥 두게 된다.
+   ========================================================================== */
+.applicants-cancelreq {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 6px;
+	margin: 6px 0;
+	padding: 8px 10px;
+	border: 1px solid #f3c5c5;
+	border-radius: 8px;
+	background: #fff6f6;
+	font-size: 12px;
+	line-height: 1.6;
+	color: #8a2b2b;
+}
+
+.applicants-cancelreq__badge {
+	flex: 0 0 auto;
+	padding: 2px 8px;
+	border-radius: 10px;
+	background: #e5484d;
+	color: #fff;
+	font-weight: 700;
+}
+
+.applicants-cancelreq__date { color: #a05353; }
+
+.applicants-cancelreq__why {
+	color: #6b2020;
+	word-break: keep-all;
+	overflow-wrap: anywhere;
+}
+
+/* 추가비용 안내 — 줄을 바꿔 전체 폭을 쓴다 (잘리면 읽을 이유가 없는 문장이다) */
+.applicants-cancelreq__free {
+	flex: 1 0 100%;
+	color: #9a6a6a;
+	font-size: 11px;
+}
+
+/* 요청이 와 있는 건의 취소 버튼은 더 분명하게 */
+.btn-applicant-cancel--asked {
+	border-color: #e5484d !important;
+	background: #e5484d !important;
+	color: #fff !important;
+	font-weight: 700;
+}
+
+/* ==========================================================================
+   리뷰어에게 전달할 자료 (선정된 리뷰어 탭)   [2026-10-20]
+   ========================================================================== */
+.cm-box {
+	margin: 0 0 16px;
+	padding: 16px;
+	border: 1px solid #e5e5ea;
+	border-radius: 10px;
+	background: #fafbfd;
+}
+
+.cm-box__head { margin: 0 0 12px; }
+.cm-box__title { margin: 0; font-size: 15px; font-weight: 700; color: #1c1c1e; }
+.cm-box__desc  { margin: 4px 0 0; font-size: 12px; line-height: 1.7; color: var(--color-text-14); /* [10-21] ← #6b7280 */ }
+
+.cm-empty { margin: 0 0 12px; padding: 16px 0; text-align: center; font-size: 13px; color: var(--color-text-14); /* [10-21] ← #999 */ }
+
+.cm-item {
+	margin: 0 0 10px;
+	padding: 12px;
+	border: 1px solid #e5e5ea;
+	border-radius: 8px;
+	background: #fff;
+}
+
+.cm-item__head { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.cm-item__title { font-size: 14px; font-weight: 600; color: #1c1c1e; }
+
+.cm-item__to {
+	padding: 1px 8px;
+	border-radius: 10px;
+	background: #eef2f7;
+	color: var(--color-text-14); /* [10-21] ← #4b5563 */
+	font-size: 11px;
+	font-weight: 600;
+}
+/* 한 명에게만 가는 자료는 색을 달리한다 — 전체에 뿌리면 사고가 된다 */
+.cm-item__to--one { background: #ffe9c7; color: #8a5a0e; }
+
+.cm-item__date { color: var(--color-text-14); /* [10-21] ← #9ca3af */ font-size: 12px; }
+.cm-item__del  { margin-left: auto; }
+
+.cm-del-btn {
+	border: 1px solid #e5e5ea;
+	border-radius: 6px;
+	background: #fff;
+	color: #8a2b2b;
+	font-size: 12px;
+	padding: 3px 10px;
+	cursor: pointer;
+}
+.cm-del-btn:hover { background: #fff4f4; border-color: #f3c5c5; }
+
+.cm-item__memo { margin: 8px 0 0; font-size: 13px; line-height: 1.7; color: var(--color-text-14); /* [10-21] ← #48484a */ }
+.cm-item__link { margin: 6px 0 0; font-size: 13px; word-break: break-all; }
+.cm-item__link a { color: #3b6fd4; text-decoration: underline; }
+
+.cm-files { margin: 8px 0 0; padding: 0; list-style: none; }
+.cm-files li { margin: 3px 0 0; }
+.cm-files a { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; color: #1c1c1e; text-decoration: underline; }
+.cm-files em { color: var(--color-text-14); /* [10-21] ← #9ca3af */ font-style: normal; font-size: 12px; }
+
+/* 등록 폼 */
+.cm-form { margin: 12px 0 0; padding: 12px; border: 1px dashed #d1d5db; border-radius: 8px; background: #fff; }
+.cm-form__row { display: flex; gap: 8px; margin: 0 0 8px; flex-wrap: wrap; }
+.cm-form__row > * { flex: 1 1 200px; min-width: 0; }
+
+.cm-input {
+	box-sizing: border-box;
+	width: 100%;
+	padding: 9px 12px;
+	border: 1px solid #e5e5ea;
+	border-radius: 8px;
+	font-size: 13px;
+	color: #111;
+	font-family: inherit;
+}
+.cm-input--sel { flex: 0 1 220px; }
+.cm-textarea { width: 100%; margin: 0 0 8px; resize: vertical; line-height: 1.7; }
+.cm-file { font-size: 12px; }
+
+.cm-form__foot { display: flex; justify-content: flex-end; }
+
+.cm-save-btn {
+	padding: 9px 18px;
+	border: none;
+	border-radius: 8px;
+	background: #111;
+	color: #fff;
+	font-size: 13px;
+	font-weight: 700;
+	cursor: pointer;
+}
+.cm-save-btn:hover { background: #333; }
+
+/* 요청 거절 — 선정은 두고 표시만 내린다 */
+.applicants-cancelreq__reject {
+	flex: 0 0 auto;
+	padding: 3px 10px;
+	border: 1px solid #c4b5a0;
+	border-radius: 6px;
+	background: #fff;
+	color: #6b5533;
+	font-size: 11px;
+	font-weight: 600;
+	cursor: pointer;
+}
+.applicants-cancelreq__reject:hover { background: #f7f2e9; }
+
+/* 선정취소한 리뷰어 보기 — 기본 꺼짐 [2026-10-20] */
+.applicants-canceled-toggle {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	margin-left: auto;
+	font-size: 12px;
+	color: var(--color-text-14); /* [10-21] ← #6b7280 */
+	cursor: pointer;
+	white-space: nowrap;
+}
+
+/* 취소된 건은 흐리게 — 지금 참여자와 섞여 읽히지 않게 */
+.applicants-row-canceled { opacity: .55; }
+.applicants-row-canceled td { background: #fafafa; }
+
+.applicants-action-canceled {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	color: #8e8e93;
+	font-size: 12px;
+}
+
+/* ==========================================================================
+   초과모집 — 견적 상자   [2026-11-05]
+
+     ★ 클래스를 새로 만들기 전에 이 파일에 쓸 만한 것이 있는지 먼저 봤다.
+       금액을 왼쪽 이름 / 오른쪽 값으로 나란히 세우는 모양이 없어 새로 둔다.
+       (지난번 mp-input 처럼 **없는 클래스 이름을 지어내 디자인이 깨진 적**이 있다)
+   ========================================================================== */
+.or-quote-row {
+	display: flex;
+	align-items: baseline;
+	gap: 6px;
+	flex-wrap: wrap;
+	font-size: 13.5px;
+}
+
+.or-quote-row > span:first-child {
+	min-width: 104px;
+	color: var(--color-text-14);
+}
+
+.or-quote-row > b { font-weight: 700; }
+
+/* 보조 설명 — 계산 근거처럼 '읽으면 좋지만 주인공은 아닌' 값 */
+.or-quote-dim {
+	color: #8e8e93;
+	font-size: 12.5px;
+	font-weight: 400;
+}
+
+/* 실제로 빠지는 금액 — 위 항목들과 확실히 구분한다 */
+.or-quote-total {
+	margin-top: 6px;
+	padding-top: 6px;
+	border-top: 1px dashed #e0e0e8;
+	font-size: 14.5px;
+}
+
+.or-quote-total > b { color: var(--color-main, #5b4bdb); }
+
+/* 못 하는 이유 · 모자란 포인트 */
+.or-quote-bad {
+	margin-top: 6px;
+	color: #c0392b;
+	font-size: 13px;
+	line-height: 1.8;
+}

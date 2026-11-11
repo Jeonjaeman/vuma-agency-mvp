@@ -19,8 +19,21 @@
 	--z-sticky:10; --z-panel:20; --z-top:30; --z-modal:100;
 }
 *{box-sizing:border-box}
-html,body{margin:0;height:100%;background:var(--c-1);color:var(--c-14);font:14px/1.5 var(--font);-webkit-font-smoothing:antialiased}
+/* [2026-11-11 v0.9] 바탕·글꼴은 광고주 css/adv/main.css(Noto Sans KR · 배경 #edecf0)를 따른다 — 여기서 덮지 않음 */
+html,body{margin:0;-webkit-font-smoothing:antialiased}
 button,input,select{font:inherit;color:inherit}
+/* 광고주 셸 안 대행사 추가분 */
+.sidebar .ver{font-size:11px;font-weight:700;color:var(--ag-main);background:var(--ag-main-light);padding:1px 6px;border-radius:var(--r-full);text-decoration:none;margin-left:4px}
+.nav-num{margin-left:auto;min-width:22px;height:18px;padding:0 6px;border-radius:var(--r-full);background:var(--ag-danger);color:#fff;font-size:11px;font-weight:700;display:grid;place-items:center}
+.nav-item.active .nav-num{background:#fff;color:var(--ag-danger)}
+.sidebar .nav-item-wrap.add{outline-offset:-2px;margin:0 -4px;padding:0 4px}
+.scope-box{display:flex;flex-direction:column;gap:6px;padding:10px 12px;border-radius:8px}
+.scope-l{margin:0;font-size:12px;color:var(--c-9)}
+.scope-box .scope-biz{display:flex;align-items:center;gap:6px;height:34px;padding:0 10px;border:1px solid var(--c-4);border-radius:8px;background:#fff;font-size:13px;cursor:pointer;width:100%}
+.scope-box .scope-biz b{flex:1;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.scope-box .material-symbols-outlined{font-size:18px}
+.main-view > .work{flex:1;min-height:0}
+.user-info-row .info-label,.user-info-row .info-value{white-space:nowrap}   /* 통포인트 금액이 길어 글자가 접히지 않게 */
 a{color:inherit}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .muted{color:var(--c-8)}
@@ -72,7 +85,7 @@ svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke
 .scope-biz span{color:var(--c-8);margin-left:6px;font-size:12px}
 /* [2026-11-10 v0.8] 업체 범위 — 한 업체를 고르면 버튼이 보라로(지금 한 업체만 보는 중임을 늘 보이게) */
 .one-biz .scope-biz{background:var(--ag-main-light);border-color:var(--ag-main);color:var(--ag-main)}
-.scope-pop{margin:0;inset:auto;top:50px;left:calc(var(--side-w) + 20px);width:300px;max-height:70vh;overflow:auto;padding:12px;border:1px solid var(--c-3);border-radius:var(--r-lg);box-shadow:var(--sh-md);background:#fff}
+.scope-pop{margin:0;inset:auto;top:180px;left:calc(220px + 8px);width:300px;max-height:70vh;overflow:auto;padding:12px;border:1px solid var(--c-3);border-radius:var(--r-lg);box-shadow:var(--sh-md);background:#fff}
 .scope-pop .sp-h{margin:0 4px 8px;font-weight:700}
 .scope-pop .sp-h small{display:block;font-weight:500;font-size:12px;color:var(--c-8)}
 .scope-pop ul{list-style:none;margin:6px 0 0;padding:0}
@@ -566,3 +579,24 @@ tr.camp .tot{font-size:12px;color:var(--c-8)}
 .toolbar .legend{flex-basis:100%;justify-content:flex-end;margin-top:-4px}
 /* 토스트가 패널 아래 [다음] 버튼을 가리지 않게 */
 .toasts{bottom:84px}
+
+
+/* ══════════════════════════════════════════════════════════
+   [2026-11-11 v0.9] 광고주 톤 — 대시보드 · 대행사 전용 화면도 광고주 사이트처럼
+   근거: css/adv/main.css 홈(.content-wrapper 24px 16px · 흰 판 r16 · 간격 20px · 토글 #f1f3f5 r8/6 · 버튼 r8 · 제목 Isamanru 20px)
+   구성(격자 · 처리 패널 · 알림 띠)은 그대로, 겉모양만 바꾼다.
+   ══════════════════════════════════════════════════════════ */
+.main-view > .work{padding:24px 16px;gap:20px;background:var(--color-bg,#edecf0)}
+.work .board,.work > .panel{background:#fff;border:0;border-radius:16px;box-shadow:0 4px 16px rgba(0,0,0,.02)}
+.work > .panel{overflow:hidden}
+.board-h h1,.ops .board-h h1{font-family:'Isamanru',var(--font-noto,'Noto Sans KR'),sans-serif;font-size:20px;font-weight:700;letter-spacing:0}
+.grid-wrap{border-radius:8px}
+/* 버튼 · 토글 · 칩 = 광고주 모서리(8 · 6 · 4px) */
+.btn{border-radius:8px;height:34px;font-weight:500}
+.btn.sm{height:28px;border-radius:6px}
+.btn.primary{font-weight:700;box-shadow:0 2px 8px rgba(115,70,243,.25)}
+.seg{background:#f1f3f5;border-radius:8px;padding:4px}
+.seg button,.seg label{border-radius:6px;font-weight:500}
+.seg .on{font-weight:700}
+.tchip,.pill{border-radius:6px}
+.otabs label{font-size:13px;font-weight:500;color:var(--c-14)}

@@ -1,0 +1,1321 @@
+/* =====================================================
+   캠페인 상세 모달 (tpl-campaign-detail) 전용 스타일
+   main/index.html 템플릿 510-698 영역
+   ===================================================== */
+
+/* 닫기 버튼 */
+.modal-close {
+	position: sticky;
+	top: 0;
+	float: right;
+	width: 36px;
+	height: 36px;
+	border-radius: 50%;
+	border: 1.5px solid var(--color-text-4);
+	background: #fff;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	box-shadow: 0 1px 4px rgba(0, 0, 0, .12);
+	transition: background .15s ease, transform .15s ease;
+	z-index: 10;
+	margin-bottom: -36px;
+}
+
+.modal-close:hover {
+	background: var(--color-text-3);
+	transform: scale(1.08);
+}
+
+.modal-close .material-symbols-outlined {
+	font-size: 20px;
+	color: var(--color-text-11);
+}
+
+/* =====================================================
+   캠페인 상세: 상태 진행 바
+   ===================================================== */
+/*
+★ [2026-09-10] 진행 상태 띠 — 한 줄 유지 + 양쪽 끝 흐려짐 + 현재 상태 가운데
+
+  단계가 12개(미승인 ~ 취소)라 화살표까지 23개 항목이 들어간다.
+  좁은 화면에서는 flex-wrap:wrap 때문에 9줄까지 감겨 높이가 120px 이 됐다.
+  (실측 390px : 23개 항목 / 9줄 / 높이 120px)
+
+  → 줄을 나누지 않고 한 줄로 두고, 넘치는 부분은 가로로 흘린다.
+    양쪽 끝은 mask 로 흐려서 '더 있다' 는 것이 보이게 한다.
+    현재 상태는 열릴 때 가운데로 스크롤한다
+    (inc/campaign/campaignView.inc.html 의 .detail-status-bar 바로 아래 스크립트).
+*/
+.detail-status-bar {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 16px;
+	margin-bottom: 24px;
+
+	/* 줄바꿈 금지 — 넘치면 가로로 흐른다 */
+	flex-wrap: nowrap;
+	overflow-x: auto;
+	overflow-y: hidden;
+	/*
+	★ [2026-09-10] scroll-behavior: smooth 를 쓰지 않는다.
+
+	  처음에 '가운데로 부드럽게' 넣었다가 오히려 중앙 배치가 깨졌다.
+	  smooth 는 scrollLeft 대입을 애니메이션으로 처리하는데,
+	  모달이 열리는 중에는 레이아웃이 계속 바뀌어 그 애니메이션이 중간에 끊긴다.
+	  실측 : 목표 143px 인데 93px 에서 멈춤 → auto 로 두면 정확히 143px.
+	  사용자가 손으로 굴리는 스크롤은 이 속성과 무관하다.
+	*/
+	/* 스크롤 막대는 숨긴다 (막대가 보이면 띠가 두꺼워 보인다) */
+	scrollbar-width: none;
+	-ms-overflow-style: none;
+
+	/*
+	양쪽 끝 흐려짐.
+	  24px 구간에서 투명 → 불투명으로 바뀐다.
+	  mask 는 '보이는 정도' 만 깎으므로 클릭·스크롤에는 영향이 없다.
+	*/
+	-webkit-mask-image: linear-gradient(to right, transparent 0, #000 24px, #000 calc(100% - 24px), transparent 100%);
+	mask-image: linear-gradient(to right, transparent 0, #000 24px, #000 calc(100% - 24px), transparent 100%);
+}
+
+.detail-status-bar::-webkit-scrollbar {
+	display: none;
+}
+
+/* 한 줄 안에서 글자가 쪼개지지 않게 한다 */
+.detail-status-bar > * {
+	flex-shrink: 0;
+}
+
+.status-step,
+.status-active-label,
+.status-active-sub {
+	white-space: nowrap;
+}
+
+.status-step {
+	font-size: 12px;
+	color: var(--color-text-14); /* [10-21] ← var(--color-text-9) */
+}
+
+.status-arrow {
+	font-size: 20px;
+	opacity: .5;
+}
+
+.status-step-active {
+	display: flex;
+	align-items: center;
+	overflow: hidden;
+	border-radius: 4px;
+	background: #fff;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, .15);
+	/*
+	★ [2026-09-10] 테두리 추가
+
+	  띠 양쪽 끝을 흐리게 처리하면서 현재 상태가 '떠 있는 조각' 처럼 보였다.
+	  테두리를 넣어 현재 상태의 경계를 분명히 한다.
+	  색은 라벨 배경(#ffba08 ~ #ffd260)과 같은 계열의 진한 쪽을 쓴다.
+	*/
+	border: 1px solid #e0a800;
+}
+
+.status-active-label {
+	background: linear-gradient(90deg, #ffba08, #ffd260);
+	padding: 4px 8px;
+	font-size: 12px;
+	font-weight: 500;
+	color: var(--color-text-14);
+}
+
+.status-active-sub {
+	padding: 4px 8px;
+	font-size: 12px;
+	color: var(--color-text-14);
+	display: flex;
+	align-items: center;
+	gap: 5px;
+}
+
+.status-active-sub b {
+	background: var(--color-dark);
+	color: #fff;
+	border-radius: var(--r-4);
+	padding: 2px 5px 3px;
+	font-size: 12px;
+	line-height: 12px;
+}
+
+/* =====================================================
+   캠페인 상세: 탭 + 카드 래퍼
+   ===================================================== */
+.detail-body-wrap {
+	position: relative;
+	padding-top: 28px;
+}
+
+.detail-tabs {
+	position: absolute;
+	top: 0;
+	left: 50%;
+	transform: translateX(-50%);
+	display: flex;
+	background: #fff;
+	border: 1px solid var(--color-text-5);
+	border-radius: 10px;
+	padding: 8px;
+	gap: 0;
+	box-shadow: 0 2px 6px rgba(0, 0, 0, .1);
+	z-index: 2;
+	white-space: nowrap;
+}
+
+.detail-tab {
+	padding: 4px 16px;
+	height: 34px;
+	border-radius: 8px;
+	font-size: 15px;
+	font-weight: 600;
+	color: var(--color-main);
+	background: none;
+	border: none;
+	cursor: pointer;
+	transition: background .15s ease, color .15s ease;
+}
+
+.detail-tab.active {
+	background: var(--color-main);
+	color: #fff;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, .15);
+}
+
+.detail-tab:hover:not(.active) {
+	background: var(--color-main-light);
+}
+
+/* =====================================================
+   캠페인 상세: 본문 카드
+   ===================================================== */
+.detail-card {
+	background: #fff;
+	border: 1px solid var(--color-text-3);
+	border-radius: 16px;
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+	padding-top: 32px;
+}
+
+/* 헤더 */
+.detail-card-header {
+	padding: 24px;
+	border-bottom: 1px solid var(--color-text-5);
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.detail-title-row {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	flex-wrap: wrap;
+}
+
+.detail-title {
+	font-size: 20px;
+	font-weight: 700;
+	color: var(--color-text-13);
+	letter-spacing: -.2px;
+	line-height: 28px;
+}
+
+.detail-actions {
+	display: flex;
+	border: 1px solid var(--color-text-11);
+	border-radius: var(--r-4);
+	overflow: hidden;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, .15);
+}
+
+.detail-action-btn {
+	display: flex;
+	align-items: center;
+	gap: 3px;
+	padding: 6px 8px;
+	font-size: 13px;
+	font-weight: 500;
+	color: var(--color-text-14);
+	background: #fff;
+	border: none;
+	cursor: pointer;
+	opacity: .8;
+	transition: background .15s ease;
+}
+
+.detail-action-btn:hover {
+	background: var(--color-text-3);
+}
+
+.detail-action-btn .material-symbols-outlined {
+	font-size: 18px;
+}
+
+.detail-action-btn+.detail-action-btn {
+	border-left: 1px solid var(--color-text-4);
+}
+
+.detail-meta-row {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	flex-wrap: wrap;
+}
+
+.detail-meta-text {
+	font-size: 14px;
+	color: var(--color-text-14);
+}
+
+.detail-meta-gray {
+	font-size: 14px;
+	color: var(--color-text-14); /* [10-21] ← var(--color-text-8) */
+}
+
+.detail-divider {
+	display: inline-block;
+	width: 1px;
+	height: 15px;
+	background: var(--color-text-5);
+}
+
+.detail-badges {
+	display: flex;
+	align-items: center;
+	gap: 5px;
+}
+
+.detail-badges .material-symbols-outlined {
+	font-size: 20px;
+}
+
+/* 캠페인 상세 SNS 아이콘 */
+.detail-badges .campaign-sns-icon,
+.detail-side-badges .campaign-sns-icon {
+	width: 16px;
+	height: 16px;
+	vertical-align: middle;
+	object-fit: contain;
+	flex-shrink: 0;
+}
+
+.detail-badge-outline {
+	border: 1px solid var(--color-text-7);
+	border-radius: var(--r-4);
+	padding: 3px 5px 4px;
+	font-size: 11px;
+	color: var(--color-text-14); /* [10-21] ← var(--color-text-8) */
+	background: #fff;
+	line-height: 11px;
+}
+
+.detail-badge-gray {
+	background: var(--color-text-3);
+	border-radius: var(--r-4);
+	padding: 3px 5px 4px;
+	font-size: 11px;
+	color: var(--color-text-14); /* [10-21] ← var(--color-text-9) */
+	line-height: 11px;
+	cursor: pointer;
+	transition: background .15s ease;
+}
+
+.detail-badge-gray:hover {
+	background: var(--color-text-4);
+}
+
+/* =====================================================
+   캠페인 상세: 본문 (좌+우)
+   ===================================================== */
+.detail-content {
+	display: flex;
+	gap: 60px;
+	padding: 24px;
+	align-items: flex-start;
+}
+
+/* 탭별 패널: detail-content 내에서 탭마다 하나만 표시 (JS에서 .is-active 토글) */
+.detail-panel {
+	flex: 1;
+	min-width: 0;
+	display: none;
+	flex-direction: column;
+	gap: 0;
+}
+
+.detail-content .detail-panel.is-active {
+	display: flex;
+}
+
+/* 상세보기 탭만: 본문(detail-main) + 우측(detail-side) 가로 배치 */
+.detail-panel-overview.is-active {
+	flex-direction: row;
+	gap: 60px;
+	align-items: flex-start;
+	width: 100%;
+}
+
+.detail-panel-placeholder {
+	padding: 40px 24px;
+	text-align: center;
+	color: var(--color-text-8);
+	font-size: 15px;
+}
+
+.detail-main {
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 50px;
+}
+
+.detail-images {
+	display: flex;
+	gap: 10px;
+}
+
+.detail-img {
+	flex: 1;
+	aspect-ratio: 1;
+	border-radius: 5px;
+	object-fit: cover;
+	min-width: 0;
+}
+
+.detail-sections {
+	display: flex;
+	flex-direction: column;
+	gap: 0;
+}
+
+.detail-section {
+	display: flex;
+	gap: 40px;
+	align-items: flex-start;
+	padding-bottom: 30px;
+	border-bottom: 1px solid var(--color-text-3);
+	margin-bottom: 30px;
+}
+
+.detail-section:last-child {
+	border-bottom: none;
+	margin-bottom: 0;
+}
+
+.detail-section-label {
+	width: 160px;
+	min-width: 160px;
+	font-size: 17px;
+	font-weight: 600;
+	color: var(--color-text-13);
+	letter-spacing: -.17px;
+	line-height: 28px;
+	display: flex;
+	align-items: center;
+	gap: 5px;
+}
+
+.section-icon {
+	font-size: 28px;
+	border-radius: 8px;
+}
+
+.detail-section-body {
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 15px;
+	padding-top: 2px;
+}
+
+.detail-section-title {
+	font-size: 17px;
+	font-weight: 600;
+	color: var(--color-text-14);
+	line-height: 24px;
+}
+
+.detail-section-text {
+	font-size: 15px;
+	color: var(--color-text-14);
+	line-height: 25px;
+}
+
+.highlight-orange {
+	color: #e85d04;
+	font-weight: 700;
+}
+
+.text-pink {
+	color: #ef476f;
+}
+
+.text-main {
+	color: var(--color-main);
+}
+
+.text-gray {
+	color: var(--color-text-14); /* [10-21] ← var(--color-text-8) */
+}
+
+.text-urgent {
+	color: var(--color-urgent);
+	font-weight: 700;
+}
+
+/* 예약필수 박스 */
+.reserve-box {
+	border: 2px solid #ef476f;
+	border-radius: 5px;
+	overflow: hidden;
+}
+
+.reserve-box-header {
+	background: #ef476f;
+	padding: 10px;
+	display: flex;
+	align-items: center;
+	gap: 5px;
+	color: #fff;
+	font-size: 15px;
+	font-weight: 600;
+}
+
+.reserve-box-header .material-symbols-outlined {
+	font-size: 22px;
+}
+
+.reserve-box-body {
+	padding: 16px;
+	font-size: 15px;
+	line-height: 25px;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.place-row {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	flex-wrap: wrap;
+}
+
+.btn-naver-place {
+	display: flex;
+	align-items: center;
+	gap: 5px;
+	background: #03c75a;
+	border: 1px solid #00b450;
+	border-radius: var(--r-full);
+	padding: 4px 15px;
+	color: #fff;
+	font-size: 14px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: opacity .15s ease;
+}
+
+.btn-naver-place .material-symbols-outlined {
+	font-size: 18px;
+}
+
+.btn-naver-place:hover {
+	opacity: .85;
+}
+
+.detail-map-img {
+	width: 100%;
+	aspect-ratio: 720 / 306;
+	object-fit: cover;
+	border: 1px solid var(--color-text-4);
+	border-radius: 5px;
+}
+
+.keyword-tags {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 5px 3px;
+	align-items: center;
+}
+
+.keyword-tag {
+	background: var(--color-text-3);
+	border-radius: var(--r-full);
+	padding: 4px 10px;
+	font-size: 15px;
+	color: var(--color-text-14);
+	line-height: 20px;
+}
+
+.btn-copy-dark {
+	background: var(--color-text-11);
+	border-radius: var(--r-full);
+	padding: 4px 10px;
+	font-size: 15px;
+	font-weight: 500;
+	color: #fff;
+	border: none;
+	cursor: pointer;
+	line-height: 20px;
+	transition: background .15s ease;
+}
+
+.btn-copy-dark:hover {
+	background: #555;
+}
+
+.copy-tooltip {
+	position: fixed;
+	z-index: 15000;
+	padding: 8px 14px;
+	background: var(--color-text-14);
+	color: #fff;
+	font-size: 13px;
+	font-weight: 500;
+	border-radius: 8px;
+	white-space: nowrap;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+	opacity: 0;
+	transform: translate(-50%, -100%);
+	transition: opacity .2s ease, transform .2s ease;
+	pointer-events: none;
+}
+
+.copy-tooltip.show {
+	opacity: 1;
+	transform: translate(-50%, calc(-100% - 4px));
+}
+
+.guide-box {
+	background: #f6f6f6;
+	border: 1px solid var(--color-text-3);
+	border-radius: 5px;
+	overflow: hidden;
+	padding: 16px;
+}
+
+.guide-box ul {
+	padding-left: 22px;
+}
+
+.guide-box li {
+	font-size: 15px;
+	color: var(--color-text-14);
+	line-height: 25px;
+}
+
+/* =====================================================
+   캠페인 상세: 우측 사이드
+   ===================================================== */
+.detail-side {
+	width: 284px;
+	min-width: 284px;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	position: sticky;
+	top: 40px;
+	align-self: flex-start;
+}
+
+.detail-side-body {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.detail-side-title {
+	font-size: 18px;
+	font-weight: 700;
+	color: var(--color-text-13);
+	line-height: 26px;
+	letter-spacing: -.18px;
+}
+
+.detail-side-sub {
+	font-size: 14px;
+	color: var(--color-text-14);
+	line-height: 20px;
+}
+
+.detail-side-badges {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	flex-wrap: wrap;
+}
+
+.detail-schedule {
+	border-top: 1px solid var(--color-text-3);
+	border-bottom: 1px solid var(--color-text-3);
+	padding: 20px 0;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.schedule-row {
+	display: flex;
+	align-items: center;
+	gap: 5px;
+}
+
+.schedule-label-wrap {
+	display: flex;
+	align-items: center;
+	width: 105px;
+	min-width: 105px;
+}
+
+.schedule-chevron {
+	font-size: 16px;
+	opacity: .7;
+}
+
+.schedule-label {
+	font-size: 14px;
+	color: var(--color-text-14);
+	line-height: 19px;
+}
+
+.schedule-row-main .schedule-label {
+	font-weight: 700;
+}
+
+.schedule-value {
+	font-size: 14px;
+	color: var(--color-text-14);
+	line-height: 1.4;
+}
+
+.schedule-row-main .schedule-value {
+	font-weight: 700;
+}
+
+.detail-stats {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 10px;
+	padding: 20px 10px;
+	font-size: 15px;
+	color: var(--color-text-14);
+}
+
+.detail-stat-divider {
+	display: inline-block;
+	width: 1px;
+	height: 15px;
+	background: var(--color-text-5);
+}
+
+/* =====================================================
+   캠페인 상세 모달 - 1024 이하 반응형
+   ===================================================== */
+@media (max-width: 1024px) {
+	.modal-overlay {
+		align-items: stretch;
+		padding: 0;
+	}
+
+	.modal-box {
+		width: 100%;
+		max-width: none;
+		max-height: none;
+		height: 100%;
+		min-height: 100vh;
+		min-height: 100dvh;	/* 주소창이 가리는 만큼 빼 준다 — 아래쪽 버튼이 안 눌리던 문제 [2026-08-14] */
+		border-radius: 0;
+		border-left: none;
+		border-right: none;
+		transform: none;
+	}
+
+	.modal-overlay.open .modal-box {
+		transform: none;
+	}
+
+	.modal-box-inner {
+		padding: 16px;
+		padding-top: 12px;
+	}
+
+	.modal-close {
+		margin-bottom: 0;
+	}
+
+	.detail-body-wrap {
+		border: 1px solid var(--color-text-3);
+		border-radius: 12px;
+		overflow: hidden;
+		box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+	}
+
+	.detail-tabs {
+		border: none;
+		border-radius: 0;
+		box-shadow: none;
+		border-bottom: 1px solid var(--color-text-4);
+	}
+
+	.detail-card {
+		border: none;
+		box-shadow: none;
+		border-radius: 0;
+		padding: 16px 12px 0;
+	}
+
+	/*
+	★ [2026-09-10] 모바일 요약 바(.detail-side-mobile-bar)를 감춘다.
+
+	  ── 왜 없애는가 ────────────────────────────────────────
+	  이 바가 보여 주는 내용이 우측 정보카드의 마지막 줄과 똑같다.
+	    바        : "신청 1 / 모집 3 · 20일 남음"
+	    정보카드  : "… 캠페인 결과발표 10.10(토) · 신청 1 / 모집 3 · 20일 남음"
+	  게다가 정보카드는 좁은 화면에서도 늘 보이는 상태다(실측 높이 365px).
+	  index.js 의 토글은 카드를 '숨겼다 폈다' 하는 것이 아니라
+	  카드를 제목 위로 옮겼다 되돌리는 동작이라, 감출 것도 없었다.
+	  → 같은 값을 한 화면에 두 번 보여 주고 있었을 뿐이므로 바를 감춘다.
+
+	  ── 마크업·JS 는 건드리지 않는다 ───────────────────────
+	  바를 지우지 않고 display:none 으로만 둔다.
+	  index.js 의 토글 코드는 바를 못 찾으면 그냥 아무 일도 하지 않는다
+	  (if (mobileBar && detailCard && overviewPanel) 로 감싸져 있다).
+	  되살리려면 이 규칙만 지우면 된다.
+
+	  ※ 이 자리에 있던 '하단 스티키' 규칙(order/position:sticky)은 함께 지웠다.
+	    바가 안 보이므로 붙일 대상이 없다.
+	*/
+	.detail-side-mobile-bar {
+		display: none;
+	}
+
+	/* 아래 값들은 바를 되살릴 때를 위해 남겨 둔다 */
+	.detail-side-mobile-bar {
+		align-items: center;
+		justify-content: center;
+		gap: 10px;
+		padding: 14px 16px;
+		background: var(--color-text-2);
+		border: 1px solid var(--color-text-4);
+		border-radius: 10px;
+		margin-bottom: 12px;
+		cursor: pointer;
+		transition: background .15s ease;
+		font-size: 14px;
+		color: var(--color-text-14);
+	}
+
+	.detail-side-mobile-bar:hover {
+		background: var(--color-text-3);
+	}
+
+	.detail-side-mobile-bar .detail-side-mobile-chevron {
+		font-size: 20px;
+		color: var(--color-text-8);
+		transition: transform .2s ease;
+	}
+
+	.detail-card.detail-side-open .detail-side-mobile-bar .detail-side-mobile-chevron {
+		transform: rotate(180deg);
+	}
+
+	.detail-card.detail-side-open .detail-side-mobile-bar {
+		border-radius: 10px 10px 0 0;
+		border-bottom: none;
+		margin-bottom: 0;
+	}
+
+	.detail-side-mobile-stats {
+		font-weight: 600;
+	}
+
+	.detail-side-mobile-days {
+		font-weight: 500;
+		color: var(--color-text-14); /* [10-21] ← var(--color-text-9) */
+	}
+
+	/* 상세보기 탭에서만 모바일 바 표시 (detail-side는 상세보기 전용) */
+	.detail-card:not(.detail-overview-active) .detail-side-mobile-bar {
+		display: none;
+	}
+}
+
+@media (min-width: 1025px) {
+	.detail-side-mobile-bar {
+		display: none;
+	}
+}
+
+@media (max-width: 1024px) {
+	.detail-side {
+		width: 100%;
+		min-width: 0;
+		position: static;
+		align-self: stretch;
+	}
+
+	.detail-card:not(.detail-side-open) .detail-side {
+		display: none;
+	}
+
+	.detail-card.detail-side-open .detail-side {
+		display: flex;
+		border: 1px solid var(--color-text-4);
+		border-top: none;
+		border-radius: 0 0 10px 10px;
+		padding: 16px;
+		margin-bottom: 16px;
+		background: #fff;
+	}
+
+	.detail-side-body {
+		display: contents;
+	}
+
+	.detail-card.detail-side-open .detail-side .detail-side-body {
+		display: flex;
+		flex-direction: column;
+		gap: 10px;
+		width: 100%;
+	}
+
+	.detail-card.detail-side-open .detail-side .detail-side-title,
+	.detail-card.detail-side-open .detail-side .detail-side-sub,
+	.detail-card.detail-side-open .detail-side .detail-side-badges {
+		display: none;
+	}
+
+	.detail-card.detail-side-open .detail-side .detail-schedule {
+		border-top: none;
+		border-bottom: none;
+		padding-top: 0;
+	}
+
+	.detail-card.detail-side-open .detail-side .detail-stats {
+		display: none;
+	}
+
+	.detail-status-bar {
+		/*
+		★ [2026-09-10] flex-wrap: wrap 제거
+
+		  이 값 때문에 좁은 화면에서 23개 항목이 9줄로 감겨
+		  띠 높이가 120px 까지 늘어났다 (실측 390px).
+		  위(기본 규칙)에서 nowrap + 가로 흐름으로 바꿨으므로 여기서도 유지한다.
+
+		★ justify-content: flex-start 는 반드시 있어야 한다.
+
+		  넘치는 flex 컨테이너에 justify-content:center 를 주면
+		  내용이 좌우 양쪽으로 넘치는데, 왼쪽으로 넘친 부분은
+		  스크롤로 도달할 수 없다 (scrollLeft 가 음수가 될 수 없기 때문).
+		  실제로 그 상태에서는 현재 상태가 띠 왼쪽 바깥(-22px)에 갇혀
+		  JS 로 scrollLeft 를 넣어도 0 에서 움직이지 않았다.
+
+		  실측 (390px, 현재 상태 중심과 띠 중심의 차)
+		    center     + JS  → 181px  (스크롤 자체가 안 됨)
+		    flex-start + JS  →   0px
+		*/
+		justify-content: flex-start;
+		gap: 8px;
+		margin-bottom: 16px;
+	}
+
+	.status-step {
+		font-size: 11px;
+	}
+
+	.status-arrow {
+		font-size: 16px;
+	}
+
+	.status-active-label,
+	.status-active-sub {
+		font-size: 11px;
+		padding: 3px 6px;
+	}
+
+	.detail-body-wrap {
+		padding-top: 0;
+	}
+
+	/*
+	★ [2026-09-10] 탭 4개가 좁은 화면에서 양쪽이 잘리던 문제 → 2줄 2칸 격자
+
+	  ── 무엇이 문제였나 ────────────────────────────────────
+	  실측 (390px)
+	    탭 컨테이너 폭      351px
+	    탭 4개의 실제 폭    384px   → 33px 초과
+	    첫 탭 '캠페인 상세보기'  x = -16   (컨테이너 왼쪽 밖)
+	    끝 탭 '상태변경 히스토리' right = 401 (컨테이너 오른쪽 368 밖)
+	  부모 .detail-body-wrap 이 overflow:hidden 이라 삐져나간 양쪽이 잘려 사라졌다.
+
+	  원인은 justify-content:center 다.
+	  넘치는 flex 컨테이너를 가운데 정렬하면 내용이 좌우 양쪽으로 삐져나가고,
+	  왼쪽으로 넘친 부분은 scrollLeft 가 음수가 될 수 없어 스크롤로도 닿지 못한다.
+	  (같은 화면의 진행 상태 띠에서도 똑같은 원인이 있었다)
+
+	  ── 왜 가로 스크롤이 아니라 2줄인가 ────────────────────
+	  가로 스크롤로도 고칠 수 있고 실제로 그렇게 해 봤지만,
+	  탭은 '지금 어디에 무엇이 있는지' 를 한눈에 보여 주는 것이 일이다.
+	  4개 중 2개가 밀려 안 보이면 그 일을 못 한다.
+	  2줄 2칸이면 네 개가 모두 보이고 스크롤도 필요 없다.
+
+	  실측 (390px, 2줄 2칸)
+	    가로 넘침 0 · 글자 잘림 0 · 네 칸 모두 168px 로 균일
+	*/
+	.detail-tabs {
+		position: static;
+		transform: none;
+		width: 100%;
+		padding: 6px;
+
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 4px;
+	}
+
+	.detail-tab {
+		padding: 4px 10px;
+		font-size: 13px;
+		height: 32px;
+		/* 칸을 꽉 채우고, 글자는 쪼개지지 않게 한다 */
+		width: 100%;
+		white-space: nowrap;
+	}
+
+	.detail-card {
+		padding-top: 16px;
+	}
+
+	.detail-card-header {
+		padding: 16px;
+		gap: 6px;
+	}
+
+	.detail-title {
+		font-size: 17px;
+		line-height: 24px;
+	}
+
+	.detail-title-row {
+		flex-wrap: wrap;
+	}
+
+	.detail-actions {
+		width: auto;
+	}
+
+	.detail-action-btn {
+		font-size: 12px;
+		padding: 6px 10px;
+	}
+
+	.detail-meta-row {
+		flex-wrap: wrap;
+		gap: 6px;
+	}
+
+	.detail-meta-text {
+		font-size: 13px;
+		width: 100%;
+	}
+
+	.detail-content {
+		padding: 16px;
+		gap: 24px;
+		flex-direction: column;
+	}
+
+	.detail-main {
+		gap: 28px;
+	}
+
+	.detail-images {
+		flex-direction: column;
+		gap: 8px;
+	}
+
+	.detail-img {
+		width: 100%;
+		max-height: 200px;
+		aspect-ratio: 16/10;
+	}
+
+	.detail-section {
+		flex-direction: column;
+		gap: 16px;
+		padding-bottom: 20px;
+		margin-bottom: 20px;
+	}
+
+	.detail-section-label {
+		width: 100%;
+		min-width: 0;
+		font-size: 15px;
+		line-height: 22px;
+	}
+
+	.section-icon {
+		font-size: 22px;
+	}
+
+	.detail-section-title {
+		font-size: 15px;
+		line-height: 22px;
+	}
+
+	.detail-section-text {
+		font-size: 14px;
+		line-height: 22px;
+	}
+
+	.detail-side-title {
+		font-size: 16px;
+		line-height: 22px;
+	}
+
+	.detail-side-sub {
+		font-size: 13px;
+		line-height: 18px;
+	}
+
+	.detail-schedule {
+		padding: 14px 0 0;
+		gap: 6px;
+	}
+
+	.schedule-label-wrap {
+		width: 100px;
+		min-width: 100px;
+	}
+
+	.schedule-label,
+	.schedule-value {
+		font-size: 13px;
+	}
+
+	.detail-stats {
+		padding: 14px 10px;
+		font-size: 14px;
+	}
+
+	.reserve-box-header {
+		padding: 8px;
+		font-size: 14px;
+	}
+
+	.reserve-box-header .material-symbols-outlined {
+		font-size: 20px;
+	}
+
+	.guide-box {
+		padding: 12px;
+	}
+
+	.guide-box ul {
+		font-size: 13px;
+	}
+
+	.keyword-tags {
+		gap: 6px;
+	}
+
+	.keyword-tag {
+		font-size: 12px;
+		padding: 4px 8px;
+	}
+
+	.btn-copy-dark {
+		font-size: 13px;
+		padding: 4px 10px;
+	}
+
+	.place-row {
+		flex-wrap: wrap;
+		gap: 8px;
+	}
+
+	.btn-naver-place {
+		font-size: 13px;
+		padding: 4px 12px;
+	}
+
+	.detail-map-img {
+		min-height: 160px;
+	}
+}
+
+/* ==========================================
+   NOTICE : 캠페인 상세 맨 아래 운영자 공지   [2026-08-13]
+   (마스터 > 캠페인 공지 / campaignNotice.class::getForCampaign)
+
+   리뷰어 상세(www .cd-notice)와 같은 모양으로 맞춘다.
+   운영자가 에디터로 넣은 목록·표·이미지가 그대로 나오므로
+   기본 서식이 없으면 목록 점이 안 보이고 이미지가 화면 밖으로 넘친다.
+========================================== */
+.detail-section--notice .detail-section-label {
+	color: #d03050;
+	font-weight: 700;
+	letter-spacing: 0.02em;
+}
+
+.cv-notice + .cv-notice {
+	margin-top: 18px;
+	padding-top: 18px;
+	border-top: 1px solid #eee;
+}
+
+.cv-notice__title {
+	margin: 0 0 6px;
+	font-size: 14px;
+	font-weight: 700;
+	color: #222;
+}
+
+.cv-notice__text {
+	font-size: 14px;
+	line-height: 1.8;
+	color: var(--color-text-14); /* [10-21] ← #555 */
+	word-break: break-word;
+}
+
+.cv-notice__text img { max-width: 100%; height: auto; }
+.cv-notice__text p { margin: 0 0 8px; }
+.cv-notice__text ul,
+.cv-notice__text ol { padding-left: 20px; margin: 6px 0; }
+.cv-notice__text ul { list-style: disc; }
+.cv-notice__text ol { list-style: decimal; }
+.cv-notice__text table { max-width: 100%; border-collapse: collapse; }
+.cv-notice__text table td,
+.cv-notice__text table th { border: 1px solid #e2e2e7; padding: 5px 8px; }
+.cv-notice__text a { color: #7346f3; text-decoration: underline; }
+
+/* =====================================================
+   캠페인 상세 — 리뷰어 화면과 같은 모양으로   [2026-08-14]
+
+   머리말·오른쪽 요약을 core/inc/campaign 의 공용 조각이 그린다.
+   모양(cd-)은 core/css/campaignDetail.css 가 들고 있고,
+   여기서는 '광고주 화면 안에서의 자리' 만 잡는다.
+
+   ★ 왜 폭을 다시 주나
+     리뷰어 사이트의 사이드바는 400px 짜리 페이지 레이아웃 기준이다.
+     광고주는 모달 안이라 그대로 쓰면 본문이 너무 좁아진다.
+     예전 .detail-side 와 같은 284px 로 맞춘다.
+   ===================================================== */
+.detail-panel-overview .cd-sidebar {
+	width: 284px;
+	min-width: 284px;
+	flex-shrink: 0;
+
+	/*
+	★ [2026-09-10] 우측 정보카드가 스티키로 붙지 않던 원인
+
+	  .cd-sidebar__inner 에는 position:sticky · top:40px 이 이미 걸려 있었고
+	  상위 요소 중 스티키를 깨는 것(overflow·transform·filter·contain)도 없었다.
+	  그런데도 붙지 않은 이유는 '움직일 공간' 이 없었기 때문이다.
+
+	  position:sticky 는 자기 '부모' 안에서만 움직인다.
+	  여기서 부모는 .cd-sidebar 인데,
+	  .detail-panel-overview 가 align-items:flex-start 라
+	  .cd-sidebar 가 내용 높이(365px)까지만 줄어들었다.
+	  안쪽 카드도 365px 이라 부모와 자식 높이가 같았고 → 이동 거리 0.
+
+	  실측 (모달 스크롤 800px 지점, 모달 상단 y=44)
+	    수정 전 : 부모 365px    → 카드 y = -431  (화면 밖으로 사라짐)
+	    수정 후 : 부모 2,763px  → 카드 y =  104  (상단에 붙음)
+
+	  ※ align-self 만 바꾼다. .detail-panel-overview 의 align-items 를
+	    통째로 stretch 로 바꾸면 본문(.detail-main)까지 영향을 받는다.
+	  ※ core 의 .cd-sidebar 를 직접 고치지 않는다.
+	    그 클래스는 리뷰어·마스터 사이트도 함께 쓴다.
+	    이 규칙은 .detail-panel-overview 안(= 광고주 모달)으로 한정된다.
+	*/
+	align-self: stretch;
+}
+
+.detail-panel-overview .cd-sidebar__inner {
+	position: sticky;
+	top: 40px;
+}
+
+/*
+머리말은 카드 안쪽 여백에 맞춘다.
+  (리뷰어는 페이지 폭을 그대로 쓰지만 광고주는 카드 안이다)
+*/
+.detail-card > .cd-title-section {
+	padding: 24px 24px 20px;
+	margin: 0;
+}
+
+/* 제목 오른쪽 버튼 자리 (숨김 · 캠페인 취소) */
+.cd-title-row {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 16px;
+}
+
+.cd-title-actions {
+	display: flex;
+	gap: 8px;
+	flex-shrink: 0;
+}
+
+@media (max-width: 1024px) {
+	/*
+	★ [2026-09-10] 좁은 화면에서 본문 폭이 0 이 되던 문제
+
+	  .detail-panel-overview.is-active 는 flex-direction:row 인데
+	  1024 이하 재정의가 없어 좁은 화면에서도 가로 2단인 채로 남아 있었다.
+	  그 상태에서 바로 아래 규칙이 사이드바를 width:100% 로 만드니
+	  사이드바가 폭을 다 가져가고 본문(.detail-main)에 남는 폭이 0 이 됐다.
+
+	  실측 (390px)
+	    수정 전 : .detail-main  폭 0px    ← 글자가 '제/공/내/용' 처럼 세로로 쪼개짐
+	    수정 후 : .detail-main  폭 = 모달 본문 폭
+
+	  → 좁아지면 세로로 눕힌다. core 의 .cd-layout 이 768 이하에서 하는 것과 같은 처리다.
+	*/
+	.detail-panel-overview.is-active {
+		flex-direction: column;
+		gap: 24px;
+	}
+
+	.detail-panel-overview .cd-sidebar {
+		width: 100%;
+		min-width: 0;
+
+		/*
+		★ [2026-09-10] 위(데스크톱)에서 준 align-self:stretch 를 되돌린다.
+
+		  그 값은 '스티키가 움직일 공간' 을 만들려고 넣은 것인데,
+		  세로 2단이 되는 이 구간에서는 사이드바가 패널 전체 높이까지
+		  늘어나 버린다 (실측 24,203px).
+		  이 구간은 .cd-sidebar__inner 가 position:static 이라
+		  스티키를 쓰지 않으므로 늘릴 이유도 없다.
+		*/
+		align-self: auto;
+	}
+
+	.detail-panel-overview .cd-sidebar__inner { position: static; }
+
+	.detail-card > .cd-title-section { padding: 16px; }
+
+	/* 좁아지면 버튼을 제목 아래로 내린다 */
+	.cd-title-row { flex-direction: column; }
+}

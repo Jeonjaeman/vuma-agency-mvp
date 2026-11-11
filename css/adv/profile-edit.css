@@ -1,0 +1,566 @@
+/* =====================================================
+   내 정보 수정 모달 (Profile Edit Modal)
+   캠페인 등록 모달과 통일성 있게 수정
+   ===================================================== */
+
+.profile-edit-modal .modal-content {
+    max-width: 800px;
+    width: 92%;
+    max-height: 90vh;
+    /* 화면 높이를 넘지 않도록 제한 */
+    border-radius: 20px;
+    background: #fff;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    display: flex;
+    /* 내부 요소 배치를 위해 flex 적용 */
+    flex-direction: column;
+}
+
+.profile-modal-header {
+    flex: 0 0 auto;
+    padding: 30px 40px 10px;
+    /* 캠페인 등록 모달과 동일 */
+    text-align: center;
+    position: relative;
+}
+
+.profile-modal-header .modal-title {
+    font-size: 28px;
+    /* 캠페인 등록 모달과 동일 */
+    font-weight: 800;
+    color: #111;
+    letter-spacing: -1px;
+    margin-bottom: 20px;
+}
+
+.profile-modal-header .btn-profile-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 40px;
+    /* 캠페인 등록 모달과 동일 */
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid #ddd;
+    background: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    color: #333;
+}
+
+.profile-modal-header .btn-profile-close:hover {
+    background: #f5f5f5;
+}
+
+/* 탭 스타일 */
+.profile-modal-tabs {
+    flex: 0 0 auto;
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding: 0 40px 30px;
+    border-bottom: 1px solid #eee;
+}
+
+.profile-tab-btn {
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-text-14); /* [10-21] ← #9ca3af */
+    background: #f3f4f6;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.profile-tab-btn.active {
+    background: #7346f3;
+    /* 캠페인 등록 모달 테마색 */
+    color: #fff;
+}
+
+/* 모달 본문 */
+.profile-modal-body {
+    flex-grow: 1;
+    padding: 40px;
+    overflow-y: auto;
+}
+
+.profile-tab-content {
+    display: none;
+}
+
+.profile-tab-content.active {
+    display: block;
+}
+
+/* 폼 그리드 */
+.profile-form-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.profile-form-row {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.profile-form-row.align-start {
+    align-items: flex-start;
+}
+
+.p-label {
+    width: 130px;
+    font-size: 15px;
+    font-weight: 700;
+    color: #333;
+    flex-shrink: 0;
+}
+
+/* 캠페인 등록 모달 라벨 스타일과 통일 (도트 제거) */
+.p-label::before {
+    display: none;
+}
+
+.p-input-wrap {
+    flex: 1;
+}
+
+/* 인풋 스타일 - 캠페인 등록 스타일과 통일 */
+.p-input {
+    width: 100%;
+    height: 44px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 0 15px;
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    transition: all 0.2s;
+    box-sizing: border-box;
+}
+
+.p-input:focus {
+    border-color: #7346f3;
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.08);
+}
+
+.p-input:read-only {
+    background: #f7f7f7;
+    color: #ababab;
+    border-color: #efefef;
+}
+
+.p-input-group {
+    display: flex;
+    gap: 8px;
+}
+
+.p-input-multi {
+    display: flex;
+    gap: 8px;
+}
+
+.p-input.center {
+    text-align: center;
+}
+
+.p-btn-sub {
+    height: 44px;
+    padding: 0 20px;
+    border-radius: 10px;
+    border: 1px solid #111;
+    background: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    color: #111;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+}
+
+.p-btn-sub:hover {
+    background: #f9f9f9;
+}
+
+.p-help-text {
+    font-size: 13px;
+    color: var(--color-text-14); /* [10-21] ← #999 */
+    margin-top: 8px;
+}
+
+.p-help-text.error {
+    color: #ef4444;
+}
+
+.p-help-text.success {
+    color: #10b981;
+}
+
+/* 태그형 체크박스 */
+.p-tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.p-tag-label {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 14px;
+    border-radius: 6px;
+    background: #fff;
+    border: 1px solid #ddd;
+    font-size: 14px;
+    color: var(--color-text-14); /* [10-21] ← #666 */
+    cursor: pointer;
+    transition: all 0.2s;
+    user-select: none;
+}
+
+.p-tag-label input {
+    display: none;
+}
+
+.p-tag-label:hover {
+    border-color: #7346f3;
+    color: #7346f3;
+}
+
+/*
+★ [2026-09-10] var() 에 폴백을 붙인다 — 이 파일 안 5곳 공통
+
+  ── 무엇이 안 보였나 ────────────────────────────────────
+  이 파일은 두 곳에서 쓰인다.
+    대시보드(마이페이지 프로필 수정)  main.css 를 함께 실어 토큰이 있다
+    로그인·회원가입 화면              inc/header.inc.html 이 main.css 를 싣지 않는다
+  토큰(--color-main 등)은 main.css 의 :root 에만 있어서, 인증 화면에서는
+  var() 가 빈 값이 되고 그 선언이 통째로 무효가 된다.
+  실측(회원가입 화면) :
+    background-color: var(--color-main-light)        → rgba(0, 0, 0, 0)  (투명)
+    background-color: var(--color-main-light,#f2eeff) → rgb(242, 238, 255)
+  그래서 우편번호 검색 결과에 마우스를 올려도 아무 표시가 없었다.
+  선택 태그의 '고른 상태' 배경, 우편번호 배지 색도 같이 사라져 있었다.
+
+  → 폴백 값은 main.css 의 :root 값을 그대로 적는다.
+    --color-main #7346f3 · --color-main-light #f2eeff · --r-4 4px
+  ※ 토큰이 있는 화면에서는 지금까지와 똑같이 토큰이 쓰인다.
+*/
+.p-tag-label:has(input:checked) {
+    background: var(--color-main-light, #f2eeff);
+    border-color: #7346f3;
+    color: #7346f3;
+    font-weight: 700;
+}
+
+/* 지역 테이블 */
+.p-region-table {
+    border-top: 1px solid #eee;
+    width: 100%;
+}
+
+.p-region-row {
+    display: flex;
+    padding: 12px 0;
+    border-bottom: 1px solid #f3f3f3;
+}
+
+.p-region-head {
+    width: 100px;
+    font-size: 14px;
+    color: var(--color-text-14); /* [10-21] ← #9ca3af */
+    padding-top: 6px;
+}
+
+.p-region-body {
+    flex: 1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+/*=====================================================
+관심지역 — 전국 전체 + 시/도 접기   [2026-11-10]
+
+  ── 왜 접는가 ───────────────────────────────────────
+  열일곱 개 시도의 시군구를 모두 펼쳐 두면 이 칸 하나가 화면
+  수백 줄을 차지한다. 그 아래 있는 관심유형·약관 동의까지
+  내려가려면 한참을 굴려야 해서, 가입 도중에 포기하게 만든다.
+  → 기본은 접어 두고, 고른 것이 있는 시도만 펼친 채로 시작한다.
+  ★ 접힌 줄에는 **몇 곳 골랐는지**를 적는다. 접으면 안 보이니까,
+    접힌 채로도 "여긴 골랐다" 를 알 수 있어야 한다.
+
+  ※ 동작은 script/membership/interestArea.js, 마크업은
+    inc/interestArea.inc.html — 세 화면이 그 둘을 함께 쓴다.
+=====================================================*/
+.p-region-all {
+    font-weight: 600;
+}
+
+.p-region-guide {
+    margin: 6px 0 10px;
+    font-size: 12px;
+    line-height: 1.7;
+    color: var(--color-text-14, #6e6e73);
+}
+
+/* 시/도 줄 자체가 버튼이 된다 — 줄 아무 데나 눌러 펼친다 */
+.p-region-row {
+    display: block;		/* [11-10] flex → block : 머리줄 아래로 본문이 펼쳐진다 */
+}
+
+button.p-region-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 10px 2px;
+    border: 0;
+    background: none;
+    font-family: inherit;
+    font-size: 14px;
+    color: var(--color-text-14, #6e6e73);
+    text-align: left;
+    cursor: pointer;
+}
+
+button.p-region-head:hover { color: var(--color-main, #6246ea); }
+
+.p-region-head__name { font-weight: 600; }
+
+.p-region-head__count {
+    font-size: 12px;
+    color: var(--color-main, #6246ea);
+}
+
+.p-region-head__count.is-on::before { content: "· "; }
+
+/* 화살표는 펼친 줄에서만 뒤집는다 */
+.p-region-head__arrow {
+    margin-left: auto;
+    font-size: 12px;
+    transition: transform .15s ease;
+}
+
+button.p-region-head[aria-expanded="true"] .p-region-head__arrow {
+    transform: rotate(180deg);
+}
+
+.p-region-row .p-region-body {
+    padding: 2px 2px 12px;
+}
+
+/*
+  ★★ hidden 속성이 안 먹던 이유   [2026-11-10]
+    .p-region-body 는 display:flex 다. CSS 의 display 는 HTML 의 hidden 속성을
+    **이긴다** — 그래서 접었다고 생각한 줄이 전부 펼쳐진 채로 나왔다
+    (시군구 수백 개가 그대로 보이던 원인).
+  → 이 칸에서는 hidden 을 확실히 숨김으로 돌려놓는다.
+*/
+.p-region [hidden] { display: none !important; }
+
+/* 하단 버튼 */
+.profile-modal-footer {
+    padding: 20px 40px 40px;
+    text-align: center;
+    border-top: 1px solid #eee;
+	flex: 0 0 auto;	/* 버튼줄은 줄어들지 않는다 — 대신 본문이 스크롤한다 [2026-08-14] */
+}
+
+.btn-p-save {
+    height: 48px;
+    padding: 0 50px;
+    border-radius: 12px;
+    background: #7346f3;
+    border: none;
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-p-save:hover {
+    background: #6236e7;
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+}
+
+/* 모바일 대응 */
+@media (max-width: 768px) {
+    .profile-edit-modal .modal-content {
+        width: 100%;
+        height: 100%;
+        max-height: 100vh;
+        border-radius: 0;
+    }
+
+    .profile-modal-header {
+        padding: 20px 20px 10px;
+    }
+
+    .profile-modal-header .modal-title {
+        font-size: 24px;
+        margin-bottom: 10px;
+    }
+
+    .profile-modal-header .btn-profile-close {
+        top: 10px;
+        right: 10px;
+    }
+
+    .profile-modal-body {
+        padding: 20px;
+    }
+
+    .profile-form-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .p-label {
+        width: 100%;
+        margin-bottom: 2px;
+    }
+
+    .p-input-group {
+        width: 100%;
+    }
+
+    .p-input-group .p-input {
+        flex: 1;
+        min-width: 0;
+        /* 인풋이 버튼을 밀어내지 않도록 설정 */
+    }
+
+    .p-region-row {
+        flex-direction: column;
+    }
+
+    .p-region-head {
+        width: 100%;
+        margin-bottom: 8px;
+    }
+
+    .profile-modal-tabs {
+        padding: 0 20px 15px;
+        overflow-x: auto;
+        justify-content: flex-start;
+        -webkit-overflow-scrolling: touch;
+        /* 부드러운 스크롤 */
+    }
+
+    .profile-tab-btn {
+        flex-shrink: 0;
+        padding: 8px 16px;
+        font-size: 13px;
+    }
+
+    .profile-modal-footer {
+        padding: 15px 20px 30px;
+    }
+
+    .btn-p-save {
+        width: 100%;
+        /* 모바일에서는 버튼을 꽉 채움 */
+        padding: 0;
+    }
+}
+
+/* 필수입력 마크 및 에러 메시지 스타일 */
+.req-mark {
+    color: #ef4444;
+    margin-left: 4px;
+    font-weight: bold;
+}
+
+.auth-error {
+    display: none;
+    font-size: 13px;
+    color: #dc2f02;
+    margin-top: 8px;
+    text-align: left;
+}
+
+.auth-error.show {
+    display: block;
+}
+
+/* ==========================================
+   우편번호 검색 기능 스타일 (공통)
+   ========================================== */
+.zipcode-search-container {
+    display: none; /* JS로 제어 시 active 클래스를 추가하여 노출 (예: display: block;) */
+    margin: 12px 0;
+    padding: 16px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background-color: #f9fafb;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.zipcode-search-container.active {
+    display: block;
+}
+
+.zipcode-search-box {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+    width: 100%;
+}
+
+.zipcode-search-input {
+    flex: 1;
+    height: 44px !important;
+    background: #ffffff !important;
+    box-sizing: border-box;
+}
+
+.zipcode-search-btn {
+    flex-shrink: 0;
+    height: 44px !important;
+    padding: 0 16px !important;
+    border-radius: 8px !important;
+    font-size: 14px;
+    font-weight: 600;
+    box-sizing: border-box;
+}
+
+.zipcode-search-guide {
+    font-size: 12px;
+    color: var(--color-text-14); /* [10-21] ← #6b7280 */
+    line-height: 1.6;
+    margin: 4px 0 12px 0;
+    word-break: keep-all;
+    text-align: left;
+}
+
+/*
+★ [2026-09-10] 아래 우편번호 결과 규칙들을 core/css/postSearch.css 로 옮겼다.
+
+  ── 왜 ──────────────────────────────────────────────
+  마크업은 core/script/postSearch.js 가 만드는데 모양만 사이트마다 있었다.
+    광고주  이 파일                       있음
+    리뷰어  www/css/mypage/my-info.css    있음
+    리뷰어  www/css/join/my-info.css      없음  ← 회원가입 화면이 민무늬였다
+  같은 스크립트가 만든 같은 화면인데 들어가는 문으로 모양이 갈렸다.
+
+  ── 무엇이 바뀌나 ───────────────────────────────────
+  세 사이트가 같은 모양이 된다. 광고주 기준으로는 두 가지가 달라진다.
+    · 우편번호가 왼쪽 알약 → 윗줄 (좁은 화면에서 어차피 그렇게 바뀌던 모양이다)
+    · 도로명·지번 배지가 파랑·초록 → 브랜드 보라·회색
+  색은 core 쪽에서 var(--color-main …) 으로 잇는다.
+
+  ※ .zipcode-search-btn 과 .zipcode-search-guide 는 광고주 HTML 에만 있는
+    요소라 여기 남겨 둔다 (JS 가 만드는 결과 목록과 무관하다).
+*/
+
+/* (우편번호 결과 규칙들은 core/css/postSearch.css 로 옮겼다 — 위 주석 참고) */

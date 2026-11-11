@@ -13,7 +13,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))   # -I 로 돌려도 같은 폴더 모듈을 찾게
 import alerts  # noqa: E402  [2026-11-10] 수시 알림 (v0.4)
 
-VERSION = "v0.8"   # 시안 버전 — mvp/CHANGELOG.md · git 태그와 맞춘다
+VERSION = "v0.9"   # 시안 버전 — mvp/CHANGELOG.md · git 태그와 맞춘다
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "dashboard.html"
@@ -352,7 +352,7 @@ def tbody_by_staff(bizs):
 def point_rows():
     return ('<dl class="kv"><dt>추가 예치 필요</dt><dd>165,000P</dd><dt>사용 가능 잔액</dt><dd class="bad">84,500P</dd></dl>'
             '<p class="ctx">초과모집 3명 요청 · 잔액이 부족해 대기 중입니다.</p>'
-            '<div class="acts wide"><a class="btn primary" href="point.html">충전하기 (통포인트) →</a>'
+            '<div class="acts wide"><a class="btn primary" href="point.html">충전하기 (포인트) →</a>'
             '<button type="button" class="btn" disabled title="잔액이 부족합니다">예치하고 진행</button></div>')
 
 
@@ -625,7 +625,7 @@ def camp_index(b, key, it):
 
 
 # [2026-11-10 v0.6] [상세 관리 →] = 캠페인 페이지의 그 이슈 탭(기획서 6-4 "검수 카드 → 리뷰 탭")
-# [2026-11-10 v0.8] [상세 관리 →] = 운영 층 그 화면(검수 → 리뷰 검수, 지급 → 포인트 지급 확인, 포인트 → 통포인트)
+# [2026-11-10 v0.8] [상세 관리 →] = 운영 층 그 화면(검수 → 리뷰 검수, 지급 → 포인트 지급 확인, 포인트 → 포인트)
 DETAIL_TAB = {"apply": "app", "select": "app", "prep": "rev", "review": "rev", "nudge": "rev", "pay": "rev",
               "point": "ov", "late": "app"}
 DETAIL_PAGE = {"review": "inspect.html", "pay": "payout.html", "point": "point.html"}
@@ -698,7 +698,7 @@ NAV = [
                 ("photo", "리뷰 사진 관리", "photos.html"), ("srch", "검색결과 리포트", "search_report.html"),
                 ("video", "영상 제작 요청", "video.html"), ("chat", "쪽지", "messages.html")]),
     # ※ 광고주 사이트에 채팅은 없음(2026-10-28 제거) — 쪽지만
-    ("계정", [("pay", "통포인트", "point.html"), ("plan", "사용료", "plan.html"), ("sms", "문자설정", "sms.html"),
+    ("계정", [("pay", "포인트", "point.html"), ("plan", "사용료", "plan.html"), ("sms", "문자설정", "sms.html"),
             ("pen", "패널티", "penalty.html"), ("info", "대행사 정보", "info.html"), ("help", "고객센터", "help.html")]),
 ]
 NAV_HREF = {k: href for _g, items in NAV for k, _l, href in items}
@@ -715,26 +715,69 @@ def _built():
 COUNTS = {}        # 메뉴 숫자(검수·지급) — make_biz() 가 채운다
 
 
+# [2026-11-11 v0.9] 셸 = 광고주 사이트 그대로(U:\admin\index.html · inc\sidebar.inc.html 마크업 · css\adv\main.css)
+#   광고주 메뉴 자리: 홈 → 대시보드, 캠페인 관리(하위 5) · 마이페이지 → 대행사 정보 · 문자설정 · 문자·메일 발송내역 · 패널티 · 1:1 문의 · 자주묻는 질문 · 도움말
+#   대행사 추가분(.add): 대시보드 숫자 · "대행사 관리" 묶음(일정 · 업체 · 팀·담당자 · 보고서 링크) · 업체 범위 칸
+#   리뷰 검수 · 영상 제작 요청은 광고주처럼 캠페인 상단 탭에만, 포인트·사용료는 사용자 카드 [충전] · [플랜] 버튼으로
+HEAD_ADV = ('<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
+            '<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">'
+            '<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">'
+            # 광고주 index.html 이 싣는 순서 그대로(loadCss 110~141행)
+            + "".join(f'<link rel="stylesheet" href="css/adv/{n}.css">' for n in [
+                "main", "campaignDetail", "blogIndex", "campaign-detail", "campaign-detail-panels-common", "campaign-applicants",
+                "campaign-reviewers", "campaign-manage", "reviewer-manage", "campaign-create", "profile-edit", "received-messages",
+                "inquiry", "faq", "postSearch", "review-inspect", "alertMessage"]))
+ADV_ACTIVE = {"cal": "agc", "biz": "agc", "team": "agc", "rep": "agc",            # 하위 메뉴가 있는 묶음 → 묶음 키
+              "camp": "cmp", "rvw": "cmp", "payc": "cmp", "photo": "cmp", "srch": "cmp", "insp": "cmp", "video": "cmp"}
+
+
+def ms(name):
+    return f'<span class="material-symbols-outlined" aria-hidden="true">{name}</span>'
+
+
+def _nav(href, icon, label, on, cls="nav-item", extra=""):
+    return f'<a href="{href}" class="{cls}{" active" if on else ""}"{" aria-current=page" if on else ""}>{ms(icon)}<span>{label}</span>{extra}</a>'
+
+
 def sidebar(issue_total, active="dash"):
-    """사이드바 — 모든 화면이 같이 쓴다. active = 지금 화면 키"""
-    badges = {"dash": issue_total, "insp": COUNTS.get("review"), "payc": COUNTS.get("pay"), "chat": 3}
-    parts = []
-    for gname, items in NAV:
-        lis = []
-        for k, label, href in items:
-            on = k == active
-            ok = k in _built()
-            soon = "" if ok else ' title="광고주 화면 그대로 — 만드는 중" aria-disabled="true"'
-            lis.append(f'<li><a href="{href if ok else "#"}"{soon} class="nav{" on" if on else ""}{"" if ok else " soon"}"'
-                       f'{" aria-current=page" if on else ""}>{ico(k)}<span>{label}</span>'
-                       f'{f"<b class=nav-badge>{badges[k]}</b>" if badges.get(k) else ""}</a></li>')
-        parts.append(f'<li class="nav-g"><p class="nav-sep">{gname}</p><ul>{"".join(lis)}</ul></li>')
-    return (f'<aside class="side"><div class="brand"><span class="logo">V</span><b>뷰마 대행사</b><a class="ver" href="versions/" title="이전 버전 보기">{VERSION} 시안</a></div>'
-            f'<button type="button" class="agency">애니라인 마케팅 <span>▾</span></button>'
-            f'<a class="btn primary new-camp" href="campaign_new.html">+ 새 캠페인 등록</a>'
-            f'<nav class="nav-scroll" aria-label="주 메뉴"><ul>{"".join(parts)}</ul></nav>'
-            f'<div class="side-foot"><p class="bal-l">통포인트 사용 가능</p><p class="bal">{BALANCE:,}<small>P</small></p>'
-            '<p class="plan">브론즈 · 유료등급 없음</p></div></aside>')
+    """사이드바 — 광고주 sidebar.inc.html 마크업 그대로 + 대행사 추가분. active = 지금 화면 키"""
+    grp = ADV_ACTIVE.get(active, active)
+    sub = lambda k, href, icon, label: _nav(href, icon, label, active == k, "sub-nav-item")   # noqa: E731
+    badge = f'<b class="nav-num add" title="대시보드 이슈 합계">{issue_total}</b>'
+    nav = (_nav("dashboard.html", "dashboard", "대시보드", active == "dash", extra=badge)
+           + '<div class="nav-item-wrap add">' + _nav("schedule.html", "apartment", "대행사 관리", grp == "agc")
+           + '<div class="sub-nav">' + sub("cal", "schedule.html", "calendar_month", "일정") + sub("biz", "biz.html", "storefront", "업체")
+           + sub("team", "team.html", "badge", "팀·담당자") + sub("rep", "reports.html", "description", "보고서 링크") + "</div></div>"
+           + '<div class="nav-item-wrap">' + _nav("campaigns.html", "campaign", "캠페인 관리", grp == "cmp")
+           + '<div class="sub-nav">' + sub("camp", "campaigns.html", "list_alt", "캠페인 리스트") + sub("rvw", "reviewers.html", "group", "리뷰어 관리")
+           + sub("payc", "payout.html", "paid", "포인트 지급 확인") + sub("photo", "photos.html", "insert_photo", "리뷰 사진 관리")
+           + sub("srch", "search_report.html", "bar_chart", "검색결과 리포트") + "</div></div>"
+           + _nav("info.html", "person", "대행사 정보", active == "info") + _nav("sms.html", "sms", "문자설정", active == "sms")
+           + _nav("messages.html", "forward_to_inbox", "문자·메일 발송내역", active == "chat")
+           + _nav("penalty.html", "gavel", "패널티", active == "pen") + _nav("help.html", "support_agent", "1:1 문의", active == "help")
+           + _nav("help.html", "quiz", "자주묻는 질문", False) + _nav("help.html", "help", "도움말", False))
+    icons = ('<a class="icon-btn" href="#" title="검색">' + ms("search") + '</a>'
+             '<a class="icon-btn" href="help.html" title="알림">' + ms("notifications") + '<span class="badge-dot"></span></a>'
+             '<a class="icon-btn" href="help.html" title="공지">' + ms("brand_awareness") + '</a>'
+             '<a class="icon-btn" href="messages.html" title="쪽지">' + ms("mail") + '<span class="badge-dot"></span></a>')
+    card = ('<div class="user-card"><div class="user-card-header"><div class="user-name-row"><span class="user-name">대표님</span>'
+            '<span class="user-email">반갑습니다!</span><a href="#">로그아웃</a></div></div><div class="user-card-body">'
+            '<div class="user-info-row"><span class="info-label">브론즈</span><div class="info-value-group"><span class="info-value">무료</span>'
+            '<a class="btn-tag" href="plan.html">플랜</a></div></div>'
+            f'<div class="user-info-row"><span class="info-label">포인트</span><div class="info-value-group"><span class="info-value">{BALANCE:,} P</span>'
+            '<a class="btn-tag" href="point.html">충전</a></div></div></div></div>')
+    scope = ('<div class="scope-box add"><p class="scope-l">업체 범위</p><button type="button" class="scope-biz" popovertarget="scope-pop">'
+             f'{ms("storefront")}<b class="js-scope-name">전체 업체</b>{ms("expand_more")}</button>{scope_pop()}</div>')
+    return (f'<aside class="sidebar"><div class="sidebar-inner">'
+            f'<div class="sidebar-brand"><p class="brand-label">뷰마 대행사 <a class="ver add" href="versions/" title="이전 버전 보기">{VERSION} 시안</a></p>'
+            f'<h1 class="brand-name">애니라인 마케팅</h1></div>'
+            f'<div class="sidebar-icons">{icons}</div>'
+            f'<div class="sidebar-section">{card}</div>'
+            f'<div class="sidebar-section">{scope}</div>'
+            f'<div class="sidebar-section"><a class="btn-new-campaign" href="campaign_new.html">{ms("add")}<span>새 캠페인 등록</span></a></div>'
+            f'<nav class="sidebar-nav" aria-label="주 메뉴">{nav}</nav></div>'
+            '<div class="sidebar-footer"><div class="sidebar-legal"><a href="#">이용약관</a><span class="sidebar-legal__sep"></span>'
+            '<a href="#">개인정보처리방침</a></div><p>ⓒ ANYRIZE All Rights Reserved.</p></div></aside>')
 
 
 def scope_pop():
@@ -753,12 +796,14 @@ SCOPE_BIZ = []     # 업체 범위 목록 — make_biz() 결과
 
 
 def topbar():
-    return ('<header class="top"><button type="button" class="scope-biz" popovertarget="scope-pop">'
-            '<b class="js-scope-name">전체 업체</b> <span>▾</span></button>'
-            f'{scope_pop()}'
-            '<label class="search"><span class="sr">검색</span><input type="search" placeholder="업체·캠페인 검색"></label>'
-            '<div class="top-r"><button type="button" class="bell" aria-label="알림 5건">🔔<i>5</i></button>'
-            '<span class="me"><i>대</i>대표 <small>관리자</small></span></div></header>')
+    """[2026-11-11 v0.9] 광고주 사이트에는 위 머리줄이 없다(검색·알림·쪽지는 사이드바 아이콘) — 빈 칸"""
+    return ""
+
+
+def shell(issue_total, active, body):
+    """광고주 index.html 의 틀: .dashboard > aside.sidebar + main.main-content > .main-view"""
+    return (f'<div class="dashboard">{sidebar(issue_total, active)}'
+            f'<main class="main-content"><div class="main-view">{body}</div></main></div>')
 
 
 def type_chips(bizs):
@@ -794,15 +839,15 @@ def build():
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>대시보드 · 뷰마 대행사 ({VERSION} 시안)</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+{HEAD_ADV}
 <link rel="stylesheet" href="css/agency.css">
 </head>
 <body>
-<!-- [2026-11-10] 대행사 대시보드 시안 {VERSION} — 기획서 v0.5 6-3 · 6-11. gen_dashboard.py 로 생성(직접 수정 금지) -->
-<div class="shell">
+<!-- [2026-11-10] 대행사 대시보드 시안 {VERSION} — 기획서 v0.5 6-3 · 6-11. gen_dashboard.py 로 생성(직접 수정 금지)
+     [2026-11-11 v0.9] 틀 = 광고주 index.html(.dashboard > .sidebar + .main-content > .main-view) -->
+<div class="dashboard">
 {sidebar(total_issue)}
-<div class="main">
-{topbar()}
+<main class="main-content"><div class="main-view">
 <div class="work">
 <section class="board" aria-labelledby="board-title">
 	<div class="board-h">
@@ -858,7 +903,7 @@ def build():
 	{panels}
 </aside>
 </div>
-</div>
+</div></main>
 </div>
 <div class="toasts" aria-live="assertive"></div>
 <script src="js/scope.js"></script>

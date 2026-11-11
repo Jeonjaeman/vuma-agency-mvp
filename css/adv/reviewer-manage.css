@@ -1,0 +1,1135 @@
+/* =====================================================
+   리뷰어 관리 페이지 (tpl-reviewer-manage) 추가 스타일
+   기본 리뷰어 카드 스타일은 campaign-manage.css 를 재사용
+   ===================================================== */
+
+/* 필터: 캠페인 선택 + 이름 검색 */
+.rev-filter-form {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	flex-wrap: wrap;
+	margin: 4px 0 18px;
+}
+
+.rev-camp-select {
+	min-width: 220px;
+	max-width: 360px;
+	height: 40px;
+	padding: 0 12px;
+	border: 1px solid var(--color-text-4, #d0d0d0);
+	border-radius: 6px;
+	background: #fff;
+	font-size: 14px;
+	color: var(--color-text-14, #222);
+	cursor: pointer;
+}
+
+.rev-search-box {
+	display: flex;
+	align-items: center;
+	height: 40px;
+	border: 1px solid var(--color-text-4, #d0d0d0);
+	border-radius: 6px;
+	overflow: hidden;
+	background: #fff;
+}
+
+.rev-search-input {
+	height: 100%;
+	border: none;
+	outline: none;
+	padding: 0 12px;
+	font-size: 14px;
+	width: 220px;
+}
+
+.rev-search-btn {
+	height: 100%;
+	width: 44px;
+	border: none;
+	background: var(--color-main, #7346f3);
+	color: #fff;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.rev-search-btn:hover {
+	filter: brightness(0.95);
+}
+
+/* 텍스트 아바타 (이니셜) */
+.rev-avatar--text {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 18px;
+	font-weight: 800;
+	color: #fff;
+	background: linear-gradient(135deg, #8a6bf5, #7346f3);
+}
+
+/* 액션 버튼 영역 (관심 / 차단 / 쪽지) */
+.rev-actions {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.btn-rev-act {
+	width: 36px;
+	height: 36px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border: 1px solid var(--color-text-5, #ccc);
+	border-radius: 4px;
+	background: #fff;
+	color: var(--color-text-14); /* [10-21] ← var(--color-text-9, #888) */
+	cursor: pointer;
+	transition: all 0.2s;
+}
+
+.btn-rev-act:hover {
+	background: var(--color-text-2, #f2f2f2);
+}
+
+.btn-rev-act.active {
+	border-color: #f5a623;
+	color: #f5a623;
+	background: #fff8ec;
+}
+
+.btn-rev-act.danger {
+	border-color: #e5484d;
+	color: #e5484d;
+	background: #fff0f0;
+}
+
+/* 뱃지 */
+.rev-badge-block,
+.rev-badge-fav,
+.rev-badge-report {
+	display: inline-flex;
+	align-items: center;
+	gap: 2px;
+	height: 20px;
+	padding: 0 8px;
+	border-radius: 10px;
+	font-size: 11px;
+	font-weight: 700;
+	margin-left: 4px;
+}
+
+.rev-badge-block {
+	background: #fff0f0;
+	color: #e5484d;
+}
+
+.rev-badge-fav {
+	background: #fff8ec;
+	color: #d68102;
+}
+
+/* 내가 신고한 적 있는 리뷰어 (차단됨과 헷갈리지 않게 다른 색) */
+.rev-badge-report {
+	background: #f3f0ff;
+	color: #6b3fd4;
+}
+
+.rev-badge-fav .material-symbols-outlined,
+.rev-badge-report .material-symbols-outlined {
+	font-size: 14px;
+}
+
+/* 신고가 보류돼서 다시 신고할 수 있는 상태 */
+.btn-rev-act.rev-report-hold {
+	color: #d68102;
+}
+
+/* 블로그 지표 새로고침 버튼 */
+.rev-bs-refresh {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 22px;
+	height: 22px;
+	margin-left: 4px;
+	border: none;
+	background: none;
+	color: var(--color-text-14); /* [10-21] ← var(--color-text-9, #999) */
+	cursor: pointer;
+	border-radius: 50%;
+}
+
+.rev-bs-refresh:hover {
+	background: var(--color-text-2, #f2f2f2);
+	color: var(--color-main, #7346f3);
+}
+
+.rev-bs-refresh .material-symbols-outlined {
+	font-size: 16px;
+}
+
+.rev-bs-refresh.loading {
+	pointer-events: none;
+	opacity: 0.7;
+}
+
+.rev-bs-refresh.loading .material-symbols-outlined {
+	animation: revSpin 0.8s linear infinite;
+}
+
+@keyframes revSpin {
+	to { transform: rotate(360deg); }
+}
+
+/* 링크 아이콘 */
+.rev-link {
+	display: inline-flex;
+	align-items: center;
+	color: var(--color-text-14); /* [10-21] ← var(--color-text-9, #888) */
+	text-decoration: none;
+}
+
+.rev-link:hover {
+	color: var(--color-main, #7346f3);
+}
+
+/* 차단된 리뷰어 카드 흐리게 */
+.reviewer-item.rev-blocked {
+	opacity: 0.6;
+}
+
+/* 빈 목록 */
+.rev-empty {
+	padding: 60px 0;
+	text-align: center;
+	color: var(--color-text-14); /* [10-21] ← var(--color-text-8, #8e8e93) */
+}
+
+/* =====================================================
+   쪽지 보내기 모달 (기본 .modal-wrap/.open 은 main.css)
+   ===================================================== */
+.rev-msg-content {
+	width: 480px;
+	max-width: calc(100vw - 32px);
+}
+
+/*
+	★ 이 사이트에는 공통 .modal-header / .modal-body 스타일이 없다.  [2026-08-11]
+	  main.css 의 .modal-content 는 배경·모서리·그림자만 준다.
+	  그래서 여백 규칙을 안 적어두면 제목과 X 버튼이 좌상단에 붙고
+	  입력칸이 모서리까지 꽉 차 보인다.
+*/
+.rev-msg-content .modal-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	padding: 24px 26px 14px;
+}
+
+.rev-msg-content .modal-title {
+	font-size: 18px;
+	font-weight: 700;
+	color: var(--color-text-15, #1c1c1e);
+	line-height: 1.4;
+}
+
+.rev-msg-content .modal-body {
+	padding: 0 26px;
+	max-height: 62vh;
+	overflow-y: auto;
+}
+
+.rev-msg-content .modal-footer {
+	padding: 0 26px 24px;
+}
+
+.rev-msg-to {
+	font-size: 14px;
+	color: var(--color-text-14); /* [10-21] ← var(--color-text-9, #666) */
+	margin-bottom: 14px;
+}
+
+.rev-msg-to strong {
+	color: var(--color-text-14, #222);
+}
+
+.rev-msg-input,
+.rev-msg-textarea {
+	width: 100%;
+	border: 1px solid var(--color-text-4, #d0d0d0);
+	border-radius: 6px;
+	padding: 12px 14px;
+	font-size: 14px;
+	font-family: inherit;
+	box-sizing: border-box;
+	outline: none;
+}
+
+.rev-msg-input {
+	height: 44px;
+	margin-bottom: 10px;
+}
+
+.rev-msg-textarea {
+	min-height: 120px;
+	resize: vertical;
+	line-height: 1.5;
+}
+
+.rev-msg-content .modal-footer {
+	display: flex;
+	justify-content: flex-end;
+	gap: 8px;
+	margin-top: 16px;
+	padding: 0 26px 24px;
+}
+
+.rev-msg-content .btn {
+	height: 42px;
+	padding: 0 22px;
+	border-radius: 6px;
+	font-size: 15px;
+	font-weight: 600;
+	cursor: pointer;
+	border: 1px solid transparent;
+}
+
+.rev-msg-content .btn-cancel {
+	background: #fff;
+	border-color: var(--color-text-4, #d0d0d0);
+	color: var(--color-text-14); /* [10-21] ← var(--color-text-9, #666) */
+}
+
+.rev-msg-content .btn-primary {
+	background: var(--color-main, #7346f3);
+	color: #fff;
+}
+
+@media (max-width: 768px) {
+	.rev-filter-form {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.rev-camp-select,
+	.rev-search-box,
+	.rev-search-input {
+		width: 100%;
+		max-width: none;
+	}
+}
+
+/* ── 리뷰어 신고 모달 ── */
+/* 캠페인은 목록에서 정해져 넘어온다 (변경 불가) */
+.rev-report-camp {
+	margin-bottom: 10px;
+	padding: 10px 12px;
+	border-radius: 6px;
+	background: #f5f5f7;
+	font-size: 13px;
+	color: var(--color-text-14); /* [10-21] ← #666 */
+}
+
+.rev-report-camp strong {
+	color: #333;
+	font-weight: 700;
+}
+
+.rev-report-notice {
+	margin-top: 10px;
+	padding: 10px 12px;
+	border-radius: 6px;
+	background: #fff5f5;
+	font-size: 12px;
+	line-height: 1.7;
+	color: #c92a2a;
+}
+
+/* ==========================================================================
+   신고 내역 ('신고한 리뷰어' 탭에서만 노출)
+   ========================================================================== */
+.rev-reports {
+	margin-top: 10px;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.rev-report {
+	padding: 10px 12px;
+	background: #faf9ff;
+	border: 1px solid #e9e4ff;
+	border-radius: 8px;
+	font-size: 13px;
+}
+
+.rev-report__head {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	flex-wrap: wrap;
+	margin-bottom: 6px;
+}
+
+.rev-report__state {
+	display: inline-flex;
+	align-items: center;
+	height: 19px;
+	padding: 0 7px;
+	border-radius: 10px;
+	font-size: 11px;
+	font-weight: 700;
+}
+
+/* 접수/확인중 */
+.rev-report__state--wait {
+	background: #fff5e5;
+	color: #d68102;
+}
+
+/* 처리완료 */
+.rev-report__state--done {
+	background: #e6f8f1;
+	color: #00875a;
+}
+
+/* 보류 — 다시 신고할 수 있는 상태 */
+.rev-report__state--hold {
+	background: #eef1f5;
+	color: var(--color-text-14); /* [10-21] ← #5a6472 */
+}
+
+.rev-report__reason {
+	font-weight: 700;
+	color: #363636;
+}
+
+.rev-report__camp {
+	color: var(--color-text-14); /* [10-21] ← #888 */
+}
+
+.rev-report__camp::before {
+	content: "· ";
+}
+
+.rev-report__date {
+	margin-left: auto;
+	color: var(--color-text-14); /* [10-21] ← #a0a0a0 */
+	font-size: 12px;
+}
+
+.rev-report__body {
+	color: var(--color-text-14); /* [10-21] ← #525252 */
+	line-height: 1.6;
+	white-space: pre-wrap;
+}
+
+/*
+운영자 처리결과 (내부기록은 여기 오지 않는다)
+
+  ★★ [2026-11-05] white-space:pre-wrap 을 뺐다.
+    이 칸의 내용은 **여러 줄에 걸친 PHP 블록**이 찍는다
+    (reviewer.inc.html 의 rev-report__answer). pre-wrap 이면
+    HTML 소스의 **탭·줄바꿈이 그대로 화면에 그려져**, 글이 한참
+    오른쪽으로 밀리고 위아래로 빈 줄이 생겼다.
+  ★ 줄바꿈은 이미 nl2br() 이 <br> 로 바꿔 두었다 — pre-wrap 은
+    같은 일을 두 번 하는 셈이라, 빼도 줄은 그대로 살아 있다.
+  ※ rev-report__body 는 한 줄짜리 출력이라 멀쩡해 보였지만
+    이중 줄바꿈은 같았다. 함께 정리한다.
+*/
+.rev-report__answer {
+	margin-top: 8px;
+	padding: 8px 10px;
+	background: #fff;
+	border: 1px solid #ededf2;
+	border-radius: 6px;
+	color: #363636;
+	line-height: 1.6;
+}
+
+.rev-report__answer--wait {
+	color: var(--color-text-14); /* [10-21] ← #888 */
+}
+
+/*
+머리말 배지
+  ★★ [2026-11-05] display:block 이면 배경색을 준 순간 **가로 전체로
+    늘어나 띠**가 된다(패널티·조치 배지가 그랬다). 글자만큼만 차지하게
+    inline-block 으로 두고, 줄은 아래 <br> 대신 margin 으로 띄운다.
+*/
+.rev-report__tag {
+	display: inline-block;
+	margin-bottom: 5px;
+	padding: 1px 7px;
+	border-radius: 10px;
+	background: #f1ecff;
+	font-size: 11px;
+	font-weight: 700;
+	line-height: 17px;
+	color: #7346f3;
+	vertical-align: middle;
+}
+
+/* 패널티·조치 — 되돌릴 수 없는 처분이라 색으로 먼저 구분한다 */
+.rev-report__tag--act {
+	background: #c0392b;
+	color: #fff;
+}
+
+.rev-report__files {
+	display: block;
+	margin-top: 6px;
+}
+
+.rev-report__file {
+	display: inline-block;
+	margin: 0 10px 4px 0;
+	color: #7346f3;
+	font-size: 12px;
+	text-decoration: underline;
+}
+
+.rev-report__fsize {
+	color: var(--color-text-14); /* [10-21] ← #aaa */
+	font-size: 11px;
+}
+
+/* ==========================================================================
+   참여 캠페인 / 주고받은 쪽지 (토글, ajax 지연로딩)
+   ========================================================================== */
+.rev-history {
+	margin-top: 8px;
+}
+
+/*
+칸 단추 줄   [2026-11-05]
+  ★ 한 줄에 다 안 들어가면 **접혀 내려간다**(wrap). 가로로 넘치면
+    좁은 화면에서 뒤쪽 단추가 잘려 눌리지 않는다.
+  ※ 단추 모양은 아래 .rev-history__toggle 그대로 쓴다 — 하나였던 것이
+    여럿이 됐을 뿐이라 생김새까지 달라질 이유가 없다.
+*/
+.rev-history__tabs {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+}
+
+.rev-history__toggle {
+	display: inline-flex;
+	align-items: center;
+	gap: 3px;
+	padding: 3px 9px 3px 5px;
+	background: #f5f4fa;
+	border: 1px solid #e6e3f2;
+	border-radius: 14px;
+	color: #6b5fa8;
+	font-size: 13px;
+	cursor: pointer;
+}
+
+.rev-history__toggle:hover,
+.rev-history__toggle.open {
+	background: #efeaff;
+	border-color: #d8cfff;
+	color: #5b3fd6;
+}
+
+.rev-history__toggle .material-symbols-outlined {
+	font-size: 17px;
+}
+
+/*
+건수   [2026-11-05]
+  ★ 0 이면 흐리게 — 누를 이유가 없다는 것을 색으로 먼저 알린다.
+    감추지는 않는다(자리가 들쭉날쭉해지면 더 헷갈린다).
+*/
+.rev-history__cnt {
+	min-width: 16px;
+	padding: 0 5px;
+	margin-left: 1px;
+	border-radius: 9px;
+	background: #e3dcff;
+	color: #5b3fd6;
+	font-size: 11.5px;
+	font-weight: 700;
+	line-height: 16px;
+	text-align: center;
+}
+
+.rev-history__toggle.is-empty {
+	color: #a6a6ae;
+	background: #f7f7f9;
+	border-color: #ececf0;
+}
+
+.rev-history__toggle.is-empty .rev-history__cnt {
+	background: #ededf0;
+	color: #a6a6ae;
+}
+
+/*
+내역에서 거두는 단추 — 자료 삭제 · 쪽지 발송취소   [2026-11-05]
+  ★ 눈에 띄되 앞서지는 않게. 되돌리는 동작이라 실수로 누르면 안 되지만,
+    못 찾아서 캠페인 화면으로 건너가게 되어도 안 된다.
+*/
+.rev-mat-del,
+.rev-hist-recall {
+	margin-left: auto;
+	padding: 2px 9px;
+	border: 1px solid #e6c6c6;
+	border-radius: 12px;
+	background: #fff;
+	color: #c0392b;
+	font-size: 11.5px;
+	line-height: 17px;
+	cursor: pointer;
+	white-space: nowrap;
+}
+
+.rev-mat-del:hover:not(:disabled),
+.rev-hist-recall:hover {
+	background: #fdecea;
+	border-color: #e0a7a1;
+}
+
+/*
+내역 쪽 이동   [2026-11-05]
+  ★ 칸마다 5건씩 보여주고 넘긴다. 한 칸에 수십 건이 쏟아지면
+    카드가 화면을 넘겨 다음 리뷰어가 한참 아래로 밀린다 —
+    리뷰어 관리는 '사람을 훑는 화면' 인데 그 일을 못 하게 된다.
+  ※ 한 쪽에 다 들어가면 이 줄 자체를 그리지 않는다(rhPager).
+*/
+.rev-hist-pager {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 10px;
+	margin-top: 10px;
+	padding-top: 9px;
+	border-top: 1px solid #ededf2;
+}
+
+.rev-hist-pager__btn {
+	padding: 3px 12px;
+	border: 1px solid #ddd9ea;
+	border-radius: 13px;
+	background: #fff;
+	color: #6b5fa8;
+	font-size: 12px;
+	line-height: 18px;
+	cursor: pointer;
+}
+
+.rev-hist-pager__btn:hover:not(:disabled) {
+	background: #f5f2ff;
+	border-color: #cdc3ee;
+}
+
+.rev-hist-pager__btn:disabled {
+	opacity: .35;
+	cursor: not-allowed;
+}
+
+.rev-hist-pager__now {
+	font-size: 12px;
+	color: #8a8f98;
+}
+
+.rev-history__toggle strong {
+	font-weight: 700;
+}
+
+.rev-history__body {
+	margin-top: 8px;
+	padding: 10px 12px;
+	background: #fafafc;
+	border: 1px solid #ececf2;
+	border-radius: 8px;
+}
+
+.rev-history__empty {
+	padding: 6px 0;
+	color: var(--color-text-14); /* [10-21] ← #a0a0a0 */
+	font-size: 13px;
+}
+
+.rev-hist-sec + .rev-hist-sec {
+	margin-top: 12px;
+	padding-top: 10px;
+	border-top: 1px solid #ececf2;
+}
+
+.rev-hist-sec__title {
+	margin-bottom: 6px;
+	color: #363636;
+	font-size: 13px;
+	font-weight: 700;
+}
+
+.rev-hist-sec__title span {
+	color: #7346f3;
+}
+
+/* ── 참여 캠페인 한 줄 ── */
+.rev-hist-row {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	flex-wrap: wrap;
+	padding: 5px 0;
+	font-size: 13px;
+	border-top: 1px dashed #eee;
+}
+
+.rev-hist-row:first-of-type {
+	border-top: none;
+}
+
+.rev-hist-state {
+	display: inline-flex;
+	align-items: center;
+	height: 19px;
+	padding: 0 7px;
+	border-radius: 10px;
+	font-size: 11px;
+	font-weight: 700;
+}
+
+/* 선정확정 */
+.rev-hist-state--ok {
+	background: #e8f0ff;
+	color: #2b6cd4;
+}
+
+/* 리뷰완료 */
+.rev-hist-state--done {
+	background: #e6f8f1;
+	color: #00875a;
+}
+
+/* 신청중 / 선정대기 */
+.rev-hist-state--wait {
+	background: #fff5e5;
+	color: #d68102;
+}
+
+/* 미선정 / 취소 */
+.rev-hist-state--gray {
+	background: #eef1f5;
+	color: var(--color-text-14); /* [10-21] ← #7b8492 */
+}
+
+.rev-hist-name {
+	color: #363636;
+	font-weight: 500;
+}
+
+.rev-hist-code {
+	color: var(--color-text-14); /* [10-21] ← #b0b0b0 */
+	font-size: 12px;
+}
+
+.rev-hist-review {
+	color: #7346f3;
+	font-size: 12px;
+}
+
+a.rev-hist-review {
+	text-decoration: underline;
+}
+
+.rev-hist-visit {
+	color: var(--color-text-14); /* [10-21] ← #888 */
+	font-size: 12px;
+}
+
+.rev-hist-date {
+	margin-left: auto;
+	color: var(--color-text-14); /* [10-21] ← #a0a0a0 */
+	font-size: 12px;
+}
+
+/* ── 쪽지 한 건 ── */
+.rev-hist-note {
+	padding: 7px 10px;
+	margin-top: 6px;
+	border-radius: 6px;
+	font-size: 13px;
+}
+
+/* 내가 보낸 쪽지 */
+.rev-hist-note--out {
+	background: #f4f1ff;
+	border: 1px solid #e9e4ff;
+}
+
+/* 리뷰어가 보낸 쪽지 */
+.rev-hist-note--in {
+	background: #fff;
+	border: 1px solid #ececf2;
+}
+
+.rev-hist-note__head {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	flex-wrap: wrap;
+	margin-bottom: 4px;
+}
+
+.rev-hist-dir {
+	display: inline-flex;
+	align-items: center;
+	height: 18px;
+	padding: 0 6px;
+	border-radius: 9px;
+	font-size: 11px;
+	font-weight: 700;
+}
+
+.rev-hist-note--out .rev-hist-dir {
+	background: #7346f3;
+	color: #fff;
+}
+
+.rev-hist-note--in .rev-hist-dir {
+	background: #eef1f5;
+	color: var(--color-text-14); /* [10-21] ← #5a6472 */
+}
+
+.rev-hist-note__title {
+	color: #363636;
+	font-weight: 700;
+}
+
+.rev-hist-note__camp {
+	color: var(--color-text-14); /* [10-21] ← #888 */
+	font-size: 12px;
+}
+
+.rev-hist-note__camp::before {
+	content: "· ";
+}
+
+.rev-hist-note__read {
+	color: var(--color-text-14); /* [10-21] ← #a0a0a0 */
+	font-size: 12px;
+}
+
+.rev-hist-note__body {
+	color: var(--color-text-14); /* [10-21] ← #525252 */
+	line-height: 1.6;
+	white-space: pre-wrap;
+}
+
+/* ──────────────────────────────────────────────
+   선택 쪽지 바(.rev-bulk-bar)의 버튼
+   전역 .btn 베이스가 없어(모달 밖) 기본 버튼으로 깨지던 것을
+   이 컨테이너 스코프로 살린다. (.rev-msg-content .btn-primary 와 같은 방식)
+   ────────────────────────────────────────────── */
+.rev-bulk-bar .btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	height: 38px;
+	padding: 0 16px;
+	border: 1px solid #d1d1d6;
+	border-radius: 8px;
+	background: #fff;
+	color: var(--color-text-14); /* [10-21] ← var(--color-text-9, #444) */
+	font-size: 14px;
+	font-weight: 600;
+	line-height: 1;
+	cursor: pointer;
+	white-space: nowrap;
+	transition: background .18s ease, box-shadow .18s ease;
+}
+
+.rev-bulk-bar .btn:hover {
+	box-shadow: 0 2px 6px rgba(0, 0, 0, .12);
+}
+
+.rev-bulk-bar .btn .material-symbols-outlined {
+	font-size: 18px;
+}
+
+.rev-bulk-bar .btn-primary {
+	background: var(--color-main, #7346f3);
+	border-color: var(--color-main, #7346f3);
+	color: #fff;
+}
+
+.rev-bulk-bar .btn-primary:hover {
+	background: #5f34e0;
+	box-shadow: 0 4px 12px rgba(115, 70, 243, .3);
+}
+
+/* =====================================================
+   블로그지수   [2026-08-14]
+   광고주가 리뷰어를 고를 때 가장 먼저 보는 값이라 눈에 띄어야 한다.
+   ===================================================== */
+.rev-bi {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+}
+
+.rev-bi strong {
+	font-size: 13px;
+	color: #333;
+}
+
+/* 90일 넘게 새 글이 없는 블로그 — 점수가 깎인 상태임을 알린다 */
+.rev-bi-stale {
+	padding: 1px 5px;
+	border-radius: var(--r-4);
+	background: #fdecec;
+	color: #c0392b;
+	font-size: 11px;
+	font-weight: 700;
+}
+
+/* 블로그지수 준비 안내 — 준비가 끝나면 사라진다 */
+.rev-bi-notice {
+	display: flex;
+	align-items: flex-start;
+	gap: 6px;
+	margin: 0 0 14px;
+	padding: 12px 14px;
+	background: #fff8e6;
+	border: 1px solid #f0d18a;
+	border-radius: 8px;
+	font-size: 13px;
+	line-height: 1.6;
+	color: #6b5314;
+}
+
+.rev-bi-notice .material-symbols-outlined {
+	font-size: 18px;
+	flex-shrink: 0;
+}
+
+/*
+블로그 통계 줄의 라벨   [2026-08-14]
+  ★ '오늘 44' 에서 '오늘' 이 묻혀 숫자만 보였다.
+    무엇을 세는 숫자인지 모르면 없는 정보와 같다.
+    라벨을 흐리게 두되 읽히는 크기는 지킨다.
+*/
+.rev-bs-label {
+	color: var(--color-text-14); /* [10-21] ← #8e8e93 */
+	font-size: 12px;
+	margin-right: 2px;
+}
+
+.rev-bi-max {
+	font-size: 11px;
+	color: var(--color-text-14); /* [10-21] ← #9a9aa0 */
+	font-weight: 400;
+	margin-left: 1px;
+}
+
+/*
+오늘이 아닌 기준일 — 며칠 전 숫자임을 알린다   [2026-08-14]
+  ★ "7.24 방문 44" 를 오늘 값으로 오해하는 일이 있었다.
+    흐리게 두어 '지금 값이 아니다' 가 눈에 보이게 한다.
+*/
+.rev-bs-old {
+	opacity: 0.75;
+}
+
+.rev-bs-old .rev-bs-label {
+	color: #c08a2b;
+}
+
+/* 리뷰등록 기간 연장 (참여 이력)   [2026-10-20] */
+.rev-hist-extend {
+	margin-left: 6px;
+	padding: 2px 8px;
+	border: 1px solid #0d6efd;
+	border-radius: 6px;
+	background: #fff;
+	color: #0d6efd;
+	font-size: 12px;
+	font-weight: 600;
+	cursor: pointer;
+	white-space: nowrap;
+}
+
+.rev-hist-extend:hover { background: #eef5ff; }
+.rev-hist-extend:disabled { opacity: .5; cursor: not-allowed; }
+
+/* 이미 연장해 준 건 — 버튼이 아니라 표시다 */
+.rev-hist-extend--done {
+	border-color: #d9dde5;
+	background: #f6f7f9;
+	color: var(--color-text-14); /* [10-21] ← #6b7280 */
+	cursor: default;
+}
+
+/* ==========================================================================
+   선정취소 요청 (리뷰어 관리)   [2026-10-20]
+     ★ 요청은 사람 단위로 보는데 처리는 다른 화면에 있었다 — 여기서 끝낸다.
+     ★ '추가 비용 없음' 을 같은 상자에 적는다. 모르면 그냥 두게 된다.
+   ========================================================================== */
+/*
+★ [2026-10-20] 참여 캐페인 아래로 자리를 옮기고 **세로로 쌓는다.**
+  전에는 버튼 줄(.rev-actions) 옆에 가로로 두었는데,
+  캐페인 이름과 사유가 길면 카드 틀이 밀려 버렸다.
+  카드 안쪽 전체 폭을 쓰는 상자가 맞다.
+*/
+.rev-cancelreq {
+	display: block;
+	box-sizing: border-box;
+	width: 100%;
+	margin: 8px 0 0;
+	padding: 10px 12px;
+	border: 1px solid #f3c5c5;
+	border-radius: 8px;
+	background: #fff6f6;
+	font-size: 12px;
+	line-height: 1.6;
+	color: #8a2b2b;
+}
+
+.rev-cancelreq__badge {
+	flex: 0 0 auto;
+	padding: 2px 8px;
+	border-radius: 10px;
+	background: #e5484d;
+	color: #fff;
+	font-weight: 700;
+}
+
+.rev-cancelreq__camp { font-weight: 700; color: #6b2020; }
+.rev-cancelreq__date { color: #a05353; }
+.rev-cancelreq__why  { color: #6b2020; word-break: keep-all; overflow-wrap: anywhere; }
+
+/* 안내와 버튼은 줄을 바꿔 전체 폭을 쓴다 (잘리면 읽을 이유가 없는 문장이다) */
+.rev-cancelreq__free { flex: 1 0 100%; color: #9a6a6a; font-size: 11px; }
+.rev-cancelreq__btns { flex: 1 0 100%; display: flex; gap: 6px; margin-top: 2px; }
+
+.rev-cancelreq__do,
+.rev-cancelreq__no {
+	padding: 4px 12px;
+	border-radius: 6px;
+	font-size: 12px;
+	font-weight: 600;
+	cursor: pointer;
+}
+
+.rev-cancelreq__do { border: 1px solid #e5484d; background: #e5484d; color: #fff; }
+.rev-cancelreq__do:hover { background: #cf3f44; }
+
+.rev-cancelreq__no { border: 1px solid #c4b5a0; background: #fff; color: #6b5533; }
+.rev-cancelreq__no:hover { background: #f7f2e9; }
+
+/* 탭 숫자 — 처리할 것이 있으면 눈에 띄게 */
+.status-tab .count.danger { background: #e5484d; color: #fff; }
+
+/* 윗줄 : 배지 · 캠페인 · 날짜 · 사유 — 넘치면 줄바꿈 */
+.rev-cancelreq__badge,
+.rev-cancelreq__camp,
+.rev-cancelreq__date,
+.rev-cancelreq__why { display: inline; margin-right: 6px; }
+
+.rev-cancelreq__free { display: block; margin-top: 4px; }
+.rev-cancelreq__btns { display: flex; gap: 6px; margin-top: 8px; }
+
+/* 선정취소한 리뷰어 보기 — 기본 꺼짐 [2026-10-20] */
+.rev-canceled-toggle {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 0 10px;
+	font-size: 13px;
+	color: var(--color-text-14); /* [10-21] ← #555 */
+	cursor: pointer;
+	white-space: nowrap;
+}
+.rev-canceled-toggle b { color: #8a2b2b; }
+
+/* 취소된 건 — 언제 취소됐는지 (분쟁 때 댈 수 있어야 한다) */
+.rev-canceled {
+	display: block;
+	box-sizing: border-box;
+	width: 100%;
+	margin: 8px 0 0;
+	padding: 8px 10px;
+	border: 1px solid #e5e5ea;
+	border-radius: 8px;
+	background: #f7f7f8;
+	font-size: 12px;
+	line-height: 1.6;
+	color: #6b7280;
+}
+.rev-canceled__badge {
+	padding: 2px 8px;
+	border-radius: 10px;
+	background: #8e8e93;
+	color: #fff;
+	font-weight: 700;
+	margin-right: 6px;
+}
+.rev-canceled__camp { color: #3a3a3c; font-weight: 600; margin-right: 6px; }
+.rev-canceled__at   { color: #8e8e93; }
+
+/* 결과 내려받기 — 캠페인을 골랐을 때만 [2026-10-20] */
+.rev-export-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	height: 38px;
+	padding: 0 14px;
+	border: 1px solid #111;
+	border-radius: 8px;
+	background: #fff;
+	color: #111;
+	font-size: 13px;
+	font-weight: 600;
+	text-decoration: none;
+	white-space: nowrap;
+}
+.rev-export-btn:hover { background: #111; color: #fff; }
+.rev-export-btn .material-symbols-outlined { font-size: 18px; }
+
+.rev-export-hint { font-size: 12px; color: var(--color-text-14); /* [10-21] ← #9ca3af */ white-space: nowrap; align-self: center; }
+
+/* ============================================================
+   캠페인 작업 줄 (캠페인을 고른 채 리뷰어를 볼 때)   [2026-10-21]
+
+     리뷰어 카드 안에서 선정·해제·선정취소·패널티를 바로 한다.
+     ★ 캠페인 화면으로 갔다 오지 않아도 되게 하려는 것이므로,
+       버튼 이름·색을 그쪽과 맞춘다 — 같은 일이 화면마다 달라 보이면 안 된다.
+   ============================================================ */
+.rev-campact{
+	display:flex; align-items:center; flex-wrap:wrap; gap:6px;
+	margin-top:8px; padding:8px 10px;
+	border:1px solid #d6e6ff; border-radius:8px; background:#f5f9ff;
+}
+.rev-campact__label{
+	font-size:11.5px; font-weight:700; color:#2f6fd0;
+	padding:2px 7px; border-radius:999px; background:#e3efff;
+}
+.rev-campact__state{
+	font-size:12.5px; font-weight:600; color:#1f2430;
+}
+.rev-campact__state--on{  color:#1f8b4c; }
+.rev-campact__state--off{ color:#9aa0a8; }
+
+.rev-campact__btn{
+	margin-left:2px; padding:4px 10px;
+	font-size:12px; line-height:1.5; cursor:pointer;
+	border:1px solid #c9d3e0; border-radius:6px; background:#fff; color: var(--color-text-14); /* [10-21] ← #39404a */
+}
+.rev-campact__btn:hover{ background:#f2f5f9; }
+.rev-campact__btn--go{   border-color:#2f6fd0; background:#2f6fd0; color:#fff; }
+.rev-campact__btn--go:hover{ background:#2a63ba; }
+.rev-campact__btn--warn{ border-color:#e5b4b4; color:#c0392b; }
+.rev-campact__btn--warn:hover{ background:#fdf2f2; }

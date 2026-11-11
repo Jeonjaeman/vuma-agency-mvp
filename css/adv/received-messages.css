@@ -1,0 +1,1120 @@
+/* =====================================================
+   받은 쪽지함 (Received Messages)
+   ===================================================== */
+.received-messages-container {
+    max-width: 760px;
+    margin: 0;
+}
+
+.msg-list-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 400px;
+}
+
+.msg-item {
+    display: grid;
+    grid-template-columns: 48px 180px 1fr 100px;
+    align-items: center;
+    padding: 16px 8px;
+    border-bottom: 1px solid var(--color-text-3);
+    transition: background .2s ease;
+    cursor: pointer;
+}
+
+.msg-item:hover {
+    background: var(--color-text-2);
+}
+
+.msg-item.unread {
+    /* ★ [2026-09-02] #f8f6ff → 연한 브랜드 배경 토큰. css/_revert_260902_brandPurple.orig 참고 */
+    background: var(--color-main-light);
+}
+
+.msg-item.unread .msg-title {
+    font-weight: 700;
+    color: var(--color-main);
+}
+
+.msg-checkbox {
+    display: flex;
+    justify-content: center;
+}
+
+.msg-sender {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.msg-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: var(--color-text-3);
+    flex-shrink: 0;
+}
+
+.msg-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.sender-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-text-13);
+}
+
+.msg-content-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding-right: 20px;
+    min-width: 0;
+}
+
+.msg-title {
+    font-size: 15px;
+    color: var(--color-text-14);
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.msg-snippet {
+    font-size: 13px;
+    color: var(--color-text-14); /* [10-21] ← var(--color-text-8) */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.msg-date {
+    font-size: 13px;
+    color: var(--color-text-14); /* [10-21] ← var(--color-text-7) */
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 3px;
+    flex-shrink: 0;
+}
+
+/* 읽음/안읽음 상태 (받은 쪽지함) */
+.msg-read-state {
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.msg-read-state.unread {
+    color: #dc2f02;
+}
+
+.msg-read-state.read {
+    color: #00b578;
+}
+
+.msg-date-text {
+    color: var(--color-text-14); /* [10-21] ← var(--color-text-7) */
+}
+
+/* 알림 리스트 행 클릭 / 체크박스 */
+.notif-row {
+    cursor: pointer;
+}
+
+.notif-table td.notif-check {
+    width: 48px;
+    text-align: center;
+}
+
+.notif-table td.notif-check .custom-checkbox {
+    margin: 0;
+    cursor: pointer;
+}
+
+/* 쪽지함 탭 (받은/보낸) */
+.msg-box-tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--color-text-3);
+}
+
+.msg-box-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 18px;
+    margin-bottom: -1px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-text-14); /* [10-21] ← var(--color-text-8) */
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+}
+
+.msg-box-tab--active {
+    color: var(--color-main);
+    font-weight: 700;
+    border-bottom-color: var(--color-main);
+}
+
+.msg-box-tab__count {
+    font-size: 12px;
+    font-weight: 700;
+    color: #dc2f02;
+}
+
+/* 발송취소 버튼 (보낸함 행) */
+.msg-recall-btn {
+    margin-top: 4px;
+    padding: 3px 9px;
+    border: 1px solid #d1d1d6;
+    border-radius: 4px;
+    background: #fff;
+    color: var(--color-text-14); /* [10-21] ← #6d6d6d */
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s;
+}
+
+.msg-recall-btn:hover {
+    border-color: #dc2f02;
+    color: #dc2f02;
+}
+
+/* 상세 모달: 읽음상태 */
+.detail-msg-readstate {
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.msg-footer-actions {
+    display: flex;
+    justify-content: flex-start;
+    gap: 8px;
+    margin-top: 24px;
+}
+
+/* =====================================================
+   쪽지 상세보기 모달 (Message Detail Modal)
+   ===================================================== */
+.msg-detail-wrap {
+    padding: 10px;
+}
+
+/* 모달 컨테이너 너비 조정 */
+.modal-box:has(.msg-detail-wrap),
+.modal-box:has(.search-modal-inner) {
+    width: 760px;
+    max-width: 95%; /* 모바일 대응 */
+}
+
+.msg-detail-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 24px;
+    border-bottom: 1px solid var(--color-text-3);
+    padding-bottom: 16px;
+}
+
+.msg-detail-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--color-text-14);
+}
+
+.msg-info-section {
+    margin-bottom: 24px;
+    padding: 16px;
+    background: var(--color-text-2);
+    border-radius: 12px;
+}
+
+.msg-sender-box {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.msg-sender-box .sender-name {
+    font-size: 15px;
+}
+
+.msg-sender-box .msg-date {
+    font-size: 12px;
+    color: var(--color-text-14); /* [10-21] ← var(--color-text-7) */
+}
+
+.msg-detail-body {
+    padding: 0 4px;
+}
+
+.msg-detail-subject {
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    line-height: 1.4;
+}
+
+.msg-detail-campaign {
+    display: inline-block;
+    margin-bottom: 14px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    /*
+    ★ [2026-09-02] www 토큰 참조 → admin 토큰
+
+      --color-primary / --color-primary-light 는 www/css/variables.css 에만 있고
+      광고주 사이트는 그 파일을 읽지 않는다. 그래서 폴백이 그대로 렌더되어
+      배경이 #ede8fd(리뷰어 사이트의 연보라)로 나오고 있었다.
+      admin 의 연한 브랜드 배경은 --color-main-light(#f2eeff) 다.
+      글자색 폴백 #7346f3 은 값이 우연히 맞았을 뿐이라 함께 정리한다.
+    */
+    background: var(--color-main-light);
+    color: var(--color-main);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.msg-detail-text {
+    font-size: 15px;
+    color: var(--color-text-11);
+    line-height: 1.7;
+    white-space: pre-wrap;
+}
+
+.msg-detail-footer {
+    margin-top: 40px;
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+}
+
+.msg-detail-footer button {
+    white-space: nowrap;
+    width: auto !important;
+    padding: 0 24px !important;
+}
+
+/* =====================================================
+   검색 모달 & 결과 (Search)
+   ===================================================== */
+.search-modal-inner {
+    padding: 24px;
+    position: relative;
+}
+
+.search-field-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: var(--color-text-2);
+    border-radius: 12px;
+    padding: 0 16px;
+    margin-bottom: 30px;
+    border: 2px solid transparent;
+    transition: var(--tr-base);
+}
+
+.search-field-wrap:focus-within {
+    background: #fff;
+    border-color: var(--color-main);
+    box-shadow: 0 0 0 4px rgba(115, 70, 243, 0.1);
+}
+
+.search-field-input {
+    flex: 1;
+    height: 56px;
+    border: none;
+    background: none;
+    font-size: 17px;
+    outline: none;
+}
+
+.btn-search-go {
+    background: none;
+    border: none;
+    color: var(--color-main);
+    cursor: pointer;
+}
+
+.search-suggest-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--color-text-14);
+    margin-bottom: 16px;
+}
+
+.suggest-tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 32px;
+}
+
+/* 최근 검색어 태그 (index.js renderRecentSearch 가 button 으로 만든다) */
+.suggest-tag {
+    padding: 6px 12px;
+    border: 1px solid var(--color-text-4);
+    border-radius: var(--r-full);
+    background: var(--color-text-2);
+    color: var(--color-text-14);
+    font-size: 13px;
+    line-height: 1.4;
+    cursor: pointer;
+    transition: var(--tr-base);
+}
+
+.suggest-tag:hover {
+    border-color: var(--color-main);
+    color: var(--color-main);
+    background: #fff;
+}
+
+.suggest-keyword-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background .2s;
+}
+
+.suggest-keyword-item:hover {
+    background: var(--color-text-2);
+}
+
+/* 검색 결과 페이지 */
+.search-results-container {
+    max-width: 900px;
+    margin: 0;
+}
+
+.search-count-total {
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--color-text-14); /* [10-21] ← var(--color-text-7) */
+    margin-left: 8px;
+}
+
+.search-result-section {
+    margin-bottom: 40px;
+}
+
+.search-result-section .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding-bottom: 0px;
+}
+
+.section-title {
+    font-size: 17px;
+    font-weight: 700;
+}
+
+.btn-view-more {
+    font-size: 13px;
+    color: var(--color-text-14); /* [10-21] ← var(--color-text-7) */
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.result-sample-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.badge-status.approving {
+    background: #fff8e1;
+    color: #ffa000;
+}
+
+/* 검색 결과 내 목록형 캠페인 카드 보완 */
+.search-results-container .cmp-list-view .cmp-card {
+    padding: 24px 0;
+    border-bottom: 1px solid var(--color-text-4);
+}
+
+.result-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
+    border: 3px solid var(--color-text-2);
+}
+
+.result-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.result-info {
+    flex: 1;
+}
+
+.badge-status {
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.badge-status.recruiting {
+    background: var(--color-main-light);
+    color: var(--color-main);
+}
+
+.badge-status.closed {
+    background: var(--color-text-3);
+    color: var(--color-text-14); /* [10-21] ← var(--color-text-7) */
+}
+
+.badge-category {
+    font-size: 12px;
+    color: var(--color-text-14); /* [10-21] ← var(--color-text-7) */
+}
+
+.result-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--color-text-15);
+    margin-bottom: 6px;
+    line-height: 1.4;
+}
+
+.result-title .user-id {
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--color-text-14); /* [10-21] ← var(--color-text-7) */
+    margin-left: 4px;
+}
+
+.result-stats {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 13px;
+    color: var(--color-text-14); /* [10-21] ← var(--color-text-8) */
+}
+
+.result-stats .divider {
+    width: 1px;
+    height: 10px;
+    background: var(--color-text-4);
+}
+
+.badge-level {
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 800;
+    color: #fff;
+}
+
+.badge-level.gold { background: linear-gradient(135deg, #FFD700, #FFA500); }
+.badge-level.silver { background: linear-gradient(135deg, #C0C0C0, #808080); }
+
+.badge-tag {
+    font-size: 12px;
+    color: var(--color-main);
+    font-weight: 600;
+}
+
+.btn-item-action {
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: 1px solid var(--color-text-4);
+    background: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-item-action:hover {
+    background: var(--color-text-2);
+    border-color: var(--color-text-10);
+}
+
+.related-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.search-tag-item {
+    padding: 8px 16px;
+    background: var(--color-text-2);
+    border-radius: 20px;
+    font-size: 13px;
+    color: var(--color-text-10);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.search-tag-item:hover {
+    background: var(--color-main-light);
+    color: var(--color-main);
+}
+
+/* 모바일 대응 */
+@media (max-width: 1024px) {
+    .result-item.campaign-type {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 16px;
+    }
+
+    .result-actions {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .result-actions button {
+        height: 40px;
+        font-size: 14px;
+        padding: 0;
+    }
+}
+
+@media (max-width: 768px) {
+    .msg-item {
+        grid-template-columns: 40px 1fr 80px;
+        grid-template-areas: 
+            "check sender date"
+            "check content content";
+        gap: 4px;
+    }
+    .msg-checkbox { grid-area: check; }
+    .msg-sender { grid-area: sender; }
+    .msg-date { grid-area: date; }
+    .msg-content-wrap { grid-area: content; padding-right: 0; }
+    
+    .msg-avatar { width: 28px; height: 28px; }
+
+    .search-results-container .cmp-page-title {
+        font-size: 20px;
+    }
+
+    .search-results-container .section-title {
+        font-size: 15px;
+    }
+
+    .related-tags {
+        gap: 6px;
+    }
+
+    .search-tag-item {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+
+    /* 모달 모바일 최적화 */
+    .modal-box:has(.msg-detail-wrap),
+    .modal-box:has(.search-modal-inner) {
+        width: 100% !important;
+        max-width: 100% !important;
+        height: 100% !important;
+        max-height: 100% !important;
+        border-radius: 0 !important;
+        margin: 0 !important;
+    }
+
+    .msg-detail-wrap, 
+    .search-modal-inner {
+        padding: 24px 16px !important;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        background: #fff;
+    }
+
+    .msg-detail-header {
+        margin-bottom: 20px !important;
+        padding-bottom: 12px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+    }
+
+    .btn-close {
+        padding: 8px !important;
+        margin-right: -8px !important;
+    }
+
+    .btn-close .material-symbols-outlined {
+        font-size: 28px !important;
+    }
+
+    .msg-detail-title {
+        font-size: 18px !important;
+        font-weight: 700 !important;
+    }
+
+    .msg-info-section {
+        padding: 14px !important;
+        margin-bottom: 24px !important;
+        border-radius: 8px !important;
+    }
+
+    .msg-detail-subject {
+        font-size: 16px !important;
+        margin-bottom: 12px !important;
+    }
+
+    .msg-detail-text {
+        font-size: 14px !important;
+        line-height: 1.7 !important;
+    }
+
+    .msg-detail-footer {
+        margin-top: auto !important;
+        padding-top: 24px !important;
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 10px !important;
+    }
+
+    .msg-detail-footer button {
+        height: 48px !important;
+        font-size: 15px !important;
+        font-weight: 600 !important;
+        width: 100% !important;
+        padding: 0 !important;
+    }
+
+    /* 검색 모달 모바일 추가 */
+    .search-field-wrap {
+        height: 52px !important;
+        margin-bottom: 24px !important;
+        padding: 0 16px !important;
+    }
+
+    .search-field-input {
+        font-size: 16px !important;
+        height: 100% !important;
+    }
+
+    .search-suggest-title {
+        font-size: 14px !important;
+        margin-bottom: 14px !important;
+    }
+
+    .suggest-tag-list {
+        margin-bottom: 28px !important;
+    }
+
+    .suggest-keyword-item {
+        padding: 12px 0 !important;
+        border-bottom: 1px solid var(--color-text-3);
+    }
+
+    .suggest-keyword-item:last-child {
+        border-bottom: none;
+    }
+
+    .suggest-keyword-item span:last-child {
+        font-size: 14px !important;
+    }
+}
+
+/* ==========================================================================
+   신고 처리결과 첨부 (알림 목록)
+   ========================================================================== */
+.notif-files {
+	display: block;
+	margin-top: 6px;
+}
+
+.notif-file {
+	display: inline-block;
+	margin: 0 10px 4px 0;
+	color: #7346f3;
+	font-size: 13px;
+	text-decoration: underline;
+}
+
+.notif-file__size {
+	color: var(--color-text-14); /* [10-21] ← #aaa */
+	font-size: 11px;
+}
+
+/* ==========================================================================
+   쪽지·발송함 — 탭과 검색줄   [2026-09-10]
+
+   ── 왜 손대는가 ─────────────────────────────────────────────────────
+   네 화면(받은쪽지함·보낸쪽지함·문자발송함·메일발송함)이 같은 탭과 같은
+   검색줄을 쓰는데, 값이 전부 HTML 의 style= 안에 박혀 있었다.
+   인라인 style 은 CSS 로 덮을 수 없어 좁은 화면에서 줄일 방법이 없다.
+
+   ── 좁은 화면에서 무엇이 넘쳤나 (375px 기준 계산) ──────────────────
+     카드 안쪽으로 쓸 수 있는 폭            315px
+     탭 4개    100×4 + 6×3(gap)          = 418px   ← 넘침
+     기간 줄   150+150+라벨24+물결7+gap   ≈ 350px   ← 넘침
+     이름·아이디 줄  140+180+8            = 328px   ← 넘침
+     제목·버튼 줄    170+65+69+16         = 320px   ← 넘침
+   즉 네 줄 모두 넘쳤다. 그래서 폭을 클래스로 옮기고 아래에서 다시 잡는다.
+
+   ── 넓은 화면 ───────────────────────────────────────────────────────
+   지금 보이던 모양 그대로다. 위 숫자를 그대로 옮겨 적었을 뿐이다.
+   ========================================================================== */
+/*
+기간 · 검색 · 버튼을 세 묶음으로 나눈다   [2026-09-10]
+
+  ★ 예전에는 여덟 개가 한 줄에 흘러 들어가 wrap 되는 대로 접혔다.
+    그래서 '기간' 라벨 뒤에 날짜 두 칸과 보낸사람 이름칸까지 붙고,
+    아이디·제목은 다음 줄로 넘어가 라벨과 떨어졌다.
+    어떤 라벨이 어디까지를 가리키는지 화면만 봐서는 알 수 없었다.
+  → 묶음끼리만 줄을 바꾸게 한다. 라벨은 항상 자기 묶음의 맨 앞에 선다.
+*/
+.msg-search {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 10px 8px;
+	margin-bottom: 14px;
+}
+
+.msg-search__group,
+.msg-search__actions {
+	display: flex;
+	flex-wrap: nowrap;
+	align-items: center;
+	gap: 8px;
+}
+
+/*
+줄 나눔은 묶음 사이에서만   [2026-09-10]
+
+  ★ 기간줄만 한 줄을 다 쓰고, 검색칸과 버튼은 같은 줄에 선다.
+    처음에는 세 묶음을 각각 한 줄씩 뒀는데 검색 버튼만 셋째 줄에 떨어져
+    입력칸과 멀어졌다 — 무엇을 눌러야 검색이 되는지 눈으로 잇기 어렵다.
+
+  ※ 버튼이 밀려나지 않게 입력칸이 먼저 줄어들도록 했다.
+    width 는 flex 의 시작값으로만 쓰이고, 자리가 모자라면 칸이 좁아진다.
+    (넓은 화면에서는 자리가 남아 적어 둔 값 그대로 보인다)
+*/
+.msg-search__group--period {
+	flex: 0 0 100%;
+}
+
+/*
+구분 · 비용 묶음 — 제 줄을 쓴다   [2026-10-28]
+
+  ★★ 넣자마자 **검색칸이 글자 한 자 너비로 찌그러졌다.**
+
+	이 줄의 자리 배분은 이렇게 되어 있다.
+	  · 검색칸 묶음(--query)  flex: 1 1 0   → '남는 만큼' 을 가진다
+	  · 버튼 묶음(--actions)  flex: 0 0 auto → 제 크기를 먼저 지킨다
+	새 묶음에 아무 설정도 없으면 기본값 flex:0 1 auto 로 **제 크기를 먼저
+	차지하고**, 남는 것을 나눠 갖는 --query 만 0 에 가깝게 줄어든다.
+	그래서 입력칸 네 개가 'ㅣ' 처럼 한 자 너비가 됐다.
+
+  → 기간 줄과 같이 **한 줄을 통째로 쓴다.** 세 줄이 되지만
+	기간 / 조건 / 검색어+버튼 순서가 읽는 순서와 같아 오히려 찾기 쉽다.
+  ※ 셀렉트는 줄어들면 안 된다 — '뷰마 부담 (30)' 이 잘리면
+	무엇을 고른 것인지 알 수 없다.
+*/
+.msg-search__group--filter {
+	flex: 0 0 100%;
+}
+
+.msg-search__group--filter .rev-msg-input {
+	flex: 0 0 auto;
+	width: 170px;
+}
+
+/*
+  ※ basis 를 0 으로 둔다(1 1 auto 가 아니다).
+    auto 로 두면 칸 넓이의 합이 기준이 되어, 칸이 넷인 발송함에서는
+    그 합만으로 한 줄이 꽉 차 버려 버튼이 다음 줄로 밀렸다.
+    0 이면 버튼이 자리를 먼저 잡고 남는 만큼을 검색칸이 나눠 갖는다.
+*/
+.msg-search__group--query {
+	flex: 1 1 0;
+	min-width: 0;
+}
+
+.msg-search__actions {
+	flex: 0 0 auto;
+}
+
+.msg-search__group--query .rev-msg-input {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+/* 라벨은 줄어들지 않는다 — '검색' 두 글자가 깨지면 안 된다 */
+.msg-search__label {
+	flex-shrink: 0;
+}
+
+.msg-search__label {
+	font-size: 13px;
+	color: var(--color-text-14); /* [10-21] ← var(--color-text-8, #8e8e93) */
+}
+
+.msg-search .rev-msg-input {
+	height: 38px;
+	margin: 0;
+}
+
+.msg-search__date { width: 150px; }
+.msg-search__name { width: 140px; }
+.msg-search__sid  { width: 180px; }
+.msg-search__q    { width: 170px; }
+
+/*
+검색·초기화 버튼 — 디자인시스템에 맞춘다   [2026-09-10]
+
+  ★ 이 두 버튼은 .btn / .btn-primary 클래스를 달고 있었지만
+    광고주 CSS 어디에도 그 두 클래스의 규칙이 없다(유령 클래스다).
+    그래서 '검색' 은 스타일이 하나도 안 먹은 브라우저 기본 버튼으로 나왔다.
+    실측 : background rgb(240,240,240) · border 2px outset · font-size 13.33px
+    — 회색 시스템 버튼이 보라색 화면 한가운데 앉아 있었다.
+
+  ── 무슨 값으로 맞췄나 ──────────────────────────────────────────
+  광고주 화면의 버튼 관행을 그대로 따른다.
+    채운 버튼   .btn-inquiry-write   radius 8 · padding 0 18 · main색 · 14px/700
+    외곽선 버튼 .btn-notif-all-read  radius 8 · #fff · text-4 테두리 · 600
+  높이만 40 → 38 로 둔다. 같은 줄의 입력칸이 38px 이라 나란히 서야 한다.
+
+  ※ 예전 radius 6px 은 광고주 CSS 어디에도 없던 값이다.
+*/
+.msg-search__submit {
+	height: 38px;
+	padding: 0 18px;
+	border: none;
+	border-radius: 8px;
+	background: var(--color-main);
+	color: #fff;
+	font-size: 14px;
+	font-weight: 700;
+	cursor: pointer;
+	transition: background 0.2s;
+}
+
+.msg-search__submit:hover {
+	background: #5f34d6;
+}
+
+.msg-search__reset {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	height: 38px;
+	padding: 0 16px;
+	border: 1px solid var(--color-text-4);
+	border-radius: 8px;
+	background: #fff;
+	color: var(--color-text-10);
+	font-size: 14px;
+	font-weight: 600;
+	text-decoration: none;
+	transition: all 0.2s;
+}
+
+.msg-search__reset:hover {
+	border-color: var(--color-main);
+	background: var(--color-main-light);
+	color: var(--color-main);
+}
+
+.msg-search__count {
+	margin-left: auto;
+	font-size: 13px;
+	color: var(--color-text-14); /* [10-21] ← #666 */
+}
+
+@media (max-width: 768px) {
+	/*
+	탭 — 밑줄 4개 한 줄 → 알약 2개씩 두 줄
+
+	  ★ 캠페인 상세(.detail-tabs)에서 같은 문제를 같은 방법으로 풀었다.
+	    가로 스크롤은 '옆에 더 있다' 는 것이 보이지 않아 탭을 못 찾는다.
+	  ※ 밑줄 모양은 두 줄이 되면 아랫줄 밑줄이 컨테이너 선과 어긋난다.
+	    그래서 좁은 화면에서는 알약(캠페인 .cmp-tab-btn 과 같은 모양)으로 바꾼다.
+	*/
+	.msg-box-tabs {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 6px;
+		margin-bottom: 16px;
+		border-bottom: none;
+	}
+
+	.msg-box-tab {
+		justify-content: center;
+		height: 36px;
+		padding: 0 10px;
+		margin-bottom: 0;
+		border: 1px solid var(--color-text-3, #e5e7eb);
+		border-radius: var(--r-full, 9999px);
+		background: #fff;
+		font-size: 13px;
+		white-space: nowrap;
+	}
+
+	.msg-box-tab--active {
+		border-color: var(--color-main);
+		background: var(--color-main);
+		color: #fff;
+	}
+
+	.msg-box-tab--active .msg-box-tab__count {
+		color: #fff;
+	}
+
+	/*
+	검색줄 — 두 칸 격자
+
+	  한 항목씩 세로로 쌓으면 화면이 길어져 목록이 한참 아래로 밀린다.
+	  짝을 이루는 것끼리(시작일·종료일, 이름·아이디, 검색·초기화) 나란히 두고
+	  혼자인 것(제목·내용)만 한 줄을 다 쓴다.
+	*/
+	.msg-search__group,
+	.msg-search__actions {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 8px;
+	}
+
+	/* 좁은 화면에서는 묶음이 각각 한 줄을 다 쓴다 */
+	.msg-search__group--period,
+	.msg-search__group--query,
+	.msg-search__group--filter,
+	.msg-search__actions {
+		flex: 0 0 100%;
+		width: 100%;
+	}
+
+	/* 좁은 화면에서는 셀렉트도 칸을 꽉 채운다 (위 grid 1fr 1fr 을 따른다) */
+	.msg-search__group--filter .rev-msg-input {
+		width: 100%;
+	}
+
+	.msg-search__label,
+	.msg-search__q,
+	.msg-search__count {
+		grid-column: 1 / -1;
+	}
+
+	.msg-search__label {
+		margin-bottom: -2px;
+		font-weight: 600;
+		color: var(--color-text-14); /* [10-21] ← var(--color-text-9, #525252) */
+	}
+
+	/* 물결(~)은 두 칸이 나란히 놓이면 무엇과 무엇 사이인지 이미 보인다 */
+	.msg-search__sep {
+		display: none;
+	}
+
+	/* 인라인 style 을 걷어냈으므로 폭은 칸에 맡긴다 */
+	.msg-search .rev-msg-input,
+	.msg-search__submit,
+	.msg-search__reset {
+		width: 100%;
+		min-width: 0;
+	}
+
+	.msg-search__count {
+		margin-left: 0;
+	}
+}
+
+/*
+문자·메일 발송함 — 줄 칸 배치   [2026-11-03]
+
+  ★★ 받는 사람 이름이 내용 위에 겹쳐 보였다.
+
+	.msg-item 은 받은쪽지함 기준으로 칸이 넷이다.
+	  체크박스 48 · 보낸사람 180 · 내용 1fr · 날짜 100
+	발송함 줄(inc/message/sendBox.inc.html)에는 체크박스가 없어서
+	세 항목이 한 칸씩 앞으로 밀렸다 —
+	  · 이름(min-width 120)이 48px 칸에 들어가 옆 내용 위로 넘치고
+	  · 내용은 180px 칸에 갇혀 '헤어사랑…' 으로 잘리고
+	  · 날짜는 넓은 1fr 칸 가운데쯤에 떠 있었다.
+
+  → 체크박스가 없는 줄만 칸 셋으로 다시 짠다. 받은·보낸쪽지함은 그대로.
+*/
+.msg-item:not(:has(.msg-checkbox)) {
+	grid-template-columns: 120px 1fr 110px;
+	column-gap: 12px;
+}
+
+.msg-item:not(:has(.msg-checkbox)) .msg-sender {
+	min-width: 0 !important;	/* 마크업 인라인 min-width:120px — 칸 넓이가 같아 이제 필요 없다 */
+}
+
+.msg-item:not(:has(.msg-checkbox)) .sender-name {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+/*
+구분 · 비용 셀렉트 — 글자 윗부분이 잘렸다   [2026-11-03]
+
+  ★ 높이 38px 에 위아래 여백 12px 씩 → 글자 자리가 14px 뿐인데
+	14px 글자의 줄 높이는 그보다 크다. 셀렉트는 위아래 여백 없이
+	높이로 가운데를 맞춘다. (입력칸은 그대로)
+*/
+.msg-search select.rev-msg-input {
+	padding-top: 0;
+	padding-bottom: 0;
+}
+
+@media (max-width: 768px) {
+	/* 좁은 화면 — 체크박스 칸(40px)을 비워 두지 않는다 */
+	.msg-item:not(:has(.msg-checkbox)) {
+		grid-template-columns: 1fr 80px;
+		grid-template-areas:
+			"sender date"
+			"content content";
+		column-gap: 8px;
+	}
+}
+
+/*
+첨부 표시 (목록)   [2026-11-05]
+  ★★ 첨부가 있는지 **목록에서는 알 수 없었다.** 한 건씩 열어 봐야 했고,
+    받는 쪽에서 "첨부 안 왔다" 고 하면 확인할 길이 없었다.
+  ★ 개수만 적는다 — 파일 이름까지 늘어놓으면 목록이 흐트러진다.
+    실제 내려받기는 상세 창에서 한다(소유 확인도 그쪽이 한다).
+*/
+.msg-clip {
+	display: inline-flex;
+	align-items: center;
+	gap: 1px;
+	margin-left: 5px;
+	padding: 0 6px 0 3px;
+	border-radius: 9px;
+	background: #eef1f6;
+	color: #5a6472;
+	font-size: 11.5px;
+	font-weight: 600;
+	line-height: 17px;
+	vertical-align: middle;
+}
+
+.msg-clip .material-symbols-outlined { font-size: 14px; }

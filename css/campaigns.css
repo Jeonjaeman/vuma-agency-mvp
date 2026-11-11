@@ -49,73 +49,8 @@
 #ct-v:not(:checked) ~ .s-tools label[for=ct-v],#ct-s:not(:checked) ~ .s-tools label[for=ct-s],#ct-p:not(:checked) ~ .s-tools label[for=ct-p]{opacity:.45}
 .crow.s-out{display:none}
 
-/* ── [2026-11-10 v0.8] 캠페인 리스트(광고주 카드형) ─────────── */
-.camp-page{overflow:auto}
-.clist .board-h .h-r{display:flex;gap:8px;align-items:center}
-.clist .search input{width:240px}
-.stabs{flex:none;display:flex;gap:2px;border-bottom:1px solid var(--c-3);margin-bottom:10px;overflow-x:auto;scrollbar-width:none}
-.stabs label{padding:8px 12px;font-size:13px;font-weight:700;color:var(--c-8);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap}
-.stabs label b{font-weight:800;margin-left:2px;color:var(--c-11)}
-.ckdrop{position:relative}
-.ckdrop summary{list-style:none;height:34px;padding:0 12px;border:1px solid var(--c-4);border-radius:var(--r-sm);display:flex;align-items:center;font-size:13px;cursor:pointer;background:#fff}
-.ckdrop summary::after{content:"▾";margin-left:6px;color:var(--c-8)}
-.ckdrop summary::-webkit-details-marker{display:none}
-.ckd-b{position:absolute;top:38px;left:0;z-index:var(--z-panel);background:#fff;border:1px solid var(--c-3);border-radius:var(--r-md);box-shadow:var(--sh-md);padding:8px 12px;display:flex;flex-direction:column;gap:6px;min-width:150px;font-size:13px}
-.ckd-b input{accent-color:var(--ag-main)}
-.sorts label,.views label{cursor:pointer}
-#so-new:checked ~ .fbar label[for=so-new],#so-old:checked ~ .fbar label[for=so-old],#so-due:checked ~ .fbar label[for=so-due],
-#vw-grid:checked ~ .fbar label[for=vw-grid],#vw-list:checked ~ .fbar label[for=vw-list]{background:#fff;color:var(--c-14);box-shadow:var(--sh-sm)}
-.noimg-l{font-size:13px;cursor:pointer;display:none}
-.noimg-l::before{content:"☐ ";color:var(--c-8)}
-#noimg:checked ~ .fbar .noimg-l::before{content:"☑ ";color:var(--ag-main)}
-#vw-list:checked ~ .fbar .noimg-l{display:inline}
-/* 정렬 = CSS order (최신순 --o · 과거순 -o · 급한 순 --d) */
-.cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
-.ccard{order:var(--o)}
-#so-old:checked ~ .cgrid .ccard{order:calc(var(--o) * -1)}
-#so-due:checked ~ .cgrid .ccard{order:var(--d)}
-.ccard{display:flex;flex-direction:column;border:1px solid var(--c-3);border-radius:var(--r-lg);background:#fff;overflow:hidden}
-.ccard.s-out{display:none}
-.thumb{position:relative;display:block;aspect-ratio:16/9;text-decoration:none}
-.th-v{background:linear-gradient(135deg,#efe9ff,#cbb9ff)}.th-s{background:linear-gradient(135deg,#e5f2ff,#a9d0f5)}.th-p{background:linear-gradient(135deg,#e6f8f1,#9fdcc6)}
-.th-st{position:absolute;top:10px;left:10px;display:flex;gap:4px}
-.th-st .st{box-shadow:var(--sh-sm)}
-.th-ty{position:absolute;bottom:10px;right:12px;font-size:12px;font-weight:800;color:rgba(0,0,0,.35)}
-.dd{font-size:11px;font-weight:800;padding:1px 7px;border-radius:var(--r-full);background:#fff}
-.dd.is-hot{color:var(--ag-danger)}.dd.is-soon{color:var(--ag-warning)}.dd.is-later{color:var(--c-9)}
-.cbody{padding:12px 14px 14px;display:flex;flex-direction:column;gap:5px;flex:1}
-.tags{margin:0;display:flex;gap:4px;flex-wrap:wrap}
-.tg{font-size:11px;font-weight:700;color:var(--c-9);background:var(--c-2);padding:1px 7px;border-radius:6px}
-.tg-ty{color:#00744d;background:var(--ag-success-light)}
-.tg-rr{font-size:11px;font-weight:700;color:#fff;background:#1d2b53;padding:1px 7px;border-radius:6px}
-.ccard h3{margin:2px 0 0;font-size:15px;line-height:1.35}
-.ccard h3 a{color:var(--c-14);text-decoration:none}
-.ccard h3 a:hover{color:var(--ag-main)}
-.offer{margin:0;font-size:12px;color:var(--c-8)}
-.cmeta{margin:0;font-size:13px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-.stage{font-size:11px;font-weight:700;color:var(--ag-main);padding:1px 7px;border-radius:var(--r-full);background:var(--ag-main-bg)}
-.cbiz{margin:0;font-size:12px;display:flex;align-items:center;gap:6px;color:var(--c-9)}
-.cbiz .who i{width:20px;height:20px;font-size:10px}
-.cbtns{margin-top:auto;padding-top:8px;display:flex;gap:4px;flex-wrap:wrap}
-.cbtns .btn{height:28px;padding:0 10px}
-/* 목록형 — 한 줄에 하나, 썸네일 작게 · 이미지 빼고 보기 */
-#vw-list:checked ~ .cgrid{grid-template-columns:1fr;gap:8px}
-#vw-list:checked ~ .cgrid .ccard{flex-direction:row}
-#vw-list:checked ~ .cgrid .thumb{width:180px;aspect-ratio:auto;flex:none}
-#vw-list:checked ~ .cgrid .cbody{flex-direction:row;flex-wrap:wrap;align-items:center;column-gap:14px}
-#vw-list:checked ~ .cgrid .cbtns{margin:0 0 0 auto;padding:0}
-#vw-list:checked ~ #noimg:checked ~ .cgrid .thumb{display:none}
-.ichip.add{outline-offset:1px}
+/* [2026-11-11 v0.9] 캠페인 리스트·상세 규칙은 광고주 마크업으로 바꾸며 css/v9-camp.css 로 옮김(옛 .ccard · .cdetail · .ctab 규칙 삭제) */
 
-/* 상세 머리 — 진행 막대 · 머리 버튼 */
-.cd-acts{margin-left:auto;display:flex;gap:4px;flex-wrap:wrap}
-.cprog{list-style:none;margin:0 0 10px;padding:0;display:flex;gap:4px;flex-wrap:wrap;font-size:12px}
-.cprog li{display:flex;flex-direction:column;padding:4px 10px;border-radius:var(--r-sm);background:var(--c-2);color:var(--c-8)}
-.cprog li + li::before{content:none}
-.cprog li.past{color:var(--c-11)}
-.cprog li.now{background:var(--ag-main);color:#fff}
-.cprog li small{font-size:11px;opacity:.9}
-.cprog.off{display:flex;gap:8px;align-items:center}
 .ov2{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:16px;margin-bottom:14px}
 .ov-main section{padding:10px 0;border-bottom:1px solid var(--c-2)}
 .ov-main section p{margin:0;font-size:13px}
@@ -132,31 +67,6 @@
 .pst{font-size:12px;font-weight:700;color:var(--ag-main)}
 .btn.icon{width:30px;padding:0}
 
-/* ── 캠페인 페이지(:target) ─────────────── */
-.cdetail{display:none;flex-direction:column;min-height:0;flex:1;border:1px solid var(--c-3);border-radius:var(--r-lg);background:#fff;
-	box-shadow:inset 0 5px 0 var(--cg);overflow:hidden}
-.cdetail:target,.cdetail:has(.ctp:target){display:flex}
-.camp-page:has(.cdetail:target,.ctp:target) .clist{display:none}
-.cd-h{padding:16px 24px 0;background:linear-gradient(var(--cg-bg),#fff 70%);border-bottom:1px solid var(--c-3)}
-.back{font-size:12px;font-weight:700;color:var(--c-9);text-decoration:none}
-.back:hover{color:var(--ag-main)}
-.cd-h .pane-biz{margin-top:8px;display:flex;align-items:center;flex-wrap:wrap;gap:4px}
-.cd-title{margin:6px 0 12px;font-size:22px;letter-spacing:-.02em;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.cd-title .ty,.cd-title .chn{font-size:12px}
-.watch{margin-left:auto;display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--ag-info);
-	background:var(--ag-info-light);padding:4px 10px;border-radius:var(--r-full)}
-.watch i{width:8px;height:8px;border-radius:50%;background:var(--ag-info);box-shadow:0 0 0 3px rgba(0,119,230,.2)}
-.ctabs{display:flex;gap:2px}
-.ctab{padding:10px 14px;font-size:13px;font-weight:700;color:var(--c-8);text-decoration:none;border-bottom:2px solid transparent;margin-bottom:-1px}
-.ctab:hover{color:var(--c-14)}
-.ctab em{font-style:normal;font-size:11px;color:#fff;background:var(--ag-danger);padding:0 6px;border-radius:var(--r-full);margin-left:2px}
-.cd-b{flex:1;overflow:auto;padding:18px 24px 24px}
-.ctp{display:none;max-width:1080px}
-.ctp:target,.cdetail:target .ctp-ov{display:block}
-/* 지금 탭 표시 */
-.cdetail:target .ctab-ov,.cdetail:has(.ctp-ov:target) .ctab-ov,.cdetail:has(.ctp-app:target) .ctab-app,
-.cdetail:has(.ctp-rev:target) .ctab-rev,
-.cdetail:has(.ctp-log:target) .ctab-log,.cdetail:has(.ctp-rep:target) .ctab-rep{color:var(--c-14);border-bottom-color:var(--cg)}
 
 .ov-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
 .card{border:1px solid var(--c-3);border-radius:var(--r-lg);padding:14px 18px;background:#fff}

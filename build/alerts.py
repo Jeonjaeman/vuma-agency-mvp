@@ -59,7 +59,7 @@ def _text(kind, rev, camp):
         "rereview": f"<b>{rev}</b>님이 수정 요청한 리뷰를 다시 올렸습니다",
         "assigned": "관리자가 이 업체를 <b>김지은</b>님에게 배정했습니다",
         "paid":     f"<b>{rev}</b> 외 3명 입금 완료 (11/10)",
-        "charged":  "통포인트 500,000P 충전 완료",
+        "charged":  "포인트 500,000P 충전 완료",
     }[kind]
 
 

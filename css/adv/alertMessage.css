@@ -1,0 +1,218 @@
+@charset "utf-8";
+
+/*
+ * MessageBox styles
+ * Source classes used by script/default.js createMessageBox():
+ * .alert, .layerShadow0, .ani_bounce_in, .material-icons,
+ * .title, .alertCon, .tBtn_pink, .tBtn_lGray
+ */
+
+@font-face {
+	font-family: 'Material Symbols Outlined';
+	font-style: normal;
+	font-weight: 400;
+	src: url(https://fonts.gstatic.com/s/materialsymbolsoutlined/v271/kJF1BvYX7BgnkSrUwT8OhrdQw4oELdPIeeII9v6oDMzByHX9rA6RzazHD_dY43zj-jCxv3fzvRNU22ZXGJpEpjC_1p-p_4MrImHCIJIZrDCvHOej.woff2) format('woff2');
+}
+
+:root {
+	--message-super-light: #ffffff;
+	--message-ultra-light: #f8f8f8;
+	--message-light: #bbbbbb;
+	--message-very-dark: #888888;
+	--message-super-dark: #000000;
+	--message-red-color: #FB7D79;
+}
+
+.material-icons {
+	font-family: 'Material Symbols Outlined';
+	font-weight: normal;
+	font-style: normal;
+	font-size: 24px;
+	line-height: 1;
+	letter-spacing: normal;
+	text-transform: none;
+	display: inline-block;
+	white-space: nowrap;
+	word-wrap: normal;
+	direction: ltr;
+	-webkit-font-feature-settings: 'liga';
+	-webkit-font-smoothing: antialiased;
+}
+
+/*
+★ [2026-08-26] .material-symbols-outlined 규칙 추가
+
+  위 @font-face 로 아이콘 폰트를 받아 두고 정작 적용은 .material-icons 에만
+  하고 있었는데, 실제 마크업은 거의 전부 .material-symbols-outlined 를 쓴다.
+    · core/css/campaignShare.css  (공유 모달)
+    · core/script/paging.js       (페이징 화살표)
+    · core/script/_board.js       (게시판 버튼)
+    · core/css/blogIndex.css
+  그래서 아이콘 폰트가 걸리지 않아 리거처가 해석되지 않고
+  'ios_share' · 'link' · 'close' 같은 아이콘 이름이 본문 폰트로 그대로 찍혔다.
+  (캠페인 상세 공유하기 모달에서 육안 확인)
+
+  ※ font-size 는 일부러 넣지 않았다.
+    .material-icons 처럼 24px 을 못박으면 campaignShare.css(21·22px) 등
+    이미 크기를 정해 둔 곳 밖에서 아이콘이 갑자기 커진다.
+    크기는 각 사용처가 정하게 두고, 여기서는 '폰트가 걸리게' 만 한다.
+*/
+.material-symbols-outlined {
+	font-family: 'Material Symbols Outlined';
+	font-weight: normal;
+	font-style: normal;
+	line-height: 1;
+	letter-spacing: normal;
+	text-transform: none;
+	display: inline-block;
+	white-space: nowrap;
+	word-wrap: normal;
+	direction: ltr;
+	-webkit-font-feature-settings: 'liga';
+	-webkit-font-smoothing: antialiased;
+}
+
+/*
+공통 알림창 (3사이트)   [2026-08-14 스크롤 보강]
+  ★ 서버 오류 문구처럼 여러 줄이 오면 상자가 화면보다 커질 수 있다.
+    예전에는 넘어간 부분이 그냥 잘려 확인 버튼에 손이 닿지 않았다.
+*/
+.alert {
+	position: fixed;
+	left: 0;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	z-index: 20000;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	overflow-y: auto;
+	overscroll-behavior: contain;
+	padding: 20px 0;
+	backdrop-filter: blur(4px);
+	background: rgba(255, 255, 255, 0.2);
+}
+
+.layerShadow0 {
+	position: fixed;
+	left: 0;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	background: none;
+}
+
+.ani_bounce_in {
+	animation-name: ani_bounce_in;
+	animation-duration: 0.2s;
+	animation-delay: 0s;
+	animation-fill-mode: forwards;
+	animation-timing-function: ease-in-out;
+	transform: scale(0.7);
+	opacity: 0;
+}
+
+@keyframes ani_bounce_in {
+	0% {
+		transform: scale(0.7);
+		opacity: 0;
+	}
+
+	100% {
+		transform: scale(1);
+		opacity: 1;
+	}
+}
+
+.alert>div {
+	margin: auto;
+	width: 260px;
+	/*
+	★ 화면보다 커지지 않게 한다.   [2026-08-14]
+	  transform:translateY(-20%) 는 위로 20% 밀어 올리는 것이라
+	  긴 문구일수록 위쪽이 화면 밖으로 나갔다. 짧은 화면에서는 쓰지 않는다.
+	*/
+	max-height: calc(100vh - 40px);
+	display: flex;
+	flex-direction: column;
+	flex-shrink: 0;
+	border-radius: 5px;
+	background: var(--super-light, var(--message-super-light));
+	box-shadow: 0 0 5px rgba(0, 0, 0, 0.25);
+	overflow: hidden;
+	position: relative;
+	transform: translateY(-20%);
+}
+
+/* 세로가 짧으면 밀어 올리지 않는다 — 위쪽이 잘려 못 읽는 것을 막는다 */
+@media (max-height: 640px) {
+	.alert>div { transform: none; }
+}
+
+/* 글이 길면 이 칸만 스크롤한다 (버튼줄은 아래에 그대로 남는다) */
+.alert>div article {
+	min-height: 0;
+	overflow-y: auto;
+}
+
+.alert>div article {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	padding: 30px 20px 20px 20px;
+	background: var(--super-light, var(--message-super-light));
+}
+
+.alert>div article>span {
+	font-size: 40px;
+	color: var(--red-color, var(--message-red-color));
+	margin-bottom: 10px;
+}
+
+.alert .title {
+	font-size: 15px;
+	font-weight: 600;
+	text-align: center;
+	margin: 0 0 5px 0;
+}
+
+.alert .alertCon {
+	display: block;
+	font-size: 14px;
+	line-height: 1.2;
+	text-align: center;
+	word-break: break-all;
+}
+
+.alert>div>div {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.alert>div>div>p,
+.alert .tBtn_pink,
+.alert .tBtn_lGray {
+	flex: 1;
+	margin: 0;
+	padding: 15px 10px;
+	background: var(--ultra-light, var(--message-ultra-light));
+	color: var(--very-dark, var(--message-very-dark));
+	text-align: center;
+	cursor: pointer;
+	transition: all 0.2s;
+	box-sizing: border-box;
+}
+
+.alert>div>div>p:hover,
+.alert .tBtn_pink:hover,
+.alert .tBtn_lGray:hover {
+	background: var(--light, var(--message-light));
+}
+
+.alert>div>div>p:first-child,
+.alert .tBtn_pink {
+	color: var(--super-dark, var(--message-super-dark));
+}

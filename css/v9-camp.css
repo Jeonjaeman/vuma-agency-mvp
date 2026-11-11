@@ -1,0 +1,112 @@
+/* [2026-11-11 v0.9] 캠페인 리스트 · 캠페인 상세 — 광고주 마크업(css/adv/*)에 붙이는 최소 이음 규칙
+   광고주는 JS 로 class(.active · .show · .open · .is-active · .cmp-list-view)를 바꾼다. 여기서는 그 모양을
+   라디오/체크박스/select/:target/:popover-open 상태에서 그대로 내도록 옮겨 적는다(값은 광고주 CSS 에서 복사).
+   상태 탭 · 채널 · 유형 거르기 규칙은 상태 코드가 많아 gen_campaigns.list_style() 이 만들어 넣는다. */
+
+/* ── 리스트: 정렬(최신순 · 과거순 · 대행사 기한 급한 순) = CSS order ── */
+.cmp-card{order:var(--o)}
+.camp-page:has(.select-sort option[value=p]:checked) .cmp-card{order:calc(var(--o) * -1)}
+.camp-page:has(.select-sort option[value=d]:checked) .cmp-card{order:var(--d)}
+.cmp-card.s-out{display:none}
+
+/* 썸네일 — 시안이라 이미지 대신 유형 색 */
+.card-thumb.th-v{background:linear-gradient(135deg,#efe9ff,#cbb9ff)}
+.card-thumb.th-s{background:linear-gradient(135deg,#e5f2ff,#a9d0f5)}
+.card-thumb.th-p{background:linear-gradient(135deg,#e6f8f1,#9fdcc6)}
+a.card-badge-group,a.card-btn,a.btn-new-campaign{text-decoration:none}
+a.card-btn{color:var(--color-text-11)}
+
+/* 보기 토글 — .view-toggle-btn.active 모양 */
+.camp-page:has(#vw-grid:checked) .view-toggle-btn[for=vw-grid],
+.camp-page:has(#vw-list:checked) .view-toggle-btn[for=vw-list]{background:var(--color-text-2);color:var(--color-main)}
+/* 이미지 빼고 보기 — 목록형일 때만 보인다(광고주 #cmpNoImgWrap) */
+.camp-page:has(#vw-grid:checked) #cmpNoImgWrap{display:none}
+.camp-page:has(#vw-list:checked):has(#cmpNoImg:checked) .cmp-list-container .card-thumb{display:none}
+
+/* 목록형 — campaign-manage.css 의 .cmp-list-view 규칙 그대로 */
+.camp-page:has(#vw-list:checked) .cmp-list-container{display:flex;flex-direction:column}
+.camp-page:has(#vw-list:checked) .cmp-card{flex-direction:row;align-items:center;padding:24px 0;border:none;
+	border-bottom:1px solid var(--color-text-4);border-radius:0;box-shadow:none}
+.camp-page:has(#vw-list:checked) .cmp-card:hover{transform:none;background:#fbfbfb}
+.camp-page:has(#vw-list:checked) .card-thumb{width:140px;height:140px;padding-top:0;flex-shrink:0;border-radius:8px}
+.camp-page:has(#vw-list:checked) .card-content{flex:1;padding:0 24px;display:flex;flex-direction:column;justify-content:center;min-width:0}
+.camp-page:has(#vw-list:checked) .card-title{font-size:16px;margin-bottom:8px;-webkit-line-clamp:2;line-clamp:2;white-space:normal;word-break:break-word}
+.camp-page:has(#vw-list:checked) .card-stats{margin-top:0}
+.camp-page:has(#vw-list:checked) .card-actions{border-top:none;flex-direction:column;gap:6px;width:120px;flex-shrink:0}
+.camp-page:has(#vw-list:checked) .card-btn{border:1px solid var(--color-text-4);border-radius:4px;padding:6px 12px}
+@media (max-width:768px){
+	.camp-page:has(#vw-list:checked) .cmp-card{flex-wrap:wrap}
+	.camp-page:has(#vw-list:checked) .card-actions{width:100%;flex-direction:row;flex-wrap:wrap}
+}
+
+/* 채널/유형 드롭다운 — .dropdown-panel.show 대신 popover, 버튼 아래에 붙임 */
+.dropdown-panel[popover]:popover-open{display:block}
+@supports (anchor-name:--a){
+	.dd-cc{anchor-name:--dd-cc}
+	.dd-ct{anchor-name:--dd-ct}
+	.dropdown-panel[popover]{position:fixed;inset:auto;margin:4px 0 0}
+	#dd-cc{position-anchor:--dd-cc;top:anchor(bottom);left:anchor(left)}
+	#dd-ct{position-anchor:--dd-ct;top:anchor(bottom);left:anchor(left)}
+}
+
+/* 대행사 줄(업체 · 담당 · 단계 · 이슈 · 회차) */
+.card-agency,.cd-agency{display:flex;align-items:center;flex-wrap:wrap;gap:6px;font-size:12px;color:var(--color-text-11)}
+.card-agency{margin:0 0 10px}
+.card-agency .who i{width:20px;height:20px;font-size:10px}
+.cd-agency{margin:0 0 16px;font-size:13px}
+.stage{font-size:11px;font-weight:700;color:var(--color-main);padding:1px 7px;border-radius:var(--r-full);background:var(--color-main-light)}
+.stage.late{color:#c0392b;background:#ffece9}
+.watch{margin-left:auto;display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:#0077e6;background:#e5f2ff;padding:4px 10px;border-radius:var(--r-full)}
+.watch i{width:8px;height:8px;border-radius:50%;background:#0077e6;box-shadow:0 0 0 3px rgba(0,119,230,.2)}
+
+/* ── 상세: 광고주는 모달 · 여기는 주소(:target)로 여는 화면 안 패널 ── */
+.cdetail{display:none}
+.cdetail:target,.cdetail:has(.detail-panel:target){display:block}
+.camp-page:has(.cdetail:target,.detail-panel:target) .clist{display:none}
+a.modal-close{text-decoration:none}
+/* 패널은 모두 .is-active(광고주 배치 규칙을 받으려고) — 보이는 것은 :target 하나, 아무 탭도 아니면 상세보기 */
+.cdetail .detail-content .detail-panel.is-active{display:none}
+.cdetail .detail-content .detail-panel:target,.cdetail:target .detail-content .detail-panel-overview{display:flex}
+/* 탭 — .detail-tab.active 모양 */
+a.detail-tab{display:inline-flex;align-items:center;text-decoration:none}
+.cdetail:target .detail-tab[data-tab=overview],
+.cdetail:has(.detail-panel-overview:target) .detail-tab[data-tab=overview],
+.cdetail:has(.detail-panel-applicants:target) .detail-tab[data-tab=applicants],
+.cdetail:has(.detail-panel-reviewers:target) .detail-tab[data-tab=reviewers],
+.cdetail:has(.detail-panel-history:target) .detail-tab[data-tab=history],
+.cdetail:has(.detail-panel-inquiry:target) .detail-tab[data-tab=inquiry],
+.cdetail:has(.detail-panel-report:target) .detail-tab[data-tab=report]{background:var(--color-main);color:#fff;box-shadow:0 1px 3px rgba(0,0,0,.15)}
+.detail-tab .cmp-tab-cnt{margin-left:4px}
+.detail-panel{scroll-margin-top:120px}
+/* 내려받기 줄 — 광고주 exportBtn.inc.php 안 <style> 그대로 */
+.cv-export-bar{display:flex;justify-content:flex-end;margin:0 0 10px}
+.detail-main > .cv-history-box{margin-top:24px}
+.btn-applicant-select:disabled{opacity:.45;cursor:not-allowed}
+/* 리뷰 칸 — 광고주 campaignReviewers.inc.html 의 인라인 style 을 줄마다 되풀이하지 않게 여기로(값 같음) */
+.rv-go{display:inline-flex;align-items:center;gap:2px;margin-top:4px}
+.rv-acts{margin-top:6px}
+.rv-acts .btn{padding:5px 12px;font-size:12px}
+.rv-acts .btn + .btn{margin-left:4px}
+.rv-acts a.btn{font-size:13px}
+
+/* 상세 머리 공유 버튼 — core/css/campaignShare.css(광고주 공유 조각이 따로 싣는 파일 · css/adv 에 없음)의 버튼 규칙만 복사 */
+.cs-share-btn{display:inline-flex;align-items:center;gap:4px;padding:7px 12px;border:1px solid #e0e0e0;border-radius:8px;background:#fff;
+	color:#1b1b1b;font-size:13px;line-height:1;cursor:pointer;transition:background .15s,border-color .15s}
+.cs-share-btn:hover{background:#f7f7f8;border-color:#d0d0d0}
+.cs-share-btn .material-symbols-outlined{font-size:18px}
+a.detail-action-btn{text-decoration:none}
+
+/* ── 창: 광고주 .modal-wrap.open · .edit-context-menu.show 를 popover 로 ── */
+.modal-wrap[popover]{inset:0;margin:0;border:0;background:transparent;width:100vw;max-width:none;max-height:none;color:inherit}
+.modal-wrap[popover]:not(:popover-open){display:none}
+.modal-wrap[popover]:popover-open{opacity:1;visibility:visible;pointer-events:auto}
+.modal-wrap[popover]:popover-open .modal-content{transform:translateY(0) scale(1)}
+.modal-wrap[popover]::backdrop{background:transparent}
+button.modal-dim{border:0;padding:0;cursor:default}
+.edit-context-menu[popover]{padding:0}
+.edit-context-menu[popover]:popover-open{display:block}
+
+/* [2026-11-11 v0.9] 카드 칸 270px → 320px — 광고주는 버튼 5개 글자가 두 줄로 접힘(대행사 줄이 더해져 카드도 높아짐).
+   넓은 화면에서 4칸 → 3칸이 되는 대신 버튼 글자가 한 줄로 들어간다 */
+.cmp-grid-view{grid-template-columns:repeat(auto-fill,minmax(320px,1fr))}
+.cmp-grid-view .card-btn>span{white-space:nowrap}
