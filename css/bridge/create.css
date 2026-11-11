@@ -3,10 +3,7 @@
    여기서는 그 모양을 숨은 라디오/체크박스 · :has() · popover 상태에서 그대로 내도록 옮겨 적는다(값은 광고주 CSS 에서 복사).
    모양을 새로 만들지 않는다 — 상태만. 대행사 추가분(ag-)은 css/ag/create.css */
 
-/* ── 모달 껍데기 없이 페이지 안에 펼침 ──
-   광고주는 .modal-wrap(고정 덮개) 안에 띄우고 .open 일 때 transform 을 0 으로 돌린다. 시안은 덮개가 없으니 열린 모양 그대로 */
-.campaign-create-modal .create-modal-content{transform:none}
-.campaign-create-modal .modal-dim{display:none}
+/* ── 창 껍데기 — [2026-11-12] 광고주와 같이 .modal-wrap.open(고정 덮개 · .modal-dim 흐림) 그대로 씀. 여기서 덮어쓰는 것 없음 ── */
 
 /* ── 단계 이동 — setCreateStep() 이 .step-content / .step-item / .step-line 에 .active · .completed 를 붙이던 것 ── */
 .campaign-create-modal:has(#ccStep1:checked) .step1,

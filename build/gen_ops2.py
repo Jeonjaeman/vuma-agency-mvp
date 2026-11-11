@@ -199,7 +199,8 @@ def build_photos():
     # 채널 거르기: 광고주는 <a href="?ch=…"> 새로 불러오기 → 여기선 라디오 + :has() (css/bridge/media.css)
     radios = "".join(f'<input type="radio" name="rpch" id="rpch-{k}" class="v9-r"{" checked" if k == "all" else ""}>'
                      for k in ("all", "blog", "youtube", "insta"))
-    btns = "".join(f'<label for="rpch-{k}" class="btn btn--sm btn--outline">{lab}</label>'
+    # [2026-11-12] 광고주처럼 글자 사이 띄어쓰기(광고주 마크업은 a 를 줄바꿈으로 나열 → 꾸밈 없이 한 칸씩 띄어 보임)
+    btns = "\n".join(f'<label for="rpch-{k}" class="btn btn--sm btn--outline">{lab}</label>'
                    for k, lab in (("all", "전체"), ("blog", "블로그"), ("youtube", "유튜브"), ("insta", "인스타")))
     body = ('<div class="cmp-layout">' + K.camp_tabs("photo")
             + '<div class="cmp-page-card v9-photo">' + radios
@@ -578,7 +579,7 @@ def send_item(c, nick, i, kind, r):
         badges += ('<button type="button" class="btn-rev-act js-flash" style="height:28px;padding:0 10px;font-size:12px;width:auto;border-radius:6px;" '
                    'data-msg="시안: 다시 보냈습니다">다시 보내기</button>')
     if not mail and not fail and not auto:
-        badges += '<span style="font-size:12px;color:#8e8e93;">20P 차감</span>'
+        badges += '<span style="font-size:12px;color:#8e8e93;">15P 차감</span>'   # [2026-11-12] 광고주 실화면 문자 단가 15P
     if fail:
         badges += '<span style="font-size:12px;color:#c0392b;">수신거부</span>'
     files = ""

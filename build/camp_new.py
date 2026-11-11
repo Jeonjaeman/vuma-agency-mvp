@@ -6,7 +6,7 @@
     = 숨은 라디오/체크박스 + :has() + popover → css/bridge/create.css
   · 대행사 추가분(업체 선택 · 복제 · 보는 사람 · 회차 · 충전 요청) = .add 점선 + ag- class → css/ag/create.css
   · 계산 · 복제 채우기 · 업체 검색 · 키워드 추가 · 지역 요약 = js/campaign_new.js (CSS 로 안 되는 것만)
-  광고주 등록창은 캠페인 리스트 위에 뜨는 모달이다. 시안에서는 모달 껍데기(.modal-wrap 고정 덮개) 없이 페이지 안에 펼친다.
+  광고주 등록창은 캠페인 리스트 위에 뜨는 모달이다. [2026-11-12] 시안도 같게 — .modal-wrap.open 덮개 + 뒤에 캠페인 리스트(iframe).
 """
 import json
 
@@ -604,8 +604,10 @@ def page():
     data = json.dumps({"bal": D.BALANCE, "fee": D.FEE, "chan": chan, "camps": copy_data()}, ensure_ascii=False)
     body = f'''<section class="ag-cnew" aria-label="캠페인 등록">
 	<input type="radio" name="agRole" id="agRoleAdmin" hidden checked><input type="radio" name="agRole" id="agRoleStaff" hidden>
+	<!-- [2026-11-12] 광고주처럼 캠페인 리스트 위에 뜨는 창 — 뒤 화면 = 실제 campaigns.html(누르지 못함), 덮개 = 광고주 .modal-wrap.open + .modal-dim -->
+	<iframe class="ag-cnew-bg" src="campaigns.html" title="뒤 화면: 캠페인 리스트" tabindex="-1" aria-hidden="true" inert></iframe>
 	{ag_bar()}
-	<div class="campaign-create-modal" id="campaignCreate">
+	<div class="modal-wrap campaign-create-modal open" id="campaignCreate">
 	<form name="campaignForm" data-use-editor="N">
 		{radios}
 		<div class="modal-dim"></div>

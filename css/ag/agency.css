@@ -599,3 +599,5 @@ tr.camp .tot{font-size:12px;color:var(--ag-c-8)}
 .card-agency.add{padding:3px 8px}
 /* 대행사 화면 틀(광고주 .content-wrapper 값 — 24px 16px · 간격 20px · 바탕 #edecf0) */
 .work.ag{flex:1;min-height:0;padding:24px 16px;gap:20px;background:#edecf0}
+/* [2026-11-12] 오른쪽 아래 [?] 도움말(광고주 .page-help-fab 48px · 오른쪽 22px)이 처리 패널 아래 버튼([다음 ▶])을 덮지 않게 오른쪽 자리 비움 */
+.work.ag .pane-f{padding-right:84px}

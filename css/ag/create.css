@@ -62,3 +62,13 @@
 	.ag-cnew-bar{width:100%}
 	.ag-sum{grid-template-columns:auto 1fr}
 }
+
+/* [2026-11-12] 광고주처럼 리스트 위 창으로 — 뒤 화면(캠페인 리스트) · 대행사 안내 상자 자리
+   뒤 화면은 광고주 덮개(.modal-wrap z 12000) 아래, 이 화면 자신의 사이드바 위 */
+.ag-cnew-bg{position:fixed;inset:0;width:100vw;height:100vh;border:0;z-index:11999;pointer-events:none;background:#edecf0}
+/* 대행사 안내 상자 = 흐린 사이드바 자리(왼쪽 아래)에 떠 있게 — 광고주 창을 가리지 않음 */
+.ag-cnew-bar{position:fixed;left:16px;bottom:16px;z-index:12001;width:220px;margin:0;flex-direction:column;align-items:stretch;gap:8px;border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,.18)}
+.ag-cnew-bar .ag-roleseg{flex-direction:column;border-radius:12px}
+.ag-cnew-bar .ag-roleseg > label{border-radius:10px;text-align:center}
+.ag-cnew-bar .ag-sum{grid-template-columns:auto 1fr}
+

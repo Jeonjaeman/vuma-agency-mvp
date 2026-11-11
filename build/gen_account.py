@@ -378,7 +378,7 @@ def ledger_text(kind, c, amt):
         return f"리뷰어 지급(지급액 + 수수료 {int(D.FEE * 100)}%)"
     if kind == "back":
         return "캠페인 종료 — 남은 예치 환불"
-    return f'{"문자" if kind == "sms" else "알림톡"} 발송 {-amt // (20 if kind == "sms" else 15)}건'
+    return f'{"문자" if kind == "sms" else "알림톡"} 발송 {-amt // (SMS_SHORT if kind == "sms" else ALIM)}건'
 
 
 HIST_CATS = [("all", "전체"), ("sms", "문자·알림톡"), ("campaign", "캠페인"), ("charge", "충전·환불")]
@@ -502,13 +502,13 @@ def point_page():
     radios, bar = tab_bar("pmt", labels, bar="cmp-top-tabs pm-tabs")
     refund_hist, rf_pops = panel_refund_hist()
     history, pd_pops = panel_history()
-    head = ('<div class="pm-header text-center"><h2 class="pm-title">포인트</h2>'
+    head = ('<div class="pm-header text-center"><h2 class="pm-title">포인트 관리</h2>'
             f'<p class="pm-desc">보유 포인트 <strong id="pmBalanceText">{num(D.BALANCE)}</strong> P'
             f'<span class="add v9-held">{tag()} 예치 중 <strong>{num(HELD)}</strong> P · 합계 {num(D.BALANCE + HELD)} P</span></p></div>')
     body = (f'<div class="cmp-layout pm-layout v9t">{radios}{bar}<div class="cmp-page-card pm-page-card">{head}<div class="pm-body">'
             + panel_charge() + panel_charge_hist() + panel_refund() + refund_hist + history + panel_ledger() + panel_held() + panel_use()
             + "</div></div>" + rf_pops + pd_pops + "</div>" + terms_modal())
-    write("point.html", "포인트", "pay", body)
+    write("point.html", "포인트 관리", "pay", body)
 
 
 # ════════════════ 2. 사용료(plan.html) ← planPurchase.inc.html ════════════════
@@ -523,7 +523,7 @@ ADD_LIMITS = [("관리 업체 수", "곳"), ("직원 수", "명")]
 #   seed 는 추가모집 요청(rerecruitRequest)만 빼고 모든 등급에 기능을 다 연다 — 등급별로 나누는 것은 DB 값
 SEED_FEATS = [f for f, _l in FEATS if f != "rerecruitRequest"]
 GRADES = [("bronze", "브론즈", 0, None, SEED_FEATS, 0, False), ("silver", "실버", 0, None, SEED_FEATS, 5, False),
-          ("gold", "골드", 0, None, SEED_FEATS, 20, False), ("platinum", "플래티넘", None, None, SEED_FEATS, 50, True),
+          ("gold", "골드", 0, None, SEED_FEATS, 20, False), ("platinum", "플래티넘", None, [20, 10, 5], SEED_FEATS, 50, True),
           ("vip", "VIP", None, None, SEED_FEATS, 100, True)]
 CUR_GRADE = "bronze"
 MONTHS = [1, 3, 6, 12]                            # 광고주 $ppMonths — 기간 할인 없음(월 비용 × 개월)
@@ -542,7 +542,7 @@ def add_lim_text(lims, i):
 
 
 def plan_card(idx, g):
-    key, name, fee, lims, feats, _done, _paid = g
+    key, name, fee, lims, feats, done, _paid = g
     li = lambda icon, t, cls="": f'<li{f" class={chr(34)}{cls}{chr(34)}" if cls else ""}><span class="material-symbols-outlined">{icon}</span>{t}</li>'  # noqa: E731
     items = (li("group", f'캠페인당 모집인원 <strong class="color-blue">{lim_text(lims, 0, "명")}</strong>')
              + li("campaign", f'한 달 등록 <strong class="color-blue">{lim_text(lims, 1, "개")}</strong>')
@@ -555,7 +555,7 @@ def plan_card(idx, g):
         items += (f'<li><span class="material-symbols-outlined color-blue">more_horiz</span>그 외 '
                   f'<strong class="color-blue">{len(labs) - 3}개</strong> 기능</li>')
     price = "—" if fee is None else num(fee)
-    return (f'<div class="plan-card"><div class="plan-card-badge target">등급 혜택 안내는 1:1 문의로 요청해 주세요.</div>'
+    return (f'<div class="plan-card"><div class="plan-card-badge target">완료 캠페인 {done}건 이상.</div>'
             f'<div class="plan-card-inner"><div class="plan-badge {SKINS[idx % 3]}">{key}</div><h3 class="plan-name">{name}</h3>'
             f'<ul class="plan-features">{items}</ul><div class="plan-duration">사용기간 <span class="gp-month-text">1</span>개월</div>'
             f'<div class="plan-price"><strong class="gp-total" data-fee="0">{price}</strong> 원 <span class="vat">(VAT 포함)</span>'
@@ -627,8 +627,8 @@ def plan_page():
 
 
 # ════════════════ 3. 문자설정(sms.html) ← messageSettingTabs · verifyIdentity · autoSend · sendNumber ════════════════
-# [2026-11-10] 단가 = 실서버 advPrice 기본값(문자 단문 20P · 장문 50P · 알림톡 15P · 메일 무료)
-SMS_SHORT, SMS_LONG, ALIM = 20, 50, 15
+# [2026-11-12] 단가 = 광고주 실화면(자동발송 설정) 값 — 문자 15P · 장문 38P · 알림톡 15P · 메일 무료
+SMS_SHORT, SMS_LONG, ALIM = 15, 38, 15
 # 상황 · 설명 · 시점 · 항상 발송 = 실서버 autoSend.class.php $TRIGGER, 기본 문구 = _sql\autoSend_seed*.sql
 AUTO = [("선정 안내", "리뷰어를 선정하는 순간, 선정됐다고 알립니다. 비용은 뷰마이 부담하며 항상 나갑니다.", "선정 확정 즉시", True,
          "[{업체명}] {닉네임}님, {캠페인명} 체험단에 선정되셨습니다. 자세한 내용은 뷰마에서 확인해 주세요."),
@@ -776,9 +776,9 @@ def sms_page():
 
 # ════════════════ 4. 패널티(penalty.html) ← penalty.inc.html ════════════════
 # [2026-11-10] 실서버 penaltyRule — 광고주 사유는 "모집완료 후 캠페인 숨김/취소" 2점(자동) 하나.
-#   광고주 누적 기준은 seed 없음(DB 값) → 구간은 리뷰어 seed(fix_penaltyThreshold_20261029: 20 · 30 · 50점)를 빌려 표시
+# [2026-11-12] 제재 기준 = 광고주 실화면 값(2점 이상 → 7일 신청 제한, 둘째 줄 "누적 2점") — 리뷰어 기준 빌려 쓰던 것 버림
 #   (점수, 제한 일수(-1 = 영구), 설명)
-RULES = [(20, 7, "7일간 새 캠페인 등록 제한"), (30, 30, "30일간 새 캠페인 등록 제한"), (50, -1, "영구 이용 제한")]
+RULES = [(2, 7, "누적 2점")]
 PEN_REASON = [("모집완료 후 캠페인 숨김/취소", "리뷰어가 신청·선정된 캠페인을 모집완료 이후 숨김/취소", 2),
               ("모집완료 후 캠페인 숨김/취소", "리뷰어가 신청·선정된 캠페인을 모집완료 이후 숨김/취소", 2),
               ("관리자 차감", "소명 확인 — 업체 폐업으로 인한 취소", -2),
@@ -830,8 +830,7 @@ def penalty_page():
              '<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:13px;"><thead>'
              f'<tr style="text-align:left;color:#0e0e0e;border-bottom:1px solid #ececf0;"><th {th}width:110px;">누적 점수</th>'
              f'<th {th}">제재 내용</th><th {th}text-align:center;width:90px;">현재</th></tr></thead><tbody>{rule_trs}</tbody></table></div>'
-             + gap + '<p class="add" style="margin:10px 0 0;font-size:12px;color:#0e0e0e;">' + tag("시안")
-             + ' 광고주 누적 기준은 운영 DB 값(seed 없음) — 점수 구간은 리뷰어 기준(20 · 30 · 50점)을 빌려 보여 줍니다.</p></div>')
+             + gap + '</div>')
     trs = ""
     for kind, why, c, pt, off, on in rows:
         minus = pt < 0

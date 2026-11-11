@@ -26,13 +26,9 @@ button.modal-dim{display:block;margin:0;padding:0;border:0;cursor:default}
 /* ── 2. 탭·거르기 ─────────────────────────────────── */
 .v9-r{position:absolute;opacity:0;pointer-events:none}
 
-/* 리뷰 사진: 채널 버튼(광고주 a.btn.btn--sm.btn--primary/outline — 값은 main.css .photo-modal .btn--outline 관행) */
-.cmp-filters-wrap .btn--outline{height:34px;padding:0 14px;border-radius:var(--r-8,8px);border:1px solid var(--color-text-4);background:#fff;color:var(--color-text-10);font-size:13px;font-weight:700;cursor:pointer}
-.cmp-filters-wrap .btn--outline:hover{border-color:var(--color-main);background:var(--color-main-light);color:var(--color-main)}
-.v9-photo:has(#rpch-all:checked) label[for="rpch-all"],
-.v9-photo:has(#rpch-blog:checked) label[for="rpch-blog"],
-.v9-photo:has(#rpch-youtube:checked) label[for="rpch-youtube"],
-.v9-photo:has(#rpch-insta:checked) label[for="rpch-insta"]{background:var(--color-main);border-color:var(--color-main);color:#fff}
+/* 리뷰 사진: 채널 거르기 — 광고주 마크업 a.btn.btn--sm.btn--primary/outline 은 광고주 CSS 에 규칙이 없어 실화면에서 꾸밈 없는 글자로 보인다
+   [2026-11-12] 실화면과 같게 알약 모양을 지움(눌러 바꾸는 것만 남김 — 광고주도 고른 쪽 표시가 없음) */
+.cmp-filters-wrap label.btn{cursor:pointer}
 .v9-photo:has(.v9-r:focus-visible) .cmp-filters-wrap{outline:2px solid var(--color-main);outline-offset:4px;border-radius:8px}
 .v9-photo:has(#rpch-blog:checked) .cmp-photo-card:not([data-ch="blog"]),
 .v9-photo:has(#rpch-youtube:checked) .cmp-photo-card:not([data-ch="youtube"]),

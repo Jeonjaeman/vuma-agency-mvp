@@ -777,7 +777,10 @@ def sidebar(issue_total, active="dash"):
             f'<div class="sidebar-section"><a class="btn-new-campaign" href="campaign_new.html">{ms("add")}<span>새 캠페인 등록</span></a></div>'
             f'<nav class="sidebar-nav" aria-label="주 메뉴">{nav}</nav></div>'
             '<div class="sidebar-footer"><div class="sidebar-legal"><a href="#">이용약관</a><span class="sidebar-legal__sep"></span>'
-            '<a href="#">개인정보처리방침</a></div><p>ⓒ ANYRIZE All Rights Reserved.</p></div></aside>')
+            '<a href="#">개인정보처리방침</a></div>'
+            # [2026-11-12] 광고주 sidebar.inc.html .sidebar-biz 그대로(값 = core define.inc.php BIZ_NUMBER · BIZ_CS_TEL — 회사 공개 정보)
+            '<div class="sidebar-biz"><span>사업자등록번호 615-88-02870</span><span>고객센터 1833-3675</span></div>'
+            '<p>ⓒ ANYRIZE All Rights Reserved.</p></div></aside>')
 
 
 def scope_pop():
@@ -800,10 +803,14 @@ def topbar():
     return ""
 
 
+# [2026-11-12] 광고주 inc/pageHelp.inc.html 의 오른쪽 아래 물음표(.page-help-fab) — 광고주는 그 화면 도움말 창, 시안은 고객센터 도움말로 이동
+HELP_FAB = ('<a class="page-help-fab" href="help.html" title="도움말" aria-label="도움말 열기"><span class="material-symbols-outlined">help</span></a>')
+
+
 def shell(issue_total, active, body):
     """광고주 index.html 의 틀: .dashboard > aside.sidebar + main.main-content > .main-view"""
     return (f'<div class="dashboard">{sidebar(issue_total, active)}'
-            f'<main class="main-content"><div class="main-view">{body}</div></main></div>')
+            f'<main class="main-content"><div class="main-view">{body}</div></main>{HELP_FAB}</div>')
 
 
 def type_chips(bizs):
@@ -904,7 +911,7 @@ def build():
 	{panels}
 </aside>
 </div>
-</div></main>
+</div></main>{HELP_FAB}
 </div>
 <div class="toasts" aria-live="assertive"></div>
 <script src="js/scope.js"></script>
