@@ -47,10 +47,7 @@ a.rev-hist-name:hover{text-decoration:underline}
 
 /* ── 포인트 지급 확인 ── */
 .pc{gap:16px}
-.pc .mp-card{max-width:900px}        /* 광고주 620px — 대행사 업체 칸이 붙어 넓힘 */
-.pc .pc-pane{display:none}
-.pc:has(input[name=pctab][value=check]:checked) .pc-pane--check{display:flex}
-.pc:has(input[name=pctab][value=batch]:checked) .pc-pane--batch{display:block}
+/* [2026-11-12] 카드 폭 = 광고주 620px 그대로(넓히던 규칙 · 위 탭 규칙 뺌) */
 /* 지급대기만 보기(광고주 = ?wait=1 로 다시 읽음) */
 .pc .pc-wait{cursor:pointer}
 .pc .pc-on,.pc:has(#pwait:checked) .pc-off{display:none}

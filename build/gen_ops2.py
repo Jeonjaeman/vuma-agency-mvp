@@ -634,11 +634,12 @@ def build_messages():
     p2 = send_pane(2, "sms", unread)
     p3 = send_pane(3, "mail", unread)
     # 탭 = 라디오 넷(css/bridge/media.css 가 고른 쪽 카드만 보임) — 각 카드 안 탭 줄은 광고주처럼 자기 탭이 --active
-    radios = "".join(f'<input type="radio" name="mb" id="mb-{i}" class="v9-r"{" checked" if i == 0 else ""}>' for i in range(4))
-    note = ('<p class="add v9-note v9-msgnote">광고주 사이트에 채팅은 없습니다(10-28 제거) — 리뷰어와는 쪽지로. '
-            f'받은 쪽지는 업체 담당자에게 배정됩니다{K.add_tag()}</p>')
-    body = (f'<div class="cmp-layout v9-msg">{radios}{note}{p0}{p1}{p2}{p3}</div>' + "".join(pop0 + pop1))
-    write("messages.html", "쪽지", "chat", body)
+    # [2026-11-12] 광고주와 같게 위 점선 안내 줄 뺌. 사이드바 "문자·메일 발송내역"(광고주 sms-box) = 같은 화면에 문자발송함 탭이 먼저
+    def body(first):
+        radios = "".join(f'<input type="radio" name="mb" id="mb-{i}" class="v9-r"{" checked" if i == first else ""}>' for i in range(4))
+        return f'<div class="cmp-layout v9-msg">{radios}{p0}{p1}{p2}{p3}</div>' + "".join(pop0 + pop1)
+    write("messages.html", "받은 쪽지함", "chat", body(0))
+    write("sms_box.html", "문자·메일 발송내역", "smsbox", body(2))
 
 
 def build():

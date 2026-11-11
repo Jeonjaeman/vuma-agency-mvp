@@ -1,0 +1,35 @@
+/* [2026-11-12 v0.9] 홈(home.html) 이음 CSS — 광고주 home.js 가 하던 상태 바꾸기를 숨은 라디오 + :has() 로
+   모양은 css/adv/main.css 가 그린다. 여기 "고른 것" 규칙은 광고주 .active / .active-panel 규칙 값을 그대로 옮긴 것.
+   build/gen_home.py 가 부른다. */
+
+/* ── 숨은 라디오 (탭 · 달 스위치) ── */
+.hm-r{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+
+/* ── 1. 오늘 할 일 / 완료한 할 일 (광고주 taskTab: task-render-area 내용을 갈아 끼움) ── */
+.task-section:has(> #hm-task-0:checked) .task-list-completed,
+.task-section:has(> #hm-task-1:checked) :is(.task-count-msg-active,.task-list-active,.schedule-section){display:none}
+/* 고른 버튼 = 광고주 .task-toggle-btn.active */
+.task-section:has(> #hm-task-0:checked) .btn-today-tasks,
+.task-section:has(> #hm-task-1:checked) .btn-completed-tasks{
+	background:#fff;color:var(--color-text-14);box-shadow:0 2px 4px rgba(0,0,0,.05);font-weight:600}
+.task-section:has(> .hm-r:focus-visible) .task-toggle-header{outline:2px solid var(--color-main);outline-offset:2px}
+
+/* ── 2. 달 넘기기 (광고주 ‹ › 오늘 → getHolidays → renderCalendar) — 미리 그린 달 다섯 장 중 하나 ── */
+.right-panel > .calendar-wrap{display:none}
+.right-panel:has(> #hm-cal-0:checked) > .calendar-wrap[data-cal="0"],
+.right-panel:has(> #hm-cal-1:checked) > .calendar-wrap[data-cal="1"],
+.right-panel:has(> #hm-cal-2:checked) > .calendar-wrap[data-cal="2"],
+.right-panel:has(> #hm-cal-3:checked) > .calendar-wrap[data-cal="3"],
+.right-panel:has(> #hm-cal-4:checked) > .calendar-wrap[data-cal="4"]{display:flex}
+/* <button> → <label>: 버튼이 기본으로 하던 글자 세로 가운데만 되살림 */
+label.btn-today{display:inline-flex;align-items:center}
+.right-panel:has(> .hm-r:focus-visible) .cal-nav-group{outline:2px solid var(--color-main);outline-offset:2px;border-radius:6px}
+
+/* ── 3. 모바일 할 일 / 달력 탭 (≤1024 · 광고주 .mobile-tab-btn.active · .active-panel) ── */
+@media (max-width: 1024px) {
+	.content-wrapper:has(> #hm-mt-0:checked) .mobile-tab-btn[data-target="left"],
+	.content-wrapper:has(> #hm-mt-1:checked) .mobile-tab-btn[data-target="right"]{
+		background:var(--color-main);border-color:var(--color-main);color:#fff;font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.15)}
+	.content-wrapper:has(> #hm-mt-1:checked) .left-panel.active-panel{display:none}
+	.content-wrapper:has(> #hm-mt-1:checked) .right-panel{display:flex}
+}

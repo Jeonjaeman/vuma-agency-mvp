@@ -594,10 +594,7 @@ tr.camp .tot{font-size:12px;color:var(--ag-c-8)}
    ② 줄처럼 이어 붙는 것(표 칸 · 비교표 줄 · 상태 탭 줄)은 점선 대신 옅은 보라 바탕 — 줄마다 점선이면 서로 닿고 잘림 */
 .add{outline:1.5px dashed #b9a5ff;outline-offset:2px;border-radius:6px}
 :where(:is(span,p,div,section,li,dd,dt,label,small,b,strong,em).add){padding-left:6px;padding-right:6px}
-.pc-tabs.add{width:fit-content;max-width:100%}
-:is(td,th,.pc-tabs).add{outline:0;border-radius:0;background:#faf8ff}
+:is(td,th).add{outline:0;border-radius:0;background:#faf8ff}
 .card-agency.add{padding:3px 8px}
 /* 대행사 화면 틀(광고주 .content-wrapper 값 — 24px 16px · 간격 20px · 바탕 #edecf0) */
 .work.ag{flex:1;min-height:0;padding:24px 16px;gap:20px;background:#edecf0}
-/* [2026-11-12] 오른쪽 아래 [?] 도움말(광고주 .page-help-fab 48px · 오른쪽 22px)이 처리 패널 아래 버튼([다음 ▶])을 덮지 않게 오른쪽 자리 비움 */
-.work.ag .pane-f{padding-right:84px}

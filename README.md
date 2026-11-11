@@ -14,8 +14,8 @@
 | | `reports.html` 보고서 링크 · `report.html` 공개 보고서 | `gen_reports.py` · `settle.css` · `report.css` · `settle.js` |
 | 캠페인 운영 | `campaigns.html` 캠페인 리스트·상세 · `campaign_new.html` 등록 | `gen_campaigns.py`(+ `camp_data.py` · `camp_new.py`) · `campaigns.css` · `campaigns.js` · `campaign_new.js` |
 | | `reviewers.html` 리뷰어 관리 · `inspect.html` 리뷰 검수 · `payout.html` 포인트 지급 확인 | `gen_ops.py` |
-| | `photos.html` · `search_report.html` · `video.html` · `messages.html` | `gen_ops2.py` · `media.css` |
-| 계정 | `point.html` 통포인트 · `plan.html` 사용료 · `sms.html` 문자설정 · `penalty.html` · `info.html` 대행사 정보 · `help.html` 고객센터 | `gen_account.py` · `account.css` |
+| | `photos.html` · `search_report.html` · `video.html` · `messages.html` · `sms_box.html` | `gen_ops2.py` · `media.css` |
+| 계정 | `point.html` 통포인트 · `plan.html` 사용료 · `sms.html` 문자설정 · `penalty.html` · `info.html` 마이페이지 · `notifications` · `notice` · `inquiry` · `faq.html` · `help.html`(따로 된 도움말) | `gen_account.py` · `account.css` |
 | 공통 | 셸(메뉴 `NAV` · 업체 범위) | `gen_dashboard.py` `sidebar()`/`topbar()` · `gen_pages.page()` · `js/scope.js` |
 | | 운영·계정 화면 조각(탭 · 표 · 창 · 캠페인 상단 탭) | `ops_kit.py` · `ops.css` · `ops.js` |
 
@@ -23,7 +23,7 @@
 새 화면을 메뉴에 켜기: `gen_dashboard.py` 의 `READY` 에 키 추가.
 
 다시 만들기(순서 상관없음):
-`python -I build/gen_dashboard.py` · `gen_pages.py` · `gen_campaigns.py` · `gen_reports.py` · `gen_agency.py` · `gen_ops.py` · `gen_ops2.py` · `gen_account.py`
+`python -I build/gen_dashboard.py` · `gen_pages.py` · `gen_campaigns.py` · `gen_reports.py` · `gen_agency.py` · `gen_ops.py` · `gen_ops2.py` · `gen_account.py` · `gen_home.py`(홈 `home.html` · 대행사 신청 `agency_apply.html`)
 
 > 주의: PowerShell 5.1 의 `Get-Content`/`Set-Content` 로 생성기를 고치면 한글이 깨진다(BOM 없는 UTF-8). 편집기나 Python(`encoding="utf-8"`)으로만.
 

@@ -462,7 +462,7 @@ def pay_check(rows):
             '· <strong>지급대기</strong>는 아직 지급 처리 전이라는 뜻입니다. 검수가 끝났는데도 며칠째 대기라면 1:1 문의로 알려 주세요.<br>'
             '· 선정이 취소되거나 리뷰를 쓰지 않은 분에게는 지급되지 않으며, 그만큼은 캠페인이 끝날 때 <strong>보증금으로 돌려받으십니다.</strong><br>'
             '· 리뷰어의 보유 포인트나 다른 캠페인 내역은 <strong>보여 드리지 않습니다</strong> — 이 화면은 내 캠페인의 지급분만 확인하는 곳입니다.</div>')
-    return ('<div class="mp-card pc-pane pc-pane--check"><section class="mp-section"><div class="mp-section-header">'
+    return ('<div class="mp-card"><section class="mp-section"><div class="mp-section-header">'
             '<span class="material-symbols-outlined icon-mid">paid</span><h3 class="mp-section-title">리뷰어 포인트 지급 확인</h3></div>'
             '<p class="pm-amount-notice" style="margin-bottom:16px;">내 캠페인에 <b>선정된 리뷰어</b>에게 포인트가 실제로 지급되었는지 보여 드립니다. '
             '지급은 리뷰 검수가 끝난 뒤 <b>뷰마가 보증금에서 직접</b> 보냅니다 — 광고주께서 따로 보내실 것은 없습니다.<br>'
@@ -474,15 +474,14 @@ def pay_check(rows):
 def build_payout():
     rows = pay_rows()
     style = "<style>" + select_rules(".pc", "pcp", sorted({c["id"] for c, _v, _p in rows}), ".prow") + "</style>"
-    tabs = ('<div class="cmp-status-tabs pc-tabs add">'
-            '<label class="status-tab"><input type="radio" name="pctab" value="check" hidden checked>지급 확인</label>'
-            f'<label class="status-tab"><input type="radio" name="pctab" value="batch" hidden>지급 묶음 {K.add_tag()}</label></div>')
-    batch = ('<div class="cmp-page-card pc-pane pc-pane--batch add">'
+    # [2026-11-12] 광고주처럼 위 탭 없이 지급 확인 카드(620px) 하나 — 대행사 "지급 묶음"은 그 아래 따로 된 점선 칸
+    batch = ('<div class="cmp-page-card pc-batch add">'
+             f'<h3 class="mp-section-title" style="margin-bottom:8px;">지급 묶음 {K.add_tag()}</h3>'
              '<p class="pm-amount-notice" style="margin-bottom:16px;">대행사 추가: 여러 업체 지급을 묶어 한 번에 확정합니다(v0.7 정산 › 리뷰어 지급). '
              '업체 범위와 상관없이 대행사 전체 묶음입니다.</p>'
              '<input type="radio" name="role" id="role-admin" class="vr" checked><input type="radio" name="role" id="role-view" class="vr">'
              f'<div class="sp-p">{S.tab_pay()}</div></div>')
-    body = f'{style}<div class="page-container mp-container pc">{tabs}{pay_check(rows)}{batch}</div>'
+    body = f'{style}<div class="page-container mp-container pc">{pay_check(rows)}{batch}</div>'
     write("payout.html", "포인트 지급 확인", "payc", body, "ops.js settle.js", '<link rel="stylesheet" href="css/ag/settle.css">')
 
 

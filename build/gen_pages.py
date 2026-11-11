@@ -107,7 +107,7 @@ def cp_id(b, camp):
 # ── 공통 셸 ─────────────────────────────────────────────
 # [2026-11-12 v0.9] 광고주 기능 화면 = 광고주 화면 그대로 — 대행사 틀(.work · 여백 · 바탕) 없이 광고주 페이지 뿌리가 .main-view 에
 #   바로 놓인다(.adv-page = display:contents · css/bridge/shell.css). 대행사 전용 화면만 대행사 영역(.work.ag)
-ADV_KEYS = {"camp", "rvw", "insp", "payc", "photo", "srch", "video", "chat", "pay", "plan", "sms", "pen", "info", "help"}
+ADV_KEYS = {"camp", "rvw", "insp", "payc", "photo", "srch", "video", "chat", "pay", "plan", "sms", "pen", "info", "noti", "notice", "qna", "faq", "smsbox", "home", "agcy"}
 
 
 def frame(active, panel, inner):

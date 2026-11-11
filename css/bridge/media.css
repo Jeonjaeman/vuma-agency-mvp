@@ -77,7 +77,6 @@ a.ri-camp__name:hover{color:var(--color-main)}
 .v9-biz{font-size:12px;margin-bottom:10px}
 .v9-biz a,.v9-pm-camp a{color:inherit;font-weight:700;text-decoration:none}
 .v9-note{margin:0 0 14px;padding:8px 12px;font-size:12px;color:var(--color-text-11);line-height:1.6}
-.v9-msgnote{margin:0;max-width:760px}
 .v9-pm-camp{margin:0 0 14px;padding:6px 10px;font-size:12px;color:var(--color-text-11)}
 .v9-tag{margin-top:4px;font-size:11px}
 .v9-inrep{display:inline-flex;align-items:center;gap:4px;margin-left:auto;padding:2px 6px;font-size:12px;cursor:pointer}

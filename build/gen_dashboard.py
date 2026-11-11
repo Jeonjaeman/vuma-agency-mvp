@@ -699,13 +699,15 @@ NAV = [
                 ("video", "영상 제작 요청", "video.html"), ("chat", "쪽지", "messages.html")]),
     # ※ 광고주 사이트에 채팅은 없음(2026-10-28 제거) — 쪽지만
     ("계정", [("pay", "포인트", "point.html"), ("plan", "사용료", "plan.html"), ("sms", "문자설정", "sms.html"),
-            ("pen", "패널티", "penalty.html"), ("info", "대행사 정보", "info.html"), ("help", "고객센터", "help.html")]),
+            ("pen", "패널티", "penalty.html"), ("info", "마이페이지", "info.html"), ("noti", "알림", "notifications.html"),
+            ("notice", "공지사항", "notice.html"), ("qna", "1:1 문의", "inquiry.html"), ("faq", "자주묻는 질문", "faq.html"),
+            ("smsbox", "문자·메일 발송내역", "sms_box.html"), ("home", "홈", "home.html"), ("agcy", "대행사 신청", "agency_apply.html")]),
 ]
 NAV_HREF = {k: href for _g, items in NAV for k, _l, href in items}
 OPS = {k for k, _l, _h in NAV[1][1]}          # 업체 범위가 걸리는 화면(운영 층)
 # 만들어진 화면 — 화면을 새로 만들면 여기에 키를 더한다(생성 순서와 상관없이 모든 화면의 메뉴가 같게)
 READY = {"dash", "cal", "biz", "rep", "camp", "team", "rvw", "insp", "payc", "photo", "srch", "video", "chat",
-         "pay", "plan", "sms", "pen", "info", "help"}
+         "pay", "plan", "sms", "pen", "info", "noti", "notice", "qna", "faq", "smsbox"}
 
 
 def _built():
@@ -744,21 +746,26 @@ def sidebar(issue_total, active="dash"):
     grp = ADV_ACTIVE.get(active, active)
     sub = lambda k, href, icon, label: _nav(href, icon, label, active == k, "sub-nav-item")   # noqa: E731
     badge = f'<b class="nav-num add" title="대시보드 이슈 합계">{issue_total}</b>'
-    nav = (_nav("dashboard.html", "dashboard", "대시보드", active == "dash", extra=badge)
+    # [2026-11-12] 순서 = 광고주 sidebar.inc.html 그대로(홈 · 캠페인 관리 · 마이페이지 · 대행사 신청 · 문자설정 · 문자·메일 발송내역 · 패널티 · 1:1 문의 · 자주묻는 질문 · 도움말)
+    #   대행사 추가분(.add)은 맨 위 한 덩어리: 대시보드 + "대행사 관리" 묶음
+    nav = (_nav("dashboard.html", "dashboard", "대시보드", active == "dash", cls="nav-item add", extra=badge)
            + '<div class="nav-item-wrap add">' + _nav("schedule.html", "apartment", "대행사 관리", grp == "agc")
            + '<div class="sub-nav">' + sub("cal", "schedule.html", "calendar_month", "일정") + sub("biz", "biz.html", "storefront", "업체")
            + sub("team", "team.html", "badge", "팀·담당자") + sub("rep", "reports.html", "description", "보고서 링크") + "</div></div>"
+           + _nav("home.html", "home", "홈", active == "home")
            + '<div class="nav-item-wrap">' + _nav("campaigns.html", "campaign", "캠페인 관리", grp == "cmp")
            + '<div class="sub-nav">' + sub("camp", "campaigns.html", "list_alt", "캠페인 리스트") + sub("rvw", "reviewers.html", "group", "리뷰어 관리")
            + sub("payc", "payout.html", "paid", "포인트 지급 확인") + sub("photo", "photos.html", "insert_photo", "리뷰 사진 관리")
            + sub("srch", "search_report.html", "bar_chart", "검색결과 리포트") + "</div></div>"
-           + _nav("info.html", "person", "대행사 정보", active == "info") + _nav("sms.html", "sms", "문자설정", active == "sms")
-           + _nav("messages.html", "forward_to_inbox", "문자·메일 발송내역", active == "chat")
-           + _nav("penalty.html", "gavel", "패널티", active == "pen") + _nav("help.html", "support_agent", "1:1 문의", active == "help")
-           + _nav("help.html", "quiz", "자주묻는 질문", False) + _nav("help.html", "help", "도움말", False))
+           + _nav("info.html", "person", "마이페이지", active == "info") + _nav("agency_apply.html", "handshake", "대행사 신청", active == "agcy")
+           + _nav("sms.html", "sms", "문자설정", active == "sms")
+           + _nav("sms_box.html", "forward_to_inbox", "문자·메일 발송내역", active == "smsbox")
+           + _nav("penalty.html", "gavel", "패널티", active == "pen") + _nav("inquiry.html", "support_agent", "1:1 문의", active == "qna")
+           + _nav("faq.html", "quiz", "자주묻는 질문", active == "faq")
+           + '<a href="help.html" class="nav-item" target="_blank" rel="noopener">' + ms("help") + '<span>도움말</span></a>')
     icons = ('<a class="icon-btn" href="#" title="검색">' + ms("search") + '</a>'
-             '<a class="icon-btn" href="help.html" title="알림">' + ms("notifications") + '<span class="badge-dot"></span></a>'
-             '<a class="icon-btn" href="help.html" title="공지">' + ms("brand_awareness") + '</a>'
+             '<a class="icon-btn" href="notifications.html" title="알림">' + ms("notifications") + '<span class="badge-dot"></span></a>'
+             '<a class="icon-btn" href="notice.html" title="공지">' + ms("brand_awareness") + '</a>'
              '<a class="icon-btn" href="messages.html" title="쪽지">' + ms("mail") + '<span class="badge-dot"></span></a>')
     card = ('<div class="user-card"><div class="user-card-header"><div class="user-name-row"><span class="user-name">대표님</span>'
             '<span class="user-email">반갑습니다!</span><a href="#">로그아웃</a></div></div><div class="user-card-body">'
@@ -803,14 +810,12 @@ def topbar():
     return ""
 
 
-# [2026-11-12] 광고주 inc/pageHelp.inc.html 의 오른쪽 아래 물음표(.page-help-fab) — 광고주는 그 화면 도움말 창, 시안은 고객센터 도움말로 이동
-HELP_FAB = ('<a class="page-help-fab" href="help.html" title="도움말" aria-label="도움말 열기"><span class="material-symbols-outlined">help</span></a>')
 
 
 def shell(issue_total, active, body):
     """광고주 index.html 의 틀: .dashboard > aside.sidebar + main.main-content > .main-view"""
     return (f'<div class="dashboard">{sidebar(issue_total, active)}'
-            f'<main class="main-content"><div class="main-view">{body}</div></main>{HELP_FAB}</div>')
+            f'<main class="main-content"><div class="main-view">{body}</div></main></div>')
 
 
 def type_chips(bizs):
@@ -911,7 +916,7 @@ def build():
 	{panels}
 </aside>
 </div>
-</div></main>{HELP_FAB}
+</div></main>
 </div>
 <div class="toasts" aria-live="assertive"></div>
 <script src="js/scope.js"></script>

@@ -2,7 +2,7 @@
 """
 [2026-11-10 v0.8] 계정 층 6화면 — 광고주 계정 화면을 "대행사 하나" 단위로 옮김
   point.html 포인트(pay) · plan.html 사용료(plan) · sms.html 문자설정(sms)
-  penalty.html 패널티(pen) · info.html 대행사 정보(info) · help.html 고객센터(help)
+  penalty.html 패널티(pen) · info.html 마이페이지(info) · notifications · notice · inquiry · faq · help(따로 된 문서)
 [2026-11-11 v0.9] 본문 마크업을 광고주 조각 그대로 옮김(같은 요소·같은 class·같은 순서·같은 문구, PHP 빼고 더미값)
   point   ← U:\\admin\\inc\\point.inc.html (+ termPayment.inc.html · index.html #termPayment 껍데기)
   plan    ← planPurchase.inc.html
@@ -768,8 +768,8 @@ def sender_modals():
 
 
 def sms_page():
-    radios, bar = tab_bar("mst", [("자동문자 사후인증", False), ("자동발송 설정", False), ("발신번호 관리", False)],
-                          extra=f'<a class="cmp-tab-btn add" href="messages.html">문자·메일 발송함{tag("광고주는 메뉴")}</a>')
+    # [2026-11-12] 광고주와 같게 — 탭 3개(문자·메일 발송함은 사이드바 "문자·메일 발송내역"), 첫 화면 = 자동발송 설정(인증된 계정이 보는 화면)
+    radios, bar = tab_bar("mst", [("자동문자 사후인증", False), ("자동발송 설정", False), ("발신번호 관리", False)], checked=1)
     body = (f'<div class="cmp-layout v9t">{radios}{bar}' + pane_verify() + pane_auto() + pane_sender() + "</div>" + sender_modals())
     write("sms.html", "문자설정", "sms", body)
 
@@ -873,12 +873,12 @@ def sec_agency():
             ("플레이스 / 오픈마켓", '<span class="add">업체마다 — <a href="biz.html">업체 화면</a>에서 등록' + tag() + "</span>"),
             ("주소", "04524 서울시 ○○구 ○○로 00, 0층(더미)")]
     return ('<section class="mp-section" id="s-info"><div class="mp-section-header"><span class="material-symbols-outlined icon-mid">account_box</span>'
-            '<h3 class="mp-section-title">대행사 정보</h3></div><div class="mp-profile-top"><div class="mp-avatar-wrap">'
+            '<h3 class="mp-section-title">내정보</h3></div><div class="mp-profile-top"><div class="mp-avatar-wrap">'
             f'<img src="{LOGO}" alt="대행사 로고" class="mp-avatar-img" id="previewImage">'
             '<label class="mp-btn-camera"><span class="material-symbols-outlined">camera_alt</span>'
             '<input type="file" accept="image/*" name="advertiserPhoto" hidden></label></div>'
             f'<div class="mp-profile-greet"><strong>{AGENCY}님</strong> 안녕하세요!'
-            f'<p class="add" style="margin:4px 0 0;font-size:12px;font-weight:400;">{tag()} 사진 = 대행사 로고 — 보고서 공개 화면 머리에 나옵니다</p></div></div>'
+            '</div></div>'
             '<div class="mp-banner-grid"><div class="mp-mini-banner plan"><div class="banner-top"><div class="banner-label">이용 중인 플랜</div>'
             '<div class="banner-value">브론즈</div></div><div class="banner-bottom"><div class="banner-label">만료일 없음 · 무료 플랜</div>'
             '<a class="banner-btn" href="plan.html"><span class="material-symbols-outlined">update</span> 플랜 보기</a></div></div>'
@@ -1010,7 +1010,7 @@ def profile_modal():
 def info_page():
     body = ('<div class="page-container mp-container"><div class="mp-card">'
             + sec_agency() + sec_me() + sec_refund_acc() + sec_leave() + "</div></div>" + profile_modal())
-    write("info.html", "대행사 정보", "info", body)
+    write("info.html", "마이페이지", "info", body)
 
 
 # ════════════════ 6. 고객센터(help.html) ← notifications · notice · inquiry · faq · help.html ════════════════
@@ -1174,14 +1174,25 @@ def pane_help():
 
 
 def help_page():
-    radios, bar = tab_bar("hct", [("알림", False), ("공지사항", False), ("1:1 문의", False), ("자주묻는 질문", False), ("도움말", False)],
-                          extra=f'<span class="v9-hint add">광고주는 사이드바 항목 5개 — 대행사는 고객센터 한 화면{tag()}</span>')
+    """[2026-11-12] 광고주와 같게 화면을 나눔(사이드바 · 아이콘 줄에서 따로 들어감) — 고객센터 한 화면 + 탭 5개 버림
+       알림 = notifications.inc.html(뿌리 .cmp-layout) · 공지 = notice.inc.html · 1:1 문의 = inquiry.inc.html · FAQ = faq.inc.html
+       도움말 = 광고주 /help.html(사이드바 없는 따로 된 문서, 새 창) — 스타일은 그 파일 안 <style> 그대로(css/adv/help-page.css)"""
+    write("notifications.html", "알림", "noti", f'<div class="cmp-layout">{pane_alarm()}</div>')
+    write("notice.html", "공지사항", "notice", pane_notice())
     qna, qna_pop = pane_qna()
-    # 광고주 화면마다 뿌리 display 가 달라(flex 등) 탭 본문은 겉 <div class="v9p"> 로 한 겹 싼다
-    panes = "".join(f'<div class="v9p">{x}</div>' for x in [pane_alarm(), pane_notice(), qna, pane_faq(), pane_help()])
-    body = f'<div class="cmp-layout v9t v9-help">{radios}{bar}{panes}</div>{qna_pop}'
-    write("help.html", "고객센터", "help", body)
-
+    write("inquiry.html", "1:1 문의", "qna", qna + qna_pop)
+    write("faq.html", "자주묻는 질문", "faq", pane_faq())
+    html = ('<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">'
+            f'<title>도움말 · 뷰마 대행사 ({P.G.VERSION} 시안)</title>'
+            '<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">'
+            '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">'
+            '<link rel="stylesheet" href="css/adv/help-page.css"></head><body>'
+            '<!-- [2026-11-12] 광고주 /help.html 과 같은 따로 된 도움말 문서. build/gen_account.py 로 생성(직접 수정 금지) -->'
+            '<div class="help-top"><span class="help-top__title"><span class="material-symbols-outlined">help</span>도움말</span>'
+            '<a class="help-top__back" href="dashboard.html"><span class="material-symbols-outlined">arrow_back</span>대시보드로 돌아가기</a></div>'
+            + pane_help() + '<script src="js/ops.js"></script></body></html>')
+    (K.ROOT / "help.html").write_text(html, encoding="utf-8")
+    print("written help.html (따로 된 도움말 문서)")
 
 if __name__ == "__main__":
     point_page()
