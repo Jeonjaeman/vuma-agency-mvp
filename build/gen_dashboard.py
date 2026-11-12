@@ -918,7 +918,6 @@ def build():
 </div>
 </div></main>
 </div>
-<div class="toasts" aria-live="assertive"></div>
 <script src="js/scope.js"></script>
 <script src="js/dashboard.js"></script>
 </body>

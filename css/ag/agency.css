@@ -552,21 +552,13 @@ tr.camp .tot{font-size:12px;color:var(--ag-c-8)}
 .al-fold summary em{font-style:normal;color:var(--ag-c-14)}
 .al-fold .al-list{margin-top:8px}
 
-/* 토스트 — 오른쪽 아래, 즉시는 닫을 때까지 */
-.toasts{position:fixed;right:20px;bottom:20px;z-index:var(--ag-z-modal);display:flex;flex-direction:column;gap:8px}
-.toast{display:flex;align-items:center;gap:10px;min-width:320px;max-width:440px;padding:12px 12px 12px 16px;background:var(--ag-c-14);color:#fff;border-radius:var(--ag-r-md);box-shadow:var(--ag-sh-md)}
-.toast.lv-u{box-shadow:inset 4px 0 0 var(--ag-danger),var(--ag-sh-md)}
-.toast p{margin:0;flex:1;font-size:13px}
-.toast p span{color:rgba(255,255,255,.75)}
-.t-x{border:0;background:none;color:rgba(255,255,255,.7);cursor:pointer;font-size:14px}
+/* [2026-11-12] 토스트(오른쪽 아래 알림) 규칙 뺌 — 요청 "우측 하단 알림은 제거" */
 
 /* [2026-11-10 v0.4] 업체 칸에 알림 점·캠페인 버튼이 붙어 넓어진 만큼 이슈 칸을 줄여 가로 넘침 방지 */
 .grid .c{width:58px}
 .cell{width:50px}
 .grid .tot{width:44px}
 .toolbar .legend{flex-basis:100%;justify-content:flex-end;margin-top:-4px}
-/* 토스트가 패널 아래 [다음] 버튼을 가리지 않게 */
-.toasts{bottom:84px}
 
 
 /* ══════════════════════════════════════════════════════════

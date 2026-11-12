@@ -506,34 +506,8 @@
 		recountAlerts();
 	}
 
-	// 토스트 — 즉시 등급은 사람이 닫을 때까지 남는다 (DOM 으로 만든다 — 글자는 textContent)
-	function el(tag, cls, text) {
-		var n = document.createElement(tag);
-		if (cls) n.className = cls;
-		if (text) n.textContent = text;
-		return n;
-	}
-	function toast(a) {
-		var urgent = a.dataset.lv === 'u';
-		var box = el('div', 'toast' + (urgent ? ' lv-u' : ''));
-		box.setAttribute('role', urgent ? 'alert' : 'status');
-		box.appendChild(el('span', 'lvb lv-' + a.dataset.lv, urgent ? '즉시' : '확인'));
-		var p = el('p');
-		p.appendChild(el('b', '', KIND_NAME[a.dataset.kind]));
-		p.appendChild(el('span', '', ' · ' + a.querySelector('.al-biz').textContent));
-		box.appendChild(p);
-		var open = el('button', 'ag-btn sm primary js-toast-open', '보기');
-		open.type = 'button';
-		var x = el('button', 't-x', '✕');
-		x.type = 'button';
-		x.setAttribute('aria-label', '닫기');
-		box.appendChild(open);
-		box.appendChild(x);
-		document.querySelector('.toasts').appendChild(box);
-		if (!urgent) setTimeout(function () { box.remove(); }, 6000);
-	}
-
 	// 시연: 화면을 연 뒤 잠시 후 새 취소 요청이 들어온다
+	// [2026-11-12] 오른쪽 아래 토스트는 뺌(요청 "우측 하단 알림은 제거") — 받은 알림 띠·목록 숫자만 늘어난다
 	setTimeout(function () {
 		var demo = alPane.querySelector('.al-card[data-demo]');
 		if (!demo) return;
@@ -541,7 +515,6 @@
 		demo.removeAttribute('data-demo');
 		alPane.querySelector('.js-al-list').prepend(demo);
 		recountAlerts();
-		toast(demo);
 	}, 4000);
 	recountAlerts();
 
@@ -573,8 +546,6 @@
 		if (t.matches('.js-close-alerts')) return closeAlerts();
 		if (t.matches('[data-adone]')) return alertDone(t);
 		if (t.matches('[data-snooze]')) return alertSnooze(t);
-		if (t.matches('.js-toast-open')) { t.closest('.toast').remove(); return showAlerts('', ''); }
-		if (t.matches('.t-x')) return t.closest('.toast').remove();
 		if (t.matches('.js-afilter')) {
 			var on = !grid.dataset.alert;
 			if (on) grid.dataset.alert = '1'; else delete grid.dataset.alert;
