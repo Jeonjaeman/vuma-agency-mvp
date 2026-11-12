@@ -422,11 +422,12 @@ def pay_tr(c, v, p):
     odd = bool(p and p["st"] == "noacc")             # 진행 상태와 지급 기록이 다른 줄(시안 = 계좌 미등록)
     sel = ymd(c["dts"]["sel"], False) if c["dts"] else "-"
     if paid:
-        pay = (f'<span class="st-done">지급완료</span><div style="font-size:12px;color:#555;margin-top:2px;">'
-               f'{p["amt"]:,}P · {ymd(c["dts"]["rev"] + 2, False)}</div>')
+        # [2026-11-12] 지급 칸 = 한 줄(상태 · 금액 · 버튼) — 세 줄로 쌓이던 것을 .pc-pay 한 줄로(css/bridge/ops.css)
+        pay = (f'<div class="pc-pay"><span class="st-done">지급완료</span><span class="pc-amt">'
+               f'{p["amt"]:,}P · {ymd(c["dts"]["rev"] + 2, False)}</span></div>')
     else:
-        pay = (f'<span class="st-wait">지급대기</span><div style="font-size:12px;color:#555;margin-top:2px;">예정 {c["reward"]:,}P</div>'
-               '<button type="button" class="btn btn--sm btn--outline js-flash" style="margin-top:6px;" data-msg="1:1 문의 창(시안)">1:1 문의</button>')
+        pay = (f'<div class="pc-pay"><span class="st-wait">지급대기</span><span class="pc-amt">예정 {c["reward"]:,}P</span>'
+               '<button type="button" class="btn btn--sm btn--outline js-flash" data-msg="1:1 문의 창(시안)">1:1 문의</button></div>')
     flag = ' <span style="color:#d46b08;font-size:12px;">● 확인 필요</span>' if odd else ""
     return (f'<tr class="prow v-{c["id"]}{"" if paid else " p-wait"}" data-biz="{b["id"]}"{" style=\"background:#fff7e6;\"" if odd else ""}>'
             f'<td data-label="캠페인"><a href="campaigns.html#c-{c["id"]}-rev">{esc(c["name"])}</a>{flag}</td>'

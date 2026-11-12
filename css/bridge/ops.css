@@ -18,15 +18,16 @@
 .modal-wrap[popover]::backdrop{background:transparent}
 
 /* ── 리뷰어 관리 ── */
+/* [2026-11-12] 보이는 탭 칸 = flex(광고주 .cmp-reviewer-list 가 flex · 간격 12px — block 이면 카드 사이 간격이 사라짐) */
 .rvm .rv-pane{display:none}
 .rvm:has(input[name=rtab][value=all]:checked) .rv-pane--all,
 .rvm:has(input[name=rtab][value=fav]:checked) .rv-pane--fav,
 .rvm:has(input[name=rtab][value=cancelreq]:checked) .rv-pane--cancelreq,
 .rvm:has(input[name=rtab][value=blocked]:checked) .rv-pane--blocked,
-.rvm:has(input[name=rtab][value=reported]:checked) .rv-pane--reported{display:block}
+.rvm:has(input[name=rtab][value=reported]:checked) .rv-pane--reported{display:flex}
 /* 선정취소한 리뷰어 보기(광고주 = rtab=canceled 로 이동) → 켜면 탭과 상관없이 선정취소 목록만 */
 .rvm:has(#rvcx:checked) .rv-pane{display:none}
-.rvm:has(#rvcx:checked) .rv-pane--cancelreq{display:block}
+.rvm:has(#rvcx:checked) .rv-pane--cancelreq{display:flex}
 .rv-pane--cancelreq .rev-canceled,.rvm:has(#rvcx:checked) .rev-cancelreq{display:none}
 .rvm:has(#rvcx:checked) .rv-pane--cancelreq .rev-canceled{display:block}
 .rvm:has(#rvcx:checked) .status-tab{background:var(--color-text-2);color:var(--color-text-11);font-weight:400}
@@ -47,7 +48,12 @@ a.rev-hist-name:hover{text-decoration:underline}
 
 /* ── 포인트 지급 확인 ── */
 .pc{gap:16px}
-/* [2026-11-12] 카드 폭 = 광고주 620px 그대로(넓히던 규칙 · 위 탭 규칙 뺌) */
+/* [2026-11-12] 카드 폭 — 광고주 620px 이면 표 글이 두세 줄로 접힘 → 요청 "영역을 넓게 써서 줄나눔 최소화" 로 넓힘 */
+.pc > .mp-card{max-width:1180px}
+@media (min-width: 1025px) {.pc .pm-table th,.pc .pm-table td{white-space:nowrap}}
+/* 지급 칸 한 줄: 상태 · 금액 · [1:1 문의] */
+.pc-pay{display:flex;align-items:center;gap:8px}
+.pc-amt{font-size:12px;color:#555}
 /* 지급대기만 보기(광고주 = ?wait=1 로 다시 읽음) */
 .pc .pc-wait{cursor:pointer}
 .pc .pc-on,.pc:has(#pwait:checked) .pc-off{display:none}
@@ -55,3 +61,11 @@ a.rev-hist-name:hover{text-decoration:underline}
 .pc:has(#pwait:checked) .pc-wait{background:#f1f1f3;border-color:#ddd}
 .pc:has(#pwait:checked) .prow:not(.p-wait){display:none}
 .pm-table td a{color:inherit}
+
+/* [2026-11-12] 포인트 지급 확인 표 [1:1 문의] — 광고주 마크업 .btn.btn--sm.btn--outline 이 광고주 CSS 에선 .photo-modal 안에서만 꾸며져
+   표 안에서는 회색 시스템 버튼으로 보였다. 광고주 main.css 의 외곽선 · 작은 버튼 값(.photo-modal .btn--outline / .btn--sm)을 그대로 이 표에 */
+.pm-table .btn.btn--outline{display:inline-flex;align-items:center;gap:4px;height:34px;padding:0 14px;
+	border-radius:var(--r-8,8px);font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;
+	background:#fff;border:1px solid var(--color-text-4);color:var(--color-text-10)}
+.pm-table .btn.btn--outline:hover{border-color:var(--color-main);background:var(--color-main-light);color:var(--color-main)}
+.pm-table .btn.btn--outline:focus-visible{outline:2px solid var(--color-main);outline-offset:2px}
