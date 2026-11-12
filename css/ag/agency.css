@@ -590,3 +590,21 @@ tr.camp .tot{font-size:12px;color:var(--ag-c-8)}
 .card-agency.add{padding:3px 8px}
 /* 대행사 화면 틀(광고주 .content-wrapper 값 — 24px 16px · 간격 20px · 바탕 #edecf0) */
 .work.ag{flex:1;min-height:0;padding:24px 16px;gap:20px;background:#edecf0}
+
+/* [2026-11-12] 미담당 → 그 자리에서 담당자 배정 — 요청 "업체 페이지 말고 바로 담당자를 배정"
+   '미담당' 글자를 버튼으로(빨간 글자 그대로 + 작은 [배정] 꼬리표) · 누르면 바로 아래에 배정 창(popover) */
+button.own-go{border:0;background:none;padding:0;font:inherit;font-weight:700;cursor:pointer;gap:5px}
+.own-go .own-plus{font-size:11px;font-weight:700;line-height:18px;padding:0 6px;border-radius:var(--ag-r-full);background:var(--ag-danger);color:#fff}
+.own-go:hover .own-plus{filter:brightness(.9)}
+.own-go:focus-visible{outline:2px solid var(--ag-main);outline-offset:2px;border-radius:4px}
+.own-pop{inset:0;margin:auto;height:fit-content;width:290px;padding:14px;border:1px solid var(--ag-c-3);border-radius:var(--ag-r-lg);box-shadow:var(--ag-sh-md);background:#fff;color:var(--ag-c-14);text-align:left}
+@supports (position-area:bottom){
+	.own-pop{inset:auto;margin:6px 0;position-area:bottom span-right;position-try-fallbacks:flip-block,flip-inline,flip-block flip-inline}
+}
+.own-pop .op-h{margin:0 0 10px;font-size:13px;font-weight:700;color:var(--ag-c-9)}
+.own-pop .op-h b{display:block;margin-top:2px;font-size:15px;color:var(--ag-c-14)}
+.own-pop select{width:100%}
+.own-pop .op-note{margin:8px 0 0;font-size:12px;line-height:1.5;color:var(--ag-c-8)}
+.own-pop .op-msg{margin:6px 0 0;font-size:12px;font-weight:700;color:var(--ag-danger)}
+.own-pop .op-msg:empty{display:none}
+.own-pop .op-acts{display:flex;justify-content:flex-end;gap:6px;margin-top:12px}

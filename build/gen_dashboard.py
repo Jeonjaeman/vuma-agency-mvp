@@ -250,7 +250,7 @@ def biz_row(b, show_owner=True):
     """[2026-11-09] data-g = 업체의 기한 묶음 → CSS 가 이름 칸 왼쪽 색 선으로 표시(어느 묶음 행인지 스크롤 중에도 보이게)"""
     owner = b["owner"]
     who = (f'<span class="who"><i>{esc(owner[1][0])}</i>{esc(owner[1])}</span>' if owner
-           else '<span class="who none">미담당</span>')
+           else own_btn(b))
     total = sum(v["n"] for v in b["issues"].values())
     cells = "".join(cell_html(b, k) for k, _ in ISSUES)
     gk = group_of(biz_due(b))
@@ -787,7 +787,28 @@ def sidebar(issue_total, active="dash"):
             '<a href="#">개인정보처리방침</a></div>'
             # [2026-11-12] 광고주 sidebar.inc.html .sidebar-biz 그대로(값 = core define.inc.php BIZ_NUMBER · BIZ_CS_TEL — 회사 공개 정보)
             '<div class="sidebar-biz"><span>사업자등록번호 615-88-02870</span><span>고객센터 1833-3675</span></div>'
-            '<p>ⓒ ANYRIZE All Rights Reserved.</p></div></aside>')
+            '<p>ⓒ ANYRIZE All Rights Reserved.</p></div></aside>' + own_pops())
+
+
+def own_btn(b):
+    """[2026-11-12] 미담당 = 누르면 그 자리에서 담당자 배정(요청 "업체 페이지 말고 바로 담당자를 배정") — 창은 own_pops()"""
+    return (f'<button type="button" class="who none own-go add" popovertarget="pop-own-{b["id"]}" data-own-biz="{b["id"]}" '
+            f'title="눌러서 담당자 배정">미담당<span class="own-plus">배정</span></button>')
+
+
+def own_pops():
+    """[2026-11-12] 미담당 업체마다 배정 창 하나(popover · 누른 '미담당' 바로 아래) — 사이드바 뒤에 붙여 모든 화면에서 씀.
+       고르고 [배정] 누른 뒤 화면 글자 바꾸기만 js/scope.js"""
+    opts = "".join(f'<option value="{sid}">{name} ({tname})</option>' for sid, name, _l, tname in STAFF)
+    return "".join(
+        f'<div class="own-pop ag" id="pop-own-{b["id"]}" popover aria-label="{esc(b["name"])} 담당자 배정">'
+        f'<p class="op-h">담당자 배정 <b>{esc(b["name"])}</b></p>'
+        f'<select class="input js-op-sel" aria-label="담당자"><option value="">담당자 선택</option>{opts}</select>'
+        f'<p class="op-note">업체마다 1명 · 진행 캠페인 {len(b["camps"])}개도 이 사람이 맡고, 이 업체 알림을 받습니다</p>'
+        f'<p class="op-msg js-op-msg" role="status"></p>'
+        f'<div class="op-acts"><button type="button" class="ag-btn sm" popovertarget="pop-own-{b["id"]}" popovertargetaction="hide">취소</button>'
+        f'<button type="button" class="ag-btn sm primary js-op-ok" data-biz="{b["id"]}">배정</button></div></div>'
+        for b in SCOPE_BIZ if not b["owner"])
 
 
 def scope_pop():

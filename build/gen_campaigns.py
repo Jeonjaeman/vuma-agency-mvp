@@ -116,7 +116,7 @@ def stage_chip(c):
 
 def owner_html(b):
     return (f'<span class="who"><i>{b["owner"][1][0]}</i>{b["owner"][1]}</span>' if b["owner"]
-            else '<span class="who none">미담당</span>')
+            else P.G.own_btn(b))          # [2026-11-12] 미담당 = 그 자리에서 배정
 
 
 def offer(c):

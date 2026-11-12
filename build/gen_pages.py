@@ -334,7 +334,7 @@ def biz_row(b):
     n_iss = sum(v["n"] for v in b["issues"].values())
     hot_n = sum(1 for v in b["issues"].values() for _c, d in v["items"] if d <= 0)
     owner = (f'<span class="who"><i>{b["owner"][1][0]}</i>{b["owner"][1]}</span>' if b["owner"]
-             else '<span class="who none">미담당</span>')
+             else G.own_btn(b))           # [2026-11-12] 미담당 = 그 자리에서 배정
     team = b["owner"][3] if b["owner"] else "—"
     cls = " f-un" if not b["owner"] else ""
     cls += " f-iss" if n_iss else ""

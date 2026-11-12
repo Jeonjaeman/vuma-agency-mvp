@@ -44,6 +44,31 @@
 		a.setAttribute('href', u.href);
 	});
 
+	// [2026-11-12] 미담당 → 그 자리에서 담당자 배정(요청 "업체 페이지 말고 바로 담당자를 배정")
+	//   창 여닫기는 HTML popover. 왜 JS 인가: 고른 사람 이름을 이 화면의 같은 업체 '미담당' 자리마다 바꿔 적는 일은 CSS 로 못 한다.
+	//   업체 화면은 'ag:owner' 소식을 받아 목록 줄·상세 선택값도 바꾼다(js/pages.js). 시안 — 저장 없음
+	document.addEventListener('click', function (e) {
+		var ok = e.target.closest('.js-op-ok');
+		if (!ok) return;
+		var pop = ok.closest('.own-pop');
+		var sel = pop.querySelector('.js-op-sel');
+		var msg = pop.querySelector('.js-op-msg');
+		if (!sel.value) { msg.textContent = '담당자를 고르세요'; return; }
+		var m = sel.options[sel.selectedIndex].textContent.match(/^(.+) \((.+)\)$/);
+		var name = m ? m[1] : sel.value;
+		document.querySelectorAll('.own-go[data-own-biz="' + ok.dataset.biz + '"]').forEach(function (b) {
+			var w = document.createElement('span');
+			w.className = 'who';
+			var i = document.createElement('i');
+			i.textContent = name.charAt(0);
+			w.appendChild(i);
+			w.appendChild(document.createTextNode(name));
+			b.replaceWith(w);
+		});
+		pop.hidePopover();
+		document.dispatchEvent(new CustomEvent('ag:owner', { detail: { biz: ok.dataset.biz, sid: sel.value, name: name, team: m ? m[2] : '' } }));
+	});
+
 	// 범위 창 업체 찾기(글자)
 	var q = document.querySelector('.js-sp-q');
 	if (q) q.addEventListener('input', function () {

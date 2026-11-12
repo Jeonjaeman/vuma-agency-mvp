@@ -61,6 +61,10 @@
 		bulk.hidden = sel.length === 0;
 		bulk.querySelector('.js-bulk-n').textContent = sel.length + '곳 선택';
 		bulk.querySelector('.js-bulk-msg').textContent = '';
+		// [2026-11-12] 기본값 = 지금 담당자(요청 "담당자가 배정되어 있으면 기본값이 현재 담당자") — 고른 업체 담당이 모두 같을 때만, 섞이면 비움
+		var owners = sel.map(function (r) { var s = ownSel(r.dataset.biz); return s ? s.value : ''; });
+		var same = owners.length && owners.every(function (o) { return o === owners[0]; });
+		bulk.querySelector('.js-bulk-own').value = same ? owners[0] : '';
 	}
 	var search = document.querySelector('.js-bsearch');
 	if (search) search.addEventListener('input', function () {
@@ -89,7 +93,20 @@
 		row.querySelector('.js-owner').appendChild(w);
 		row.querySelector('.js-team').textContent = sid ? team : '—';
 		row.classList.toggle('f-un', !sid);
+		// [2026-11-12] 상세의 담당자 선택값도 같이 — 다시 열었을 때 기본값 = 지금 담당자
+		var ds = ownSel(row.dataset.biz);
+		if (ds) ds.value = sid;
 	}
+	function ownSel(id) {
+		var b = document.querySelector('.js-own-save[data-biz="' + id + '"]');
+		return b ? b.closest('.assign').querySelector('.js-own-sel') : null;
+	}
+	// [2026-11-12] 미담당 자리에서 바로 배정한 결과(js/scope.js) → 목록 줄 · 상세에도 반영
+	document.addEventListener('ag:owner', function (e) {
+		var d = e.detail;
+		var row = document.querySelector('.brow[data-biz="' + d.biz + '"]');
+		if (row) setOwner(row, d.sid, d.name, d.team);
+	});
 	function optInfo(sel) {
 		var o = sel.options[sel.selectedIndex];
 		var mm = o.textContent.match(/^(.+) \((.+)\)$/);
