@@ -257,7 +257,8 @@ def biz_row(b, show_owner=True):
     staff_cls = "" if show_owner else " in-staff"
     cfold = (f'<label class="cfold"><input type="checkbox" class="camp-cb" aria-label="{esc(b["name"])} 캠페인 펼치기">'
              f'캠페인 {len(b["camps"])}</label>')
-    return (f'<tr class="biz{staff_cls} {has_classes(b["issues"].keys())}" data-g="{gk}">'
+    own_attr = f' data-own="{owner[0] if owner else ""}" data-team="{owner[3] if owner and owner[3] != "팀 없음" else ""}"'
+    return (f'<tr class="biz{staff_cls} {has_classes(b["issues"].keys())}" data-g="{gk}"{own_attr}>'
             f'<th scope="row" class="bizname"><button type="button" class="bizlink" data-biz="{b["id"]}">{esc(b["name"])}</button>'
             f'<button type="button" class="adot" data-abiz="{b["id"]}" hidden><i aria-hidden="true"></i><em></em></button>'
             f'{who if show_owner else ""}'
@@ -314,7 +315,7 @@ def tbody_by_staff(bizs):
     parts = ['<tbody class="tb-staff">']
     un = [b for b in bizs if b["owner"] is None]
     if un:
-        parts.append(f'<tr class="team team-none-owner has-owner"><th scope="rowgroup" colspan="{len(ISSUES) + 2}">'
+        parts.append(f'<tr class="team team-none-owner has-owner" data-own="" data-team=""><th scope="rowgroup" colspan="{len(ISSUES) + 2}">'
                      f'<span class="g-in"><span class="g-ico" aria-hidden="true">!</span><b>미담당 업체</b>'
                      f'<em class="g-n">{len(un)}곳</em><span class="g-desc">담당자를 정해 주세요</span></span></th></tr>')
         parts += [biz_row(b, False) for b in un]
@@ -325,7 +326,8 @@ def tbody_by_staff(bizs):
         t_late = sum(1 for b in team_b if b["issues"] and biz_due(b) < 0)
         meta = (f'팀장 {lead_name} · ' if lead_name else "") + f'담당자 {len(members)}명 · 업체 {len(team_b)}곳 · 이슈 {t_issue}건'
         tcls = "team" if lead_name else "team team-solo"
-        parts.append(f'<tr class="{tcls} {has_classes({k for b in team_b for k in b["issues"]})}">'
+        tteam = "" if tname == "팀 없음" else tname
+        parts.append(f'<tr class="{tcls} {has_classes({k for b in team_b for k in b["issues"]})}" data-team="{tteam}">'
                      f'<th scope="rowgroup" colspan="{len(ISSUES) + 2}"><span class="g-in"><b>{tname}</b>'
                      f'<span class="g-desc">{meta}</span>'
                      f'{f"<em class=g-late>기한 지남 {t_late}곳</em>" if t_late else ""}</span></th></tr>')
@@ -335,7 +337,7 @@ def tbody_by_staff(bizs):
             issues_n = sum(v["n"] for b in mine for v in b["issues"].values())
             late_n = sum(1 for b in mine if b["issues"] and biz_due(b) < 0)
             badge = '<span class="lead">팀장</span>' if lead else ""
-            parts.append(f'<tr class="staff {has_classes({k for b in mine for k in b["issues"]})}">'
+            parts.append(f'<tr class="staff {has_classes({k for b in mine for k in b["issues"]})}" data-own="{sid}" data-team="{tteam}">'
                          f'<th scope="row"><span class="who"><i>{sname[0]}</i>{sname}</span>{badge}'
                          f'<em>업체 {len(mine)}곳{f" · <span class=late-t>기한 지남 {late_n}</span>" if late_n else ""}</em></th>'
                          f'<td class="tot"><span class="sum" data-sum="s-{sid}-total">{issues_n}</span></td>{sum_cells(mine, "s-" + sid)}</tr>')
@@ -767,7 +769,10 @@ def sidebar(issue_total, active="dash"):
              '<a class="icon-btn" href="notifications.html" title="알림">' + ms("notifications") + '<span class="badge-dot"></span></a>'
              '<a class="icon-btn" href="notice.html" title="공지">' + ms("brand_awareness") + '</a>'
              '<a class="icon-btn" href="messages.html" title="쪽지">' + ms("mail") + '<span class="badge-dot"></span></a>')
-    card = ('<div class="user-card"><div class="user-card-header"><div class="user-name-row"><span class="user-name">대표님</span>'
+    # [2026-11-12] 이름 = 보는 사람 고르기(요청 "현재 개인 지정해서 내 업체 · 우리 팀도 작동하게") — 시안 전용, 주소 ?me= 로 화면을 넘어 이어짐(js/scope.js)
+    card = ('<div class="user-card"><div class="user-card-header"><div class="user-name-row">'
+            '<button type="button" class="user-name who-go add" popovertarget="who-pop" title="보는 사람 바꾸기(시안)">'
+            '<b class="js-me-name">대표님</b><i class="wg-car" aria-hidden="true">▾</i></button>'
             '<span class="user-email">반갑습니다!</span><a href="#">로그아웃</a></div></div><div class="user-card-body">'
             '<div class="user-info-row"><span class="info-label">브론즈</span><div class="info-value-group"><span class="info-value">무료</span>'
             '<a class="btn-tag" href="plan.html">플랜</a></div></div>'
@@ -775,6 +780,7 @@ def sidebar(issue_total, active="dash"):
             '<a class="btn-tag" href="point.html">충전</a></div></div></div></div>')
     scope = ('<div class="scope-box add ag"><p class="scope-l">업체 범위</p><button type="button" class="scope-biz" popovertarget="scope-pop">'
              f'{ms("storefront")}<b class="js-scope-name">전체 업체</b>{ms("expand_more")}</button>{scope_pop()}</div>')
+    card += who_pop()
     return (f'<aside class="sidebar"><div class="sidebar-inner">'
             f'<div class="sidebar-brand"><p class="brand-label">뷰마 대행사 <a class="ver add" href="versions/" title="이전 버전 보기">{VERSION} 시안</a></p>'
             f'<h1 class="brand-name">애니라인 마케팅</h1></div>'
@@ -788,6 +794,15 @@ def sidebar(issue_total, active="dash"):
             # [2026-11-12] 광고주 sidebar.inc.html .sidebar-biz 그대로(값 = core define.inc.php BIZ_NUMBER · BIZ_CS_TEL — 회사 공개 정보)
             '<div class="sidebar-biz"><span>사업자등록번호 615-88-02870</span><span>고객센터 1833-3675</span></div>'
             '<p>ⓒ ANYRIZE All Rights Reserved.</p></div></aside>' + own_pops())
+
+
+def who_pop():
+    """[2026-11-12] 보는 사람(시안) — 대표(관리자) 또는 직원 한 명. 고르면 대시보드 [내 업체] [우리 팀] 이 그 사람 기준"""
+    rows = "".join(f'<li><a href="?me={sid}" data-me="{sid}" data-name="{name}" data-team="{"" if tname == "팀 없음" else tname}">'
+                   f'{name}<small>{tname}{" · 팀장" if lead else ""}</small></a></li>' for sid, name, lead, tname in STAFF)
+    return (f'<div id="who-pop" class="who-pop scope-pop ag" popover><p class="sp-h">보는 사람 <small>시안 — 이 사람으로 로그인했다고 보고 '
+            f'대시보드 [내 업체] [우리 팀]을 거릅니다</small></p>'
+            f'<a class="sp-all" href="?me=" data-me="">대표님 <small>관리자 · 모든 업체</small></a><ul>{rows}</ul></div>')
 
 
 def own_btn(b):
@@ -889,8 +904,11 @@ def build():
 			<h1 id="board-title">대시보드</h1>
 			<p class="sub">{TODAY_LABEL} · 업체 {len(bizs)}곳 중 <b>{with_issue}곳</b>에 이슈 <b>{total_issue}건</b> · 기한 지남·오늘 <b class="hot-t">{hot}곳</b></p>
 		</div>
+		<div class="vw-box">
 		<div class="seg" role="group" aria-label="보기 범위">
-			<button type="button">내 업체</button><button type="button">우리 팀</button><button type="button" class="ag-on">전체</button>
+			<button type="button" class="js-vw" data-vw="me">내 업체</button><button type="button" class="js-vw" data-vw="team">우리 팀</button><button type="button" class="js-vw ag-on" data-vw="">전체</button>
+		</div>
+		<p class="vw-note js-vw-note" role="status"></p>
 		</div>
 	</div>
 

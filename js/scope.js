@@ -21,18 +21,35 @@
 		document.head.appendChild(st);
 		pick.classList.add('ag-on');
 	} else {
-		var all = document.querySelector('.scope-pop .sp-all');
+		var all = document.querySelector('#scope-pop .sp-all');   // [2026-11-12] #scope-pop — 보는 사람 창(.who-pop)도 .scope-pop 모양을 씀
 		if (all) all.classList.add('ag-on');
 	}
 
-	// 링크에 범위 붙이기 — 범위 창 안 링크는 이미 ?biz= 를 갖고 있으니 건너뜀
-	if (biz) {
+	// [2026-11-12] 보는 사람(?me=psj · 시안 전용) — 이름 자리 글자를 바꾸고 <body data-me data-team> 로 알림(대시보드 [내 업체] [우리 팀] 이 씀)
+	//   왜 JS 인가: 주소 값을 읽어 화면을 거르는 일은 CSS 로 못 한다(위 업체 범위와 같은 이유)
+	var me = new URLSearchParams(location.search).get('me') || '';
+	var mePick = me && document.querySelector('.who-pop [data-me="' + me + '"]');
+	if (!mePick) me = '';
+	if (me) {
+		document.body.dataset.me = me;
+		document.body.dataset.meName = mePick.dataset.name;
+		document.body.dataset.team = mePick.dataset.team;
+		document.querySelectorAll('.js-me-name').forEach(function (n) { n.textContent = mePick.dataset.name; });
+		mePick.classList.add('ag-on');
+	} else {
+		var boss = document.querySelector('.who-pop .sp-all');
+		if (boss) boss.classList.add('ag-on');
+	}
+
+	// 링크에 범위·보는 사람 붙이기 — 두 창 안 링크는 아래에서 따로 정하니 건너뜀
+	var carry = (biz ? '&biz=' + biz : '') + (me ? '&me=' + me : '');
+	if (carry) {
 		document.querySelectorAll('a[href]').forEach(function (a) {
 			var h = a.getAttribute('href');
 			if (!/^[\w-]+\.html/.test(h) || /^report\.html/.test(h) || a.closest('.scope-pop')) return;
 			var i = h.indexOf('#');
 			var path = i < 0 ? h : h.slice(0, i), hash = i < 0 ? '' : h.slice(i);
-			a.setAttribute('href', path + (path.indexOf('?') < 0 ? '?' : '&') + 'biz=' + biz + hash);
+			a.setAttribute('href', path + (path.indexOf('?') < 0 ? '?' + carry.slice(1) : carry) + hash);
 		});
 	}
 
@@ -41,6 +58,13 @@
 		var u = new URL(location.href);
 		if (a.dataset.scope) u.searchParams.set('biz', a.dataset.scope); else u.searchParams.delete('biz');
 		u.hash = '';                             // 다른 업체의 캠페인 페이지가 열려 있지 않게
+		a.setAttribute('href', u.href);
+	});
+	// 보는 사람 창: 지금 화면에서 me 만 바꿔 이동(업체 범위는 그대로)
+	document.querySelectorAll('.who-pop [data-me]').forEach(function (a) {
+		var u = new URL(location.href);
+		if (a.dataset.me) u.searchParams.set('me', a.dataset.me); else u.searchParams.delete('me');
+		u.hash = '';
 		a.setAttribute('href', u.href);
 	});
 
@@ -73,7 +97,7 @@
 	var q = document.querySelector('.js-sp-q');
 	if (q) q.addEventListener('input', function () {
 		var t = q.value.trim();
-		document.querySelectorAll('.scope-pop li').forEach(function (li) {
+		document.querySelectorAll('#scope-pop li').forEach(function (li) {
 			li.hidden = !!t && li.textContent.indexOf(t) < 0;
 		});
 	});

@@ -22,6 +22,9 @@
 	var current = null;     // 지금 열린 칸 id (예: "b3-review")
 	var mode = 'grid';      // 'grid' = 격자 순서 / 'biz' = 같은 업체 안에서
 	var typeFilter = '';    // '' = 전체 유형 / 'v' 방문형 / 's' 배송형 / 'p' 기자단
+	// [2026-11-12] 보기 범위 — '' 전체 / 'me' 내 업체 / 'team' 우리 팀. 기준 = 보는 사람(<body data-me data-team>, js/scope.js)
+	var viewFilter = '';
+	var ME = document.body.dataset.me || '', MY_TEAM = document.body.dataset.team || '';
 
 	// ── 기한 표기 (gen_dashboard.py 의 due_label / due_class 와 같은 규칙) ──
 	function dueLabel(d) { return d < 0 ? (-d) + '일 지남' : d === 0 ? '오늘' : 'D-' + d; }
@@ -157,8 +160,9 @@
 		function add(k, n) { sums[k] = (sums[k] || 0) + n; }
 		grid.querySelectorAll('.tb-biz tr.biz').forEach(function (row) {
 			var rowTot = 0;
+			var out = row.classList.contains('o-out');
 			row.querySelectorAll('.cell:not(.ccell)').forEach(function (c) {
-				var n = c.classList.contains('ag-done') || c.classList.contains('t-zero') ? 0 : shownItems(c).length;
+				var n = out || c.classList.contains('ag-done') || c.classList.contains('t-zero') ? 0 : shownItems(c).length;
 				var key = c.dataset.cell.split('-')[1];
 				rowTot += n;
 				add('all-' + key, n); add('all-total', n);
@@ -187,7 +191,7 @@
 		// 묶음 머리의 "N곳"
 		grid.querySelectorAll('.tb-biz tr.grp').forEach(function (h) {
 			var n = 0, r = h.nextElementSibling;
-			while (r && !r.classList.contains('grp')) { if (r.classList.contains('biz') && !(typeFilter && r.classList.contains('t-empty'))) n++; r = r.nextElementSibling; }
+			while (r && !r.classList.contains('grp')) { if (r.classList.contains('biz') && !r.classList.contains('o-out') && !(typeFilter && r.classList.contains('t-empty'))) n++; r = r.nextElementSibling; }
 			var em = h.querySelector('.js-gcount');
 			if (em) em.textContent = n + '곳';
 			h.classList.toggle('g-empty', n === 0);
@@ -334,6 +338,41 @@
 		panel.querySelectorAll('.cgroup').forEach(function (g) { g.classList.toggle('t-off', !!typeFilter && g.dataset.type !== typeFilter); });
 		recount();
 	}
+
+	// [2026-11-12] 5-1) 보기 범위 [내 업체] [우리 팀] [전체] — 요청 "현재 개인 지정해서 내 업체 · 우리 팀도 작동하게"
+	//   행의 data-own(담당자) · data-team(팀)을 보는 사람과 견줘 o-out(숨김)을 붙이고, 합계를 다시 셈
+	function rowOut(r) {
+		if (!viewFilter || !r.hasAttribute('data-team')) return false;
+		if (viewFilter === 'team') return r.dataset.team !== MY_TEAM;
+		return r.hasAttribute('data-own') ? r.dataset.own !== ME : r.dataset.team !== MY_TEAM;   // 팀 머리줄 = 내 팀만
+	}
+	function setView(vw) {
+		viewFilter = vw;
+		document.querySelectorAll('.js-vw').forEach(function (b) { b.classList.toggle('ag-on', b.dataset.vw === vw); });
+		grid.querySelectorAll('tr[data-team]').forEach(function (r) {
+			var out = rowOut(r);
+			r.classList.toggle('o-out', out);
+			if (r.classList.contains('biz')) campRowsOf(r).forEach(function (s) { s.classList.toggle('o-out', out); });
+		});
+		recount();
+		var note = document.querySelector('.js-vw-note');
+		var who = document.body.dataset.meName || '대표님';
+		var mine = grid.querySelectorAll('.tb-biz tr.biz:not(.o-out)');
+		var hot = Array.prototype.filter.call(mine, function (r) { return !r.classList.contains('t-empty'); }).length;
+		var head = vw === 'me' ? who + ' 담당 ' : vw === 'team' ? MY_TEAM + ' ' : '';
+		if (note) note.textContent = vw ? head + mine.length + '곳 · 이슈 있는 곳 ' + hot : '';
+	}
+	(function initView() {
+		var bMe = document.querySelector('.js-vw[data-vw="me"]'), bTeam = document.querySelector('.js-vw[data-vw="team"]');
+		if (!bMe) return;
+		// 대표(관리자) = 맡은 업체 · 팀 없음 → 두 버튼을 끄고 이유를 보여 줌 / 팀 없는 직원 = [우리 팀]만 끔
+		var hint = '사이드바 이름(대표님 ▾)을 눌러 보는 사람을 고르세요';
+		if (!ME) { bMe.disabled = bTeam.disabled = true; bMe.title = bTeam.title = hint; }
+		else if (!MY_TEAM) { bTeam.disabled = true; bTeam.title = '팀이 없는 담당자입니다'; }
+		document.querySelectorAll('.js-vw').forEach(function (b) { b.addEventListener('click', function () { setView(b.dataset.vw); }); });
+		if (ME) setView('me');      // 직원으로 보면 처음부터 내 업체
+		else { var note = document.querySelector('.js-vw-note'); if (note) note.textContent = '보는 사람: 대표님(관리자) · 이름을 눌러 바꾸기'; }
+	})();
 
 	// 6) 선정 근거 — 근거(지수·이력)가 없는 신청자는 블로그를 열어 봐야 [선정]이 켜진다
 	//   시안에서는 실제 블로그로 나가지 않고 "확인함" 표시만 한다.

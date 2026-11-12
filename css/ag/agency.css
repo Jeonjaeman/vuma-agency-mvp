@@ -608,3 +608,19 @@ button.own-go{border:0;background:none;padding:0;font:inherit;font-weight:700;cu
 .own-pop .op-msg{margin:6px 0 0;font-size:12px;font-weight:700;color:var(--ag-danger)}
 .own-pop .op-msg:empty{display:none}
 .own-pop .op-acts{display:flex;justify-content:flex-end;gap:6px;margin-top:12px}
+
+/* [2026-11-12] 보는 사람(시안) + 보기 범위 [내 업체] [우리 팀] — 요청 "현재 개인 지정해서 내 업체 · 우리 팀도 작동하게"
+   사이드바 이름 = 버튼(누르면 보는 사람 창) · 대시보드는 그 사람 기준으로 행을 숨김(.o-out) */
+button.who-go{display:inline-flex;align-items:center;gap:2px;border:0;background:none;padding:0;font:inherit;cursor:pointer;color:inherit}
+button.who-go b{font-weight:700}
+button.who-go .wg-car{font-style:normal;font-size:12px;color:var(--ag-c-8);margin-left:2px}
+button.who-go:hover b{text-decoration:underline}
+.who-pop{top:150px}
+.who-pop ul{list-style:none;margin:6px 0 0;padding:0}
+.grid tr.o-out{display:none!important}
+.vw-box{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.vw-note{margin:0;font-size:12px;color:var(--ag-c-8)}
+.vw-note:empty{display:none}
+.seg button:disabled{opacity:.4;cursor:not-allowed}
+/* [2026-11-12] 내 업체 · 우리 팀으로 걸러 빈 기한 묶음(머리줄만 남은 것)은 숨김 */
+.grid:has(tr.o-out) tr.grp.g-empty{display:none}
