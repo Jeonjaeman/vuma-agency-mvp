@@ -95,3 +95,10 @@ a.detail-action-btn{text-decoration:none}
 button.modal-dim{border:0;padding:0;cursor:default}
 .edit-context-menu[popover]{padding:0}
 .edit-context-menu[popover]:popover-open{display:block}
+
+/* [2026-11-12] 카드 아래 버튼 두 줄 — 요청 "두 줄로 나눠서라도 안정적이게"
+   광고주 .card-actions 는 한 줄 flex 라 버튼 5개(대행사 문의 · 추가모집 요청 더함)면 글자가 버튼 안에서 접힘.
+   바둑판 보기에서만: 한 줄 3개 · 남는 줄은 꽉 채움(5개 = 3+2, 4개 = 2+2). 칸 사이 선 = 1px 틈 + 선 색 바탕 */
+.camp-page:not(:has(#vw-list:checked)) .cmp-card .card-actions{flex-wrap:wrap;gap:1px;background:var(--color-text-4)}
+.camp-page:not(:has(#vw-list:checked)) .cmp-card .card-btn{flex:1 1 calc((100% - 2px) / 3);border-right:none;white-space:nowrap;padding:10px 4px}
+.camp-page:not(:has(#vw-list:checked)) .cmp-card .card-actions:has(> .card-btn:nth-child(4):last-child) > .card-btn{flex-basis:calc((100% - 1px) / 2)}

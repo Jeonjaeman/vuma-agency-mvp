@@ -18,7 +18,8 @@
 
 /* ── 목록 ───────────────────────── */
 /* [2026-11-12] .camp-page{overflow:hidden} 지움 — 광고주 .cmp-layout 의 세로 스크롤(overflow-y:auto)을 막아 캠페인 리스트가 안 내려갔음 */
-.clist{display:flex;flex-direction:column;min-height:0;flex:1}
+/* [2026-11-12] flex:1 · min-height:0 뺌 — 흰 판이 화면 높이로 묶여 카드가 판 아래로 삐져나왔음(광고주 .cmp-page-card = 내용 높이 · flex-shrink:0) */
+.clist{display:flex;flex-direction:column}
 .clist .s-tools .input{height:34px;font-size:13px}
 .cfs{gap:6px;flex-wrap:wrap}
 .cfs .pill b{margin-left:4px;color:var(--ag-c-14)}
