@@ -23,7 +23,7 @@
 새 화면을 메뉴에 켜기: `gen_dashboard.py` 의 `READY` 에 키 추가.
 
 다시 만들기(순서 상관없음):
-`python -I build/gen_dashboard.py` · `gen_pages.py` · `gen_campaigns.py` · `gen_reports.py` · `gen_agency.py` · `gen_ops.py` · `gen_ops2.py` · `gen_account.py` · `gen_home.py`(홈 `home.html` · 대행사 신청 `agency_apply.html`)
+`python -I build/gen_dashboard.py` · `gen_pages.py` · `gen_campaigns.py` · `gen_reports.py` · `gen_agency.py` · `gen_ops.py` · `gen_ops2.py` · `gen_account.py` · `gen_home.py`(홈 `home.html` — 메뉴에서 뺌 · 대행사 신청 `agency_apply.html`)
 
 > 주의: PowerShell 5.1 의 `Get-Content`/`Set-Content` 로 생성기를 고치면 한글이 깨진다(BOM 없는 UTF-8). 편집기나 Python(`encoding="utf-8"`)으로만.
 

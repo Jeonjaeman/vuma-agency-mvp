@@ -101,3 +101,12 @@ button.modal-dim{border:0;padding:0;cursor:default}
    바둑판 보기에서만: 한 줄 2개(요청 "1row당 2col") · 홀수면 마지막 하나가 줄을 꽉 채움(5개 = 2+2+1, 4개 = 2+2). 칸 사이 선 = 1px 틈 + 선 색 바탕 */
 .camp-page:not(:has(#vw-list:checked)) .cmp-card .card-actions{flex-wrap:wrap;gap:1px;background:var(--color-text-4)}
 .camp-page:not(:has(#vw-list:checked)) .cmp-card .card-btn{flex:1 1 calc((100% - 1px) / 2);border-right:none;white-space:nowrap;padding:10px 4px}
+
+/* [2026-11-12] 캠페인수정 메뉴 위치 — 요청 "캠페인 수정 모달 위치확인"(화면 왼쪽 위 구석에 뜨던 것)
+   광고주는 campaignList.js 가 누른 버튼 바로 아래(rect.bottom + 8 · 왼쪽 맞춤, 아래가 모자라면 위)에 놓음.
+   여기는 JS 없이: popovertarget 버튼 = 암묵 앵커 → 버튼 아래 왼쪽 맞춤 · 아래가 모자라면 위로 뒤집음.
+   앵커를 모르는 브라우저는 화면 가운데 */
+.edit-context-menu[popover]{inset:0;margin:auto;height:fit-content}
+@supports (position-area:bottom){
+	.edit-context-menu[popover]{inset:auto;margin:8px 0;position-area:bottom span-right;position-try-fallbacks:flip-block}
+}

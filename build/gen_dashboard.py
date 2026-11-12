@@ -752,7 +752,7 @@ def sidebar(issue_total, active="dash"):
            + '<div class="nav-item-wrap add">' + _nav("schedule.html", "apartment", "대행사 관리", grp == "agc")
            + '<div class="sub-nav">' + sub("cal", "schedule.html", "calendar_month", "일정") + sub("biz", "biz.html", "storefront", "업체")
            + sub("team", "team.html", "badge", "팀·담당자") + sub("rep", "reports.html", "description", "보고서 링크") + "</div></div>"
-           + _nav("home.html", "home", "홈", active == "home")
+           # [2026-11-12] 홈 메뉴 뺌 — 요청 "홈은 제거"(home.html 파일은 남겨 둠 · 메뉴에서만 안 보임)
            + '<div class="nav-item-wrap">' + _nav("campaigns.html", "campaign", "캠페인 관리", grp == "cmp")
            + '<div class="sub-nav">' + sub("camp", "campaigns.html", "list_alt", "캠페인 리스트") + sub("rvw", "reviewers.html", "group", "리뷰어 관리")
            + sub("payc", "payout.html", "paid", "포인트 지급 확인") + sub("photo", "photos.html", "insert_photo", "리뷰 사진 관리")
