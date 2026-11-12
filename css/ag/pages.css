@@ -206,3 +206,9 @@
 .month{grid-template-columns:repeat(7,minmax(0,1fr))}
 .mday,.mlist{min-width:0}
 .bulk .ag-btn.ghost{background:transparent;border-color:rgba(255,255,255,.35);color:#fff}
+
+/* [2026-11-12] 월 보기 칸 = 항목만큼 늘어남 — 요청 "항목이 작아질게 아니라 셀이 항목만큼 늘어나기"
+   .mlist 가 max-height 64px + 스크롤이라 넘치면 flex 항목(.mev)이 눌려 글자가 납작해졌음 → 높이 제한 · 스크롤 뺌, 항목은 줄지 않게 */
+.mlist{max-height:none;overflow:visible}
+.mev{flex-shrink:0;line-height:1.5}
+.mday{height:auto}
