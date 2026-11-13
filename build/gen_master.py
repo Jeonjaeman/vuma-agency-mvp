@@ -219,25 +219,30 @@ def sys_strip():
 
 
 def q_btn(q):
+    """[2026-11-13] 한 줄 = 이름 · 가장 오래 기다린 시간 · 건수(오른쪽 맞춤 — 세로로 훑어 비교)
+       지켜보기 항목의 시간은 색 없이 — 요청 "시간 표기와 회색의 의미"(같은 회색이 두 뜻으로 쓰여 헷갈림)"""
     zero = " is-zero" if q["n"] == 0 else ""
-    age = f'<small class="md-age {age_cls(q["age"])}">{age_txt(q["age"])}</small>' if q["age"] is not None and q["n"] else ""
-    return (f'<button type="button" class="md-q md-{q["kind"]}{zero}" data-roles="{q["roles"]}" popovertarget="md-dr-{q["key"]}" '
-            f'title="{esc(q["purpose"])}"><span>{q["name"]}</span><b>{q["n"]}</b>{age}</button>')
+    cls = age_cls(q["age"]) if q["kind"] == "act" else ""
+    age = f'<small class="md-age {cls}">{age_txt(q["age"])}</small>' if q["age"] is not None and q["n"] else "<small></small>"
+    return (f'<li><button type="button" class="md-q md-{q["kind"]}{zero}" data-roles="{q["roles"]}" popovertarget="md-dr-{q["key"]}" '
+            f'title="{esc(q["purpose"])}"><span>{q["name"]}</span>{age}<b>{q["n"]}</b></button></li>')
 
 
 def board():
-    rows = []
+    """[2026-11-13] 요청 "구분 5개를 열(col)로, 항목들을 행(row)으로" — 영역 = 열, 큐 = 열 안의 줄"""
+    cols = []
     for a, lab in AREAS:
         qs = [q for q in QUEUES if q["area"] == a]
         act = "".join(q_btn(q) for q in qs if q["kind"] == "act")
         watch = "".join(q_btn(q) for q in qs if q["kind"] == "watch")
         n = sum(q["n"] for q in qs if q["kind"] == "act")
-        rows.append(f'<div class="md-row" data-area="{a}"><p class="md-area"><b>{lab}</b><em>{n}</em></p>'
-                    f'<div class="md-qs">{act}</div><div class="md-ws">{watch}</div></div>')
+        cols.append(f'<div class="md-col" data-area="{a}"><p class="md-area"><b>{lab}</b><em>{n}건</em></p>'
+                    f'<ul class="md-qs">{act}</ul>'
+                    + (f'<p class="md-wl">지켜보기</p><ul class="md-ws">{watch}</ul>' if watch else "") + '</div>')
     return ('<section class="card md-board" aria-label="처리 대기"><div class="card__head"><span class="card__title">처리 대기</span>'
-            '<span class="md-legend"><i class="md-age is-hot">24시간↑</i><i class="md-age is-soon">8시간↑</i>'
-            '<i class="md-age is-later">그 안</i> · 회색 = 지켜보기</span></div>'
-            f'<div class="md-rows">{"".join(rows)}</div></section>')
+            '<span class="md-legend">시간 = 가장 오래 기다린 건 · <i class="md-age is-hot">24시간 넘음</i>'
+            '<i class="md-age is-soon">8시간 넘음</i><i class="md-age">8시간 안</i></span></div>'
+            f'<div class="md-cols">{"".join(cols)}</div></section>')
 
 
 def drawer(q):
@@ -325,7 +330,7 @@ def audit():
 
 def page():
     body = (head_line() + sys_strip()
-            + f'<div class="md-grid"><div class="md-main">{board()}<div class="md-two">{platform()}{money()}</div>{audit()}</div>'
+            + board() + f'<div class="md-grid"><div class="md-main"><div class="md-two">{platform()}{money()}</div>{audit()}</div>'
             + f'<div class="md-aside">{side_noti()}</div></div>')
     overlays = "".join(drawer(q) + center(q) for q in QUEUES) + sys_drawer() + stubs()
     return f'''<!doctype html>
