@@ -271,15 +271,16 @@ def center(q):
 
 
 def sys_drawer():
-    trs = "".join(f'<tr class="{"md-bad" if r == "fail" else ""}"><td class="cell-strong mono">{n}</td><td>{at}</td><td>{last}</td>'
-                  f'<td><span class="badge {"badge--danger" if r == "fail" else "badge--success"}">{"실패" if r == "fail" else "정상"}</span></td>'
-                  f'<td class="cell-sub">{esc(note)}</td></tr>' for n, at, last, r, note in CRON)
+    trs = "".join(f'<li class="{"md-bad" if r == "fail" else ""}"><div><b class="mono">{n}</b><span>{esc(note)}</span>'
+                  f'<span>예정 {at} · 마지막 {last}</span></div>'
+                  f'<span class="badge {"badge--danger" if r == "fail" else "badge--success"}">{"실패" if r == "fail" else "정상"}</span></li>'
+                  for n, at, last, r, note in CRON)
     sys_ = "".join(f'<li class="md-s-{st}"><span>{n}</span><b>{v}</b></li>' for n, v, st, _l in SYS)
-    return ('<aside class="md-dr md-dr-wide" id="md-dr-sys" popover aria-label="시스템 상태"><header><div><b>시스템 상태</b>'
+    return ('<aside class="md-dr" id="md-dr-sys" popover aria-label="시스템 상태"><header><div><b>시스템 상태</b>'
             '<p>멈추면 아무도 모르는 것 — 10/27 크론이 소리 없이 멈춘 일이 있었습니다</p></div>'
             '<button type="button" class="md-x" popovertarget="md-dr-sys" popovertargetaction="hide" aria-label="닫기">✕</button></header>'
             '<p class="md-sub">핵심 크론 6개 — 예정 시각 · 마지막 실행 · 결과</p>'
-            f'<table class="tbl"><thead><tr><th>작업</th><th>예정</th><th>마지막</th><th>결과</th><th>내용</th></tr></thead><tbody>{trs}</tbody></table>'
+            f'<ul class="md-list md-cron">{trs}</ul>'
             f'<p class="md-sub">그 밖의 신호</p><ul class="md-sys">{sys_}</ul>'
             '<footer><code>/system/automation.html · /system/automationLogView.html?code=settlementScan</code></footer></aside>')
 
@@ -289,10 +290,15 @@ def side_noti():
                   f'<button type="button" class="btn btn--sm btn--outline" popovertarget="md-cm-{k}">처리</button></li>'
                   for k, lab, cls, t, w, tm in NOTI)
     up = "".join(f'<li><b>{d}</b><span>{esc(t)}</span></li>' for d, t, _l in UPCOMING)
-    return (f'<section class="card md-side"><div class="card__head"><span class="card__title">즉시 처리 알림</span>'
-            f'<span class="badge badge--danger">{len(NOTI)}건</span></div><ul class="md-noti">{trs}</ul></section>'
-            f'<section class="card md-side"><div class="card__head"><span class="card__title">다가오는 7일</span>'
-            f'<button type="button" class="btn btn--sm btn--ghost" popovertarget="md-stub-calendar">운영 캘린더</button></div><ul class="md-up">{up}</ul></section>')
+    # [2026-11-13] 요청 "즉시 처리가 우측 패널에 고정되면 가운데 영역이 수시로 왔다갔다 하는 것을 막는다"
+    #   실서버 오른쪽 패널(master.css 3859~ .modal-backdrop = 400px 판 + 본문 밀어내기) 마크업 그대로, 닫기 없이 늘 열림
+    return (f'<aside class="modal-backdrop is-open md-pane" aria-label="즉시 처리 알림"><div class="modal">'
+            f'<div class="modal__head"><span class="modal__title">즉시 처리 알림 <span class="badge badge--danger">{len(NOTI)}건</span></span>'
+            f'<button type="button" class="btn btn--sm btn--ghost" popovertarget="md-stub-inbox">알림·작업 센터</button></div>'
+            f'<div class="modal__body md-pane-b"><ul class="md-noti">{trs}</ul>'
+            f'<div class="md-pane-h2"><b>다가오는 7일</b>'
+            f'<button type="button" class="btn btn--sm btn--ghost" popovertarget="md-stub-calendar">운영 캘린더</button></div>'
+            f'<ul class="md-up">{up}</ul></div></div></aside>')
 
 
 def platform():
@@ -329,9 +335,8 @@ def audit():
 
 
 def page():
-    body = (head_line() + sys_strip()
-            + board() + f'<div class="md-grid"><div class="md-main"><div class="md-two">{platform()}{money()}</div>{audit()}</div>'
-            + f'<div class="md-aside">{side_noti()}</div></div>')
+    # [2026-11-13] 요청 "즉시 처리 알림은 기본이 우측 패널에서" — 오른쪽 패널 = 스크롤해도 붙어 있는 알림(대행사 대시보드의 오른쪽 패널과 같은 자리)
+    body = (f'{head_line()}{sys_strip()}{board()}<div class="md-two">{platform()}{money()}</div>{audit()}{side_noti()}')
     overlays = "".join(drawer(q) + center(q) for q in QUEUES) + sys_drawer() + stubs()
     return f'''<!doctype html>
 <html lang="ko">
