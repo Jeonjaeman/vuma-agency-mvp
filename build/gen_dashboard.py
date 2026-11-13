@@ -711,7 +711,7 @@ def panel(b, key):
     return (f'<section class="pane" data-panel="{b["id"]}-{key}" hidden>'
             # [2026-11-13] 요청 "상세 관리로 퉁쳐서 이동하지 말고 세부적으로" — 업체 이름 옆 [업체 보기] · 캠페인마다 [캠페인 보기] · 리뷰어마다 [캠페인에서 보기]
             f'<header class="pane-h"><p class="pane-biz">{esc(b["name"])} '
-            f'<a class="mini-go js-cm" href="biz.html#biz={b["id"]}" data-cm-title="{esc(b["name"])} · 업체">업체 보기</a> <span>담당 {owner}'
+            f'<button type="button" class="mini-go bdr-go" popovertarget="bdr-{b["id"]}">업체 보기</button> <span>담당 {owner}'
             f'{" · <a href=\'#\'>변경</a>" if b["owner"] else ""}</span></p>'
             f'<h2>{ISSUE_NAME[key]} <em>{it["n"]}건</em> <span class="due js-due {due_class(it["due"])}">{due_label(it["due"])}</span></h2>'
             f'<p class="pane-camp js-mix">{due_mix(it["items"])}</p>'
@@ -775,6 +775,81 @@ READY = {"dash", "cal", "biz", "rep", "camp", "team", "rvw", "insp", "payc", "ph
 
 def _built():
     return READY
+
+
+# ── 업체 정보(업체 화면 · 업체 서랍 공통) — [2026-11-13] gen_pages 에서 옮김 ──
+REGION = ["서울 마포구", "서울 성동구", "서울 강남구", "서울 종로구", "경기 성남시", "경기 수원시", "부산 해운대구", "제주 제주시", "인천 연수구", "강원 강릉시"]
+# 업체 이름에서 업종·지역을 짐작(더미가 이름과 어긋나 보이지 않게)
+IND_KEY = [(("헤어", "네일", "속눈썹", "피부과"), "뷰티"), (("치과",), "생활"), (("학원", "키즈풀"), "육아"),
+           (("필라테스", "보드게임"), "문화"), (("애견",), "반려동물"), (("농원",), "식품")]
+REG_KEY = {"연남": "서울 마포구", "망원": "서울 마포구", "합정": "서울 마포구", "홍대": "서울 마포구", "신촌": "서울 서대문구",
+           "성수": "서울 성동구", "건대": "서울 광진구", "을지로": "서울 중구", "서촌": "서울 종로구", "익선동": "서울 종로구",
+           "강남": "서울 강남구", "청담": "서울 강남구", "판교": "경기 성남시", "분당": "경기 성남시", "잠실": "서울 송파구",
+           "송리단길": "서울 송파구", "광교": "경기 수원시", "수원": "경기 수원시", "부산": "부산 해운대구", "제주": "제주 제주시",
+           "대구": "대구 중구", "일산": "경기 고양시", "목동": "서울 양천구", "용산": "서울 용산구", "여의도": "서울 영등포구",
+           "인천": "인천 중구", "전주": "전북 전주시", "강릉": "강원 강릉시", "춘천": "강원 춘천시", "평택": "경기 평택시"}
+
+
+def guess_ind(name):
+    return next((ind for keys, ind in IND_KEY if any(k in name for k in keys)), "맛집")
+
+
+def extra(b):
+    r = random.Random(1000 + int(b["id"][1:]))
+    r.choice(range(10)); r.choice(REGION)         # 난수 순서 유지(아래 값이 바뀌지 않게 — 예전 업종 목록 10개 기준)
+    return {"ind": guess_ind(b["name"]), "reg": REG_KEY.get(b["name"].split()[0], "서울"), "acc": len(b["camps"]) + r.randint(0, 14),
+            "used": r.choice([0, 55000, 110000, 165000, 220000, 330000, 495000]),
+            "reg_d": f"2026-{r.randint(3, 10):02d}-{r.randint(1, 28):02d}",
+            "tel": f"010-****-{r.randint(1000, 9999)}", "bno": f"{r.randint(100, 899)}-**-*****"}
+
+
+
+# [2026-11-13] 업체 서랍(오른쪽에서 나오는 업체 정보) — 요청 "업체 보기 하면 대시보드가 사라짐 → 오른쪽에 업체 상세가 나타나고 닫을 수 있게"
+#   popover(JS 없음): [업체 보기] 버튼 popovertarget="bdr-{업체}" · 바깥 누르기 · Esc · ✕ 로 닫힘. 대행사 화면(대시보드 · 일정 · 업체 · 팀 · 보고서)에 붙음
+STEP_NAME = {4: "모집중", 5: "모집완료", 6: "체험단선정완료", 7: "체험중", 8: "완료"}
+
+
+def camp_state_word(b, c, steps):
+    """다른 화면(대시보드 묶음 · 일정 패널)과 같은 상태 말 — 이슈로 정해지면 그것, 아니면 캠페인 단계 이름"""
+    st = camp_state(b, c)
+    return st if st != "진행 중" else STEP_NAME.get(steps.get(c), "진행 중")
+
+
+def biz_drawer(b):
+    x = extra(b)
+    own = f'{b["owner"][1]} <small>{b["owner"][3]}</small>' if b["owner"] else '<span class="hot-t">미담당</span>'
+    steps = b.get("steps", {})
+    camps = "".join(
+        f'<li><div class="bc-t"><b>{esc(camp_title(b, c))}</b>'
+        f'<a class="mini-go js-cm" href="campaigns.html#c-{b["id"]}-{ccode(c)}-ov" data-cm-title="{esc(b["name"])} · {esc(camp_title(b, c))}">캠페인 보기</a></div>'
+        f'<p><span class="ty ty-{ctype(c)}">{TYPE_NAME[ctype(c)]}</span><span class="chn">{CAMP_META[c][1]}</span>'
+        f'<span class="bc-st">{camp_state_word(b, c, steps)}</span></p></li>' for c in b["camps"])
+    iss = "".join(f'<li><span>{ISSUE_NAME[k]}</span><b>{v["n"]}</b><em class="{due_class(v["due"])}">{due_label(v["due"])}</em></li>'
+                  for k, v in sorted(b["issues"].items(), key=lambda kv: kv[1]["due"])) or '<li class="muted">걸린 이슈 없음</li>'
+    return (f'<aside class="bdr ag" id="bdr-{b["id"]}" popover aria-label="{esc(b["name"])} 업체 정보">'
+            f'<header class="bdr-h"><div><p class="bdr-sub">{x["ind"]} · {x["reg"]}</p><h2>{esc(b["name"])}</h2></div>'
+            f'<button type="button" class="cm-x" popovertarget="bdr-{b["id"]}" popovertargetaction="hide" aria-label="닫기">✕</button></header>'
+            f'<div class="bdr-b"><dl class="bdr-kv"><dt>담당</dt><dd>{own}</dd><dt>연락처</dt><dd>{x["tel"]}</dd>'
+            f'<dt>사업자번호</dt><dd>{x["bno"]}</dd><dt>등록일</dt><dd>{x["reg_d"]}</dd>'
+            f'<dt>진행 / 누적</dt><dd>{len(b["camps"])} / {x["acc"]}</dd><dt>이번 달 사용</dt><dd>{x["used"]:,}P</dd></dl>'
+            f'<h3>진행 캠페인 <em>{len(b["camps"])}</em></h3><ul class="bdr-camps">{camps}</ul>'
+            f'<h3>지금 걸린 이슈</h3><ul class="bdr-iss">{iss}</ul></div>'
+            f'<footer class="bdr-f"><a class="ag-btn sm ghost" href="biz.html#biz={b["id"]}" target="_blank" rel="noopener">업체 화면에서 열기 ↗</a></footer></aside>')
+
+
+def cmodal_html():
+    """[2026-11-13] 캠페인 창(가운데 모달) 틀 — 대행사 화면 공통(여닫기 · 주소 넣기 = js/scope.js)"""
+    return ('''<dialog class="cmodal ag" id="cmodal" aria-labelledby="cm-title">
+	<header class="cm-h"><b id="cm-title" class="js-cm-title">캠페인</b>
+		<a class="ag-btn sm ghost js-cm-full" href="campaigns.html" target="_blank" rel="noopener">새 창으로 ↗</a>
+		<form method="dialog"><button class="cm-x" aria-label="닫기">✕</button></form></header>
+	<div class="cm-b"><p class="cm-load js-cm-load">불러오는 중…</p><iframe class="js-cm-frame" title="캠페인 화면" src="about:blank"></iframe></div>
+</dialog>''')
+
+
+def ag_overlays():
+    """대행사 화면에 붙는 겹창 — 캠페인 창 + 업체 서랍(업체마다)"""
+    return cmodal_html() + "".join(biz_drawer(b) for b in SCOPE_BIZ)
 
 
 COUNTS = {}        # 메뉴 숫자(검수·지급) — make_biz() 가 채운다
@@ -1023,14 +1098,8 @@ def build():
 </div>
 </div></main>
 </div>
-<!-- [2026-11-13] 캠페인 창(가운데 모달) — 요청 "대시보드 업무 클릭은 대시보드를 벗어나지 않게, 캠페인은 가운데 모달로"
-     안에는 캠페인 화면을 삽입 모드(?embed=1 — 사이드바 없음, js/scope.js)로 띄움. 여닫기 · 주소 넣기만 JS(js/dashboard.js) -->
-<dialog class="cmodal ag" id="cmodal" aria-labelledby="cm-title">
-	<header class="cm-h"><b id="cm-title" class="js-cm-title">캠페인</b>
-		<a class="ag-btn sm ghost js-cm-full" href="campaigns.html" target="_blank" rel="noopener">새 창으로 ↗</a>
-		<form method="dialog"><button class="cm-x" aria-label="닫기">✕</button></form></header>
-	<div class="cm-b"><p class="cm-load js-cm-load">불러오는 중…</p><iframe class="js-cm-frame" title="캠페인 화면" src="about:blank"></iframe></div>
-</dialog>
+<!-- [2026-11-13] 캠페인 창(가운데 모달) + 업체 서랍 — 대시보드를 떠나지 않게 (ag_overlays) -->
+{ag_overlays()}
 <script src="js/scope.js"></script>
 <script src="js/dashboard.js"></script>
 </body>
