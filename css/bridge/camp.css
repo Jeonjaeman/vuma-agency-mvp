@@ -61,6 +61,7 @@ a.modal-close{text-decoration:none}
 a.detail-tab{display:inline-flex;align-items:center;text-decoration:none}
 .cdetail:target .detail-tab[data-tab=overview],
 .cdetail:has(.detail-panel-overview:target) .detail-tab[data-tab=overview],
+.cdetail:has(.detail-panel-issues:target) .detail-tab[data-tab=issues],
 .cdetail:has(.detail-panel-applicants:target) .detail-tab[data-tab=applicants],
 .cdetail:has(.detail-panel-reviewers:target) .detail-tab[data-tab=reviewers],
 .cdetail:has(.detail-panel-history:target) .detail-tab[data-tab=history],
@@ -110,3 +111,8 @@ button.modal-dim{border:0;padding:0;cursor:default}
 @supports (position-area:bottom){
 	.edit-context-menu[popover]{inset:auto;margin:8px 0;position-area:bottom span-right;position-try-fallbacks:flip-block}
 }
+
+/* [2026-11-13] 이슈 모아보기(대행사 추가) — 상자 세 개를 위아래로 */
+.detail-panel-issues .iss-view{display:flex;flex-direction:column;gap:14px;width:100%}
+.detail-panel-issues .cv-history-box__label small{margin-left:6px;font-weight:400;color:#8e8e93}
+.detail-panel-issues .cv-history-box__label .applicants-blog-url{float:right;font-weight:400}

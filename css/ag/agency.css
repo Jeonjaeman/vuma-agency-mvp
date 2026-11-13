@@ -637,7 +637,8 @@ button.who-go:hover b{text-decoration:underline}
 
 /* [2026-11-13] 캠페인 창(가운데 모달) — 대시보드에서 캠페인 화면을 떠나지 않고 봄(안 = 캠페인 화면 삽입 모드 iframe) */
 /* 광고주 main.css 의 * {margin:0} 이 dialog 가운데 맞춤(margin:auto)을 지워서 다시 넣음 */
-.cmodal{inset:0;margin:auto;width:min(1240px,calc(100vw - 64px));height:calc(100vh - 64px);max-width:none;max-height:none;padding:0;border:0;border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.25);overflow:hidden;color:var(--ag-c-14)}
+/* [2026-11-13] 회의(11/12) "화면 전체는 덮지 말고 80%만" — 좁은 화면은 여백 16px 까지 */
+.cmodal{inset:0;margin:auto;width:max(80vw,min(960px,calc(100vw - 32px)));height:max(80vh,min(560px,calc(100vh - 32px)));max-width:none;max-height:none;padding:0;border:0;border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.25);overflow:hidden;color:var(--ag-c-14)}
 .cmodal[open]{display:flex;flex-direction:column}
 .cmodal::backdrop{background:rgba(15,15,20,.45)}
 .cm-h{display:flex;align-items:center;gap:8px;height:52px;padding:0 10px 0 20px;border-bottom:1px solid var(--ag-c-3);flex:none}

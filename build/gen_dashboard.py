@@ -435,6 +435,8 @@ def cgroup(camp, due, n, unit, inner):
             # [2026-11-13] 요청 "캠페인 이름을 앞단으로, 기자단·블로그 같은 라벨은 그 아래로, 영역 색 띠는 제목칸에"
             f'<header class="cgroup-h"><div class="cg-l1"><b class="cg-name">{esc(camp_title(b, camp))}</b>'
             f'<a class="mini-go js-cm" href="{camp_href(camp)}" data-cm-title="{esc(b["name"]) if b else ""} · {esc(camp_title(b, camp))}">캠페인 보기</a>'
+            # [2026-11-13] 회의(11/12) "캠페인 이슈만 별도로 정리하는 UI" → 이슈 모아보기 탭
+            f'<a class="mini-go js-cm" href="{camp_href(camp, "iss")}" data-cm-title="{esc(b["name"]) if b else ""} · {esc(camp_title(b, camp))} · 이슈">이슈 보기</a>'
             f'<em>{unit} {n}</em></div>'
             f'<div class="cg-l2"><span class="ty ty-{ty}">{TYPE_NAME[ty]}</span><span class="chn">{ch}</span>'
             f'<span class="cg-state">{state}</span><span class="due {due_class(due)}">{due_label(due)}</span></div></header>'

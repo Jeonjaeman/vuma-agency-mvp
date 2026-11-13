@@ -35,7 +35,8 @@ def ms(icon, hidden=True):
 
 
 # 상세 탭 — (주소 키, 광고주 data-tab, 이름) · 보고서 = 대행사 추가
-TABS = [("ov", "overview", "캠페인 상세보기"), ("app", "applicants", "캠페인 신청자"), ("rev", "reviewers", "선정된 리뷰어"),
+# [2026-11-13] 이슈 모아보기 = 대행사 추가 — 회의(11/12) "캠페인 이슈만 별도로 정리하는 UI · 들어가서 보는 항목들을 이 화면 용도로"
+TABS = [("ov", "overview", "캠페인 상세보기"), ("iss", "issues", "이슈 모아보기"), ("app", "applicants", "캠페인 신청자"), ("rev", "reviewers", "선정된 리뷰어"),
         ("log", "history", "상태변경 히스토리"), ("inq", "inquiry", "1:1 문의"), ("rep", "report", "보고서")]
 # 대시보드 이슈 → 캠페인 상세 탭
 ISSUE_TAB = {"apply": "app", "select": "app", "prep": "rev", "review": "rev", "nudge": "rev", "pay": "rev",
@@ -607,7 +608,8 @@ def tab_rev(c):
 
 
 # ════════════════════════ 상세: 상태변경 히스토리 · 1:1 문의 · 보고서 ════════════════════════
-def tab_log(c):
+def log_events(c):
+    """상태변경 히스토리 줄 [(시각, 상태, 처리한 사람, 사유)] — 오래된 것부터"""
     b = c["b"]
     who = f'대행사 · {b["owner"][1] if b["owner"] else "대표"}'
     d = c["dts"] or {}
@@ -626,11 +628,17 @@ def tab_log(c):
             ev.append((P.md(d["exp"]) + " 11:20", "취소", "대행사 · 대표", "업체 요청 · 남은 예치금 포인트 복귀"))
         elif c["group"] == "end":
             ev.append((P.md(d["rev"] + 3) + " 18:00", "완료", "시스템(자동)", ""))
+    return ev
 
-    def when(t):
-        md, hm = t.split()
-        m, dd_ = md.split("/")
-        return f"2026.{int(m):02d}.{int(dd_):02d} {hm}"
+
+def when(t):
+    md, hm = t.split()
+    m, dd_ = md.split("/")
+    return f"2026.{int(m):02d}.{int(dd_):02d} {hm}"
+
+
+def tab_log(c):
+    ev = log_events(c)
     trs = "".join(f'<tr><td class="cv-history__date">{when(t)}</td><td class="cv-history__step">{s}</td>'
                   f'<td class="cv-history__actor">{w}</td><td class="cv-history__memo{"" if x else " cv-history__memo--empty"}">{esc(x) or "-"}</td></tr>'
                   for t, s, w, x in reversed(ev))
@@ -638,6 +646,37 @@ def tab_log(c):
             f'<div class="cv-history-scroll"><table class="cv-history"><thead><tr><th>일시</th><th>상태</th><th>처리</th><th>사유</th></tr></thead>'
             f'<tbody>{trs}</tbody></table></div></div>'
             '<div class="applicants-notice add"><p>대행사 추가: 처리에 "대행사 · 직원 이름"이 남습니다(광고주는 "광고주(본인)").</p></div>')
+
+
+def tab_iss(c):
+    """[2026-11-13] 이슈 모아보기(대행사 추가) — 할 일 · 사람 현황 · 최근 변경을 한 화면에. 처리는 각 탭으로 바로"""
+    cid = c["id"]
+    go = lambda k, lab="바로 처리": f'<a class="applicants-blog-url" href="#c-{cid}-{k}">{lab} →</a>'
+    todo = "".join(f'<tr><td class="cv-history__step">{G.ISSUE_NAME[k]}</td><td>{n}건</td>'
+                   f'<td><span class="ichip {G.due_class(d)}">{G.due_label(d)}</span></td><td>{go(ISSUE_TAB[k])}</td></tr>'
+                   for k, (n, d) in sorted(c["iss"].items(), key=lambda x: x[1][1]))         or '<tr><td colspan="4" class="cv-history__memo--empty">걸린 이슈가 없습니다</td></tr>'
+    box = lambda label, body: f'<div class="cv-history-box"><div class="cv-history-box__label">{label}</div>{body}</div>'
+    todo_box = box(f'지금 할 일 {K.add_tag()} <small>급한 것부터</small>',
+                   '<div class="cv-history-scroll"><table class="cv-history"><thead><tr><th>할 일</th><th>건수</th><th>기한</th><th>처리</th></tr></thead>'
+                   f'<tbody>{todo}</tbody></table></div>')
+    cnt = lambda xs, st: sum(1 for x in xs if x["st"] == st)
+    rows, revs, pays = c["rows"], c["revs"], c["pays"]
+    ppl = [("신청", f'{c["applied"]:,}명 / 모집 {c["n"]}명 · 새 신청 {cnt(rows, "new")}', "app"),
+           ("선정", f'{c["sel"]}명' + (f' · 취소 요청 {cnt(rows, "cancel")}' if cnt(rows, "cancel") else ""), "app")]
+    if revs:
+        ppl.append(("리뷰", f'승인 {cnt(revs, "ok")} · 검수 대기 {cnt(revs, "pend")} · 미등록 {cnt(revs, "unreg")}'
+                    + (f' · 수정 요청 {cnt(revs, "fix")}' if cnt(revs, "fix") else ""), "rev"))
+    if pays:
+        ppl.append(("지급", f'완료 {cnt(pays, "done")} · 대기 {cnt(pays, "wait")}'
+                    + (f' · 계좌 미등록 {cnt(pays, "noacc")}' if cnt(pays, "noacc") else ""), "rev"))
+    ppl.append(("1:1 문의", "0건", "inq"))
+    ppl_box = box("사람 현황", '<div class="cv-history-scroll"><table class="cv-history"><tbody>' + "".join(
+        f'<tr><td class="cv-history__step">{a}</td><td>{v}</td><td>{go(k, "보기")}</td></tr>' for a, v, k in ppl) + '</tbody></table></div>')
+    recent = "".join(f'<tr><td class="cv-history__date">{when(t)}</td><td class="cv-history__step">{st}</td><td class="cv-history__actor">{w}</td></tr>'
+                     for t, st, w, _x in list(reversed(log_events(c)))[:3])
+    log_box = box(f'최근 변경 <small>누가 바꿨는지</small> {go("log", "전체 히스토리")}',
+                  f'<div class="cv-history-scroll"><table class="cv-history"><tbody>{recent}</tbody></table></div>')
+    return f'<div class="iss-view">{todo_box}{ppl_box}{log_box}</div>'
 
 
 def tab_inq(c):
@@ -677,10 +716,10 @@ def detail(c):
     """광고주 campaignView.inc.html — 모달 대신 화면 안 패널. 패널은 모두 .is-active 를 달고(광고주 배치 규칙을 그대로 받으려고)
        보이고 숨기는 것은 css/bridge/camp.css 의 :target 규칙이 정한다"""
     b, cid = c["b"], c["id"]
-    tabs = "".join(f'<a href="#c-{cid}-{k}" class="detail-tab{" add" if k == "rep" else ""}" data-tab="{dt}" role="tab" '
+    tabs = "".join(f'<a href="#c-{cid}-{k}" class="detail-tab{" add" if k in ("iss", "rep") else ""}" data-tab="{dt}" role="tab" '
                    f'aria-controls="c-{cid}-{k}">{lab}{tab_badge(c, k)}</a>' for k, dt, lab in TABS)
-    body = {"ov": tab_ov, "app": tab_app, "rev": tab_rev, "log": tab_log, "inq": tab_inq, "rep": tab_rep}
-    panels = "".join(f'<div class="detail-panel detail-panel-{dt} is-active{" add" if k == "rep" else ""}" id="c-{cid}-{k}" '
+    body = {"ov": tab_ov, "iss": tab_iss, "app": tab_app, "rev": tab_rev, "log": tab_log, "inq": tab_inq, "rep": tab_rep}
+    panels = "".join(f'<div class="detail-panel detail-panel-{dt} is-active{" add" if k in ("iss", "rep") else ""}" id="c-{cid}-{k}" '
                      f'data-panel="{dt}" role="tabpanel">{body[k](c)}</div>' for k, dt, _l in TABS)
     watch = (f'<span class="watch" title="같은 캠페인을 다른 직원이 열어 두었습니다"><i></i>{c["watch"]}님이 보고 있습니다</span>' if c["watch"] else "")
     owner = b["owner"][1] if b["owner"] else "미담당"
