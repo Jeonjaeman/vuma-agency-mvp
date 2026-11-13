@@ -624,3 +624,13 @@ button.who-go:hover b{text-decoration:underline}
 .seg button:disabled{opacity:.4;cursor:not-allowed}
 /* [2026-11-12] 내 업체 · 우리 팀으로 걸러 빈 기한 묶음(머리줄만 남은 것)은 숨김 */
 .grid:has(tr.o-out) tr.grp.g-empty{display:none}
+
+/* [2026-11-13] 업체별/담당자별 탭 — 리스트(격자) 바로 위에 붙은 밑줄 탭. 고른 탭 = 진한 글자 + 주색 2px 밑줄, 리스트 상자와 한 덩어리(위 모서리만 둥글게) */
+.vtabs{display:flex;gap:4px;padding:0 12px;border:1px solid var(--ag-c-3);border-bottom:0;border-radius:8px 8px 0 0;background:#fff}
+.vtabs label{display:inline-flex;align-items:baseline;gap:6px;height:46px;padding:0 14px;align-items:center;font-size:14px;font-weight:600;color:var(--ag-c-8);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
+.vtabs label em{font-style:normal;font-size:11px;font-weight:500;color:var(--ag-c-5)}
+.vtabs label:hover{color:var(--ag-c-14)}
+#v-biz:checked ~ .vtabs label[for=v-biz],#v-staff:checked ~ .vtabs label[for=v-staff]{color:var(--ag-c-14);font-weight:700;border-bottom-color:var(--ag-main)}
+#v-biz:checked ~ .vtabs label[for=v-biz] em,#v-staff:checked ~ .vtabs label[for=v-staff] em{color:var(--ag-c-8)}
+#v-biz:focus-visible ~ .vtabs label[for=v-biz],#v-staff:focus-visible ~ .vtabs label[for=v-staff]{outline:2px solid var(--ag-main);outline-offset:-2px;border-radius:6px 6px 0 0}
+.vtabs + .grid-wrap{border-top-left-radius:0;border-top-right-radius:0}

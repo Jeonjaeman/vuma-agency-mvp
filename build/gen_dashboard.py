@@ -920,7 +920,6 @@ def build():
 	<input type="radio" name="view" id="v-biz" class="vr" checked>
 	<input type="radio" name="view" id="v-staff" class="vr">
 	<div class="toolbar">
-		<div class="seg sm"><label for="v-biz">업체별</label><label for="v-staff">담당자별</label></div>
 		{type_chips(bizs)}
 		<button type="button" class="tchip js-afilter"><i class="adot-i" aria-hidden="true"></i>알림 있는 업체만</button>
 		<p class="filter-note" hidden><span class="js-filter-name"></span> 이슈가 있는 업체만 보는 중 <button type="button" class="ag-btn link js-clear">전체 보기</button></p>
@@ -929,6 +928,11 @@ def build():
 		</ul>
 	</div>
 
+	<!-- [2026-11-13] 업체별/담당자별 = 리스트 위에 붙은 탭(요청 "리스트와 함께 표기, 리스트 안에서 전환 · 탭이라는 인식이 확실하게")
+	     여전히 라디오 + CSS — 라벨만 툴바에서 여기로 옮김(라디오의 형제라 :checked ~ 로 그대로 동작) -->
+	<div class="vtabs" role="group" aria-label="리스트 보기">
+		<label for="v-biz"><span>업체별</span><em>업체 줄 · 기한 묶음</em></label><label for="v-staff"><span>담당자별</span><em>팀 · 담당자 줄</em></label>
+	</div>
 	<div class="grid-wrap">
 	<table class="grid" id="grid">
 		<caption class="sr">업체 × 이슈 격자. 칸을 누르면 오른쪽에서 처리합니다.</caption>

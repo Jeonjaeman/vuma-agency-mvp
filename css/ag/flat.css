@@ -160,3 +160,20 @@
 .work.ag .cidx{box-shadow:none}
 .work.ag .grid tr.camp .cname{box-shadow:none}
 .work.ag .staff th{box-shadow:none}
+
+/* [2026-11-13] 업체별/담당자별 탭 — 리스트 상자와 같은 선 색 · 탭 줄 아래 선 = 리스트 위 선 */
+.work.ag .vtabs{border-color:var(--ag-fl-line)}
+.work.ag .vtabs + .grid-wrap{border-radius:0 0 8px 8px}
+
+/* [2026-11-13] 담당자별 보기도 업체별과 같은 톤 — 팀 띠(보라 · 빨강 채움) → 회색 줄 + 굵은 구분선, 담당자 머리(연보라 채움) → 흰 바탕 */
+.work.ag .team th,.work.ag .team-solo th,.work.ag .team-none-owner th{background:var(--ag-fl-head);color:var(--ag-c-14);border-top:3px solid var(--ag-c-11);border-bottom:1px solid var(--ag-fl-line);height:38px}
+.work.ag .team-none-owner th{border-top-color:var(--ag-danger)}
+.work.ag .team .g-desc{color:var(--ag-fl-faint)}
+.work.ag .team .g-late{background:none;padding:0;color:var(--ag-danger)}
+.work.ag .team-none-owner .g-ico{width:8px;height:8px;font-size:0;background:var(--ag-danger);color:transparent}
+.work.ag .team-none-owner .g-n{border:0;background:none;padding:0;color:var(--ag-danger)}
+.work.ag .staff th,.work.ag .staff td{background:#fff;border-top:0;border-bottom:1px solid var(--ag-fl-line)}
+.work.ag .staff th .who i{background:var(--ag-main-light);color:var(--ag-main)}
+.work.ag .lead{background:var(--ag-main-light);color:var(--ag-main)}
+/* 칸 뜻 표 — 거르기 칩과 같은 줄 오른쪽으로(탭이 리스트 위로 옮겨 자리가 남음) */
+.work.ag .toolbar .legend{flex-basis:auto;margin:0 0 0 auto}
