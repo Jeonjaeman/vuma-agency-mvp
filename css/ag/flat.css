@@ -43,15 +43,14 @@
 
 /* ── 5) 기한 묶음 머리: 빨강 면 → 옅은 회색 줄 + 색 점 + 개수 ── */
 .work.ag .grp th,.work.ag .grp-late th{background:var(--ag-fl-head);color:var(--ag-c-14);box-shadow:none;border-top:10px solid #fff;border-bottom:1px solid var(--ag-fl-line);height:34px}
+/* [2026-11-13] 기한 묶음 사이 굵은 선 — 요청 "기간을 구분하는 굵은 선". 위 흰 여백 대신 묶음 색 3px 선(기한 지남 빨강 · 오늘 주황빨강 · 3일 내 주황 · 그 외 회색) */
+.work.ag .grp th,.work.ag .grp-late th{border-top:3px solid var(--ag-g-bar)}
 .work.ag .grp .g-in b{font-size:13px}
 .work.ag .grp .g-ico,.work.ag .grp-late .g-ico{width:8px;height:8px;font-size:0;background:var(--ag-g-bar);color:transparent}
 .work.ag .grp .g-n,.work.ag .grp-late .g-n{border:0;background:none;padding:0;color:var(--ag-g-fg)}
 .work.ag .grp .g-desc,.work.ag .grp-late .g-desc{color:var(--ag-fl-faint)}
-/* 업체 이름 칸 왼쪽 선 4px → 3px */
-.work.ag .biz[data-g="late"] .bizname{box-shadow:inset 3px 0 0 var(--ag-danger)}
-.work.ag .biz[data-g="today"] .bizname{box-shadow:inset 3px 0 0 #f07a5a}
-.work.ag .biz[data-g="soon"] .bizname{box-shadow:inset 3px 0 0 #e39a2d}
-.work.ag .biz[data-g="later"] .bizname{box-shadow:inset 3px 0 0 var(--ag-c-4)}
+/* [2026-11-13] 업체 이름 칸 왼쪽 색 선 없앰 — 요청 "업체마다 라벨처럼 표기한 빨강 라인 제거" (구분은 아래 묶음 머리의 굵은 선이 맡음) */
+.work.ag .biz[data-g] .bizname{box-shadow:none}
 /* 팀 · 담당자 머리줄(담당자별 보기)도 같은 톤 */
 .work.ag .team th{box-shadow:none}
 
@@ -128,7 +127,10 @@
 
 /* ── 13) 다듬기(1차 캡처 확인 후) ── */
 /* 기한 섞임 막대 — 상자가 없어져 밑줄처럼 보이던 것: 가운데 짧게 · 2px */
-.work.ag .cell .mixbar{left:12px;right:12px;height:2px;bottom:1px}
+/* [2026-11-13] 칸 아래 기한 섞임 막대 · 그 뜻 표 없앰 — 요청 "항목 밑에 표기한 갯수 미리보기 표시 제거" (섞인 기한은 칸 title · 처리 패널에 그대로) */
+.work.ag .cell .mixbar{display:none}
+.work.ag .cell:has(.mixbar){justify-content:center;padding-top:0}
+.work.ag .legend li:has(.mix){display:none}
 /* 처리 패널 [인원 늘리기] 점선 상자 → 1px 선 */
 .work.ag .recruit{border:1px solid var(--ag-fl-line);background:var(--ag-fl-head)}
 .work.ag tr.camp th,.work.ag tr.camp td{border-bottom-style:solid;border-bottom-color:var(--ag-fl-line-soft)}
