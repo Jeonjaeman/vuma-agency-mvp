@@ -110,6 +110,10 @@ def cp_id(b, camp):
 ADV_KEYS = {"camp", "rvw", "insp", "payc", "photo", "srch", "video", "chat", "pay", "plan", "sms", "pen", "info", "noti", "notice", "qna", "faq", "smsbox", "home", "agcy"}
 
 
+# [2026-11-13] 대행사 전용 화면(.work.ag)만 단순화 스타일 — 맨 뒤에 붙여 앞 규칙을 덮음(광고주 화면엔 안 붙음)
+FLAT = '<link rel="stylesheet" href="css/ag/flat.css">'
+
+
 def frame(active, panel, inner):
     scoped = " scoped" if active in G.OPS else ""
     if active in ADV_KEYS:
@@ -131,6 +135,7 @@ def page(title, active, body, panel, extra_style="", js="pages.js"):
 <link rel="stylesheet" href="css/ag/pages.css">
 {extra_style}
 <link rel="stylesheet" href="css/bridge/shell.css">
+{FLAT if active not in ADV_KEYS else ""}
 </head>
 <body>
 <!-- [2026-11-10] 대행사 {title} 시안 {G.VERSION}. build/gen_pages.py 로 생성(직접 수정 금지)

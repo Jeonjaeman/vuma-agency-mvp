@@ -890,6 +890,7 @@ def build():
 {HEAD_ADV}
 <link rel="stylesheet" href="css/ag/agency.css">
 <link rel="stylesheet" href="css/bridge/shell.css">
+<link rel="stylesheet" href="css/ag/flat.css"><!-- [2026-11-13] 대행사 전용 화면 단순화 -->
 </head>
 <body>
 <!-- [2026-11-10] 대행사 대시보드 시안 {VERSION} — 기획서 v0.5 6-3 · 6-11. gen_dashboard.py 로 생성(직접 수정 금지)

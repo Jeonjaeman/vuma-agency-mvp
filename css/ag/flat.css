@@ -1,0 +1,151 @@
+/* [2026-11-13] 대행사 전용 화면 단순화 — 요청 "UI 레퍼런스 조사대로 대행사 전용 페이지들에만 반영"
+   근거: ..\조사\UI레퍼런스_단순깔끔_20261113.md (Mobbin 58장 — Plane · Linear · Square · n8n · Bonsai …)
+   규칙: 상자 대신 여백 · 면 대신 선 · 칠하기 대신 점. 흐름·배치·마크업은 그대로, 겉모양만.
+   범위: .work.ag 안(대시보드 · 일정 · 업체 · 팀·담당자 · 보고서)만. 광고주 화면 · 사이드바(광고주 셸)는 건드리지 않음
+         — 이 파일은 그 다섯 화면에만 걸림(build/gen_pages.py page() · gen_dashboard.py 머리) */
+
+.work.ag{
+	--ag-fl-line:#e8e8ec;        /* 표 가로선 · 구역 구분 */
+	--ag-fl-line-soft:#f1f1f4;   /* 표 안 줄 사이 */
+	--ag-fl-hover:#f7f7f9;       /* 줄 올림 */
+	--ag-fl-sub:#6b7280;         /* 보조 글자 */
+	--ag-fl-faint:#9ca3af;       /* 흐린 글자 */
+	--ag-fl-head:#fafafb;        /* 표 머리 · 묶음 머리 */
+	--ag-fl-pop:0 4px 16px rgba(0,0,0,.08);   /* 그림자는 떠 있는 것에만 */
+}
+
+/* ── 1) 판 겹침 줄이기: 회색 바탕 + 흰 판(r16) → 흰 바탕 하나, 구역은 선으로 ── */
+.work.ag{background:#fff;padding:0;gap:0;border-left:1px solid var(--ag-fl-line)}
+.work.ag .board,.work.ag > .panel{border-radius:0;box-shadow:none}
+.work.ag .board{padding:24px 28px 16px}
+.work.ag > .panel{border-left:1px solid var(--ag-fl-line)}
+.work.ag .ops{padding:24px 28px 40px}
+.work.ag .grid-wrap,.work.ag .sched-wrap{border:1px solid var(--ag-fl-line);border-radius:8px}
+
+/* ── 2) 그림자 · 들뜸 빼기(팝오버 · 드롭다운만 남김) ── */
+.work.ag .ag-btn.primary{box-shadow:none}
+.work.ag .cell:hover{transform:none;box-shadow:none}
+.work.ag .ev:hover{box-shadow:none}
+
+/* ── 3) 대행사 추가분 점선 — 이 다섯 화면은 전부 대행사 것이라 표시가 필요 없음 ── */
+.work.ag .add{outline:0}
+.work.ag :is(td,th).add{background:none}
+
+/* ── 4) 받은 알림 띠: 분홍 상자 + 테두리 칩 → 선 없는 한 줄 요약 ── */
+.work.ag .alertbar,.work.ag .alertbar.has-u{border:0;border-bottom:1px solid var(--ag-fl-line);border-radius:0;background:none;box-shadow:none;padding:0 0 12px;margin:0 0 14px;gap:4px}
+.work.ag .ab{border:0;background:none;height:30px;padding:0 10px;border-radius:6px}
+.work.ag .ab:hover{background:var(--ag-fl-hover)}
+.work.ag .ab-kinds{color:var(--ag-fl-sub);font-weight:500}
+.work.ag .lvb{font-weight:700}
+.work.ag .lvb.lv-u{background:var(--ag-danger-light);color:var(--ag-danger)}
+.work.ag .lvb.lv-c{background:var(--ag-info-light);color:var(--ag-info)}
+.work.ag .lvb.lv-i{background:var(--ag-c-2);color:var(--ag-fl-sub)}
+
+/* ── 5) 기한 묶음 머리: 빨강 면 → 옅은 회색 줄 + 색 점 + 개수 ── */
+.work.ag .grp th,.work.ag .grp-late th{background:var(--ag-fl-head);color:var(--ag-c-14);box-shadow:none;border-top:10px solid #fff;border-bottom:1px solid var(--ag-fl-line);height:34px}
+.work.ag .grp .g-in b{font-size:13px}
+.work.ag .grp .g-ico,.work.ag .grp-late .g-ico{width:8px;height:8px;font-size:0;background:var(--ag-g-bar);color:transparent}
+.work.ag .grp .g-n,.work.ag .grp-late .g-n{border:0;background:none;padding:0;color:var(--ag-g-fg)}
+.work.ag .grp .g-desc,.work.ag .grp-late .g-desc{color:var(--ag-fl-faint)}
+/* 업체 이름 칸 왼쪽 선 4px → 3px */
+.work.ag .biz[data-g="late"] .bizname{box-shadow:inset 3px 0 0 var(--ag-danger)}
+.work.ag .biz[data-g="today"] .bizname{box-shadow:inset 3px 0 0 #f07a5a}
+.work.ag .biz[data-g="soon"] .bizname{box-shadow:inset 3px 0 0 #e39a2d}
+.work.ag .biz[data-g="later"] .bizname{box-shadow:inset 3px 0 0 var(--ag-c-4)}
+/* 팀 · 담당자 머리줄(담당자별 보기)도 같은 톤 */
+.work.ag .team th{box-shadow:none}
+
+/* ── 6) 격자 칸: 색 테두리 상자 → 숫자만, 급함은 글자색 · 고른 칸만 옅은 바탕 ── */
+.work.ag .grid th,.work.ag .grid td{border-bottom-color:var(--ag-fl-line-soft)}
+.work.ag .grid thead tr:first-child th{border-bottom-color:var(--ag-fl-line);color:var(--ag-fl-sub)}
+.work.ag .grid thead .sumrow th,.work.ag .grid thead .sumrow td{background:var(--ag-fl-head);border-bottom-color:var(--ag-fl-line)}
+.work.ag .grid tbody tr.biz:hover{background:var(--ag-fl-hover)}
+.work.ag .cell{border-color:transparent;background:transparent;border-radius:6px}
+.work.ag .cell:hover{background:var(--ag-c-2)}
+.work.ag .cell.is-hot{color:var(--ag-danger)}
+.work.ag .cell.is-soon{color:var(--ag-warning)}
+.work.ag .cell.is-later{color:var(--ag-c-11)}
+.work.ag .cell small{font-weight:500}
+.work.ag .cell.sel{outline:0;background:var(--ag-main-light);box-shadow:inset 0 0 0 1px var(--ag-main)}
+.work.ag .cell.ag-done{border:0;background:none;color:var(--ag-fl-faint)}
+/* 칸 뜻 표: 테두리 네모 → 색 점 */
+.work.ag .legend i:not(.mix){width:8px;height:8px;border:0;border-radius:50%}
+.work.ag .legend i.is-hot{background:var(--ag-danger)}
+.work.ag .legend i.is-soon{background:#e39a2d}
+.work.ag .legend i.is-later{background:var(--ag-c-5)}
+.work.ag .legend{color:var(--ag-fl-sub)}
+
+/* ── 7) 칩 · 알약 · 배지: 테두리 줄이고, 고른 상태 = 주색 하나 ── */
+.work.ag .tchip,.work.ag .pill,.work.ag .pchip,.work.ag .alv,.work.ag .cfold{border-color:var(--ag-fl-line);font-weight:500}
+.work.ag .tchip em{font-weight:700}
+.work.ag .tchip.ag-on,.work.ag .alv.ag-on{border-color:var(--ag-main);box-shadow:none;background:var(--ag-main-light);color:var(--ag-main)}
+.work.ag .tchip.js-afilter.ag-on{border-color:var(--ag-danger);background:var(--ag-danger-light);color:var(--ag-danger)}
+.work.ag .pchip.ag-on{background:var(--ag-main-light);border-color:var(--ag-main);color:var(--ag-main);font-weight:700}
+.work.ag .cfold:has(input:checked){background:var(--ag-main-light);border-color:var(--ag-main);color:var(--ag-main)}
+.work.ag .ty{border:0}
+.work.ag .cidx{border-color:var(--ag-fl-line);box-shadow:none}
+/* 업체 화면 거르기 알약(라디오) — 검정 채움 → 주색 옅은 바탕 */
+.work.ag #bf-all:checked ~ .s-tools label[for=bf-all],.work.ag #bf-un:checked ~ .s-tools label[for=bf-un],
+.work.ag #bf-iss:checked ~ .s-tools label[for=bf-iss],.work.ag #bf-arch:checked ~ .s-tools label[for=bf-arch]{background:var(--ag-main-light);color:var(--ag-main);border-color:var(--ag-main)}
+
+/* ── 8) 버튼: 채움(주) · 1px 선(보조) · 글자(표 안 동작) 세 가지 ── */
+.work.ag .ag-btn{border-color:var(--ag-fl-line);font-weight:600}
+.work.ag .ag-btn:hover{border-color:var(--ag-c-5);color:var(--ag-c-14);background:var(--ag-fl-hover)}
+.work.ag .ag-btn.primary:hover{background:var(--ag-main-hover);color:#fff}
+/* 표 줄 끝 동작 버튼 = 글자 버튼(줄마다 상자가 늘어서지 않게) */
+.work.ag :is(.otable,.btable) .acts .ag-btn{border-color:transparent;background:none;color:var(--ag-c-11);padding:0 8px}
+.work.ag :is(.otable,.btable) .acts .ag-btn:hover{background:var(--ag-c-2);color:var(--ag-c-14)}
+
+/* ── 9) 표(팀 · 업체 · 보고서): 머리 = 흰 바탕 + 회색 글자, 줄 = 연한 가로선, 올림 = 무채색 ── */
+.work.ag :is(.otable,.btable) thead th{background:#fff;color:var(--ag-fl-sub);font-weight:600;border-bottom-color:var(--ag-fl-line)}
+.work.ag :is(.otable,.btable) th,.work.ag :is(.otable,.btable) td{border-bottom-color:var(--ag-fl-line-soft)}
+.work.ag .otable tbody tr:hover td,.work.ag .otable tbody tr:hover th{background:var(--ag-fl-hover)}
+.work.ag .brow:hover td,.work.ag .brow:hover th{background:var(--ag-fl-hover)}
+.work.ag .otable,.work.ag .btable{background:#fff}
+
+/* ── 10) 숫자 요약(팀 화면 KPI): 카드 4장 → 상자 하나 + 세로선(n8n 방식) ── */
+.work.ag .kpis{gap:0;border:1px solid var(--ag-fl-line);border-radius:8px;overflow:hidden}
+.work.ag .kpi{border:0;border-radius:0;border-right:1px solid var(--ag-fl-line);background:#fff}
+.work.ag .kpi:last-child{border-right:0}
+.work.ag .kpi.main{background:#fff}
+.work.ag .kpi.main b{color:var(--ag-c-14)}
+.work.ag .kpi p{font-weight:600;color:var(--ag-fl-sub)}
+.work.ag .card{border-color:var(--ag-fl-line);border-radius:8px}
+
+/* ── 11) 오른쪽 처리 패널: 캠페인 묶음 상자 · 신청자 카드 — 색 머리 · 굵은 왼쪽 선 덜기 ── */
+.work.ag .cgroup{border-color:var(--ag-fl-line);border-radius:8px;box-shadow:inset 3px 0 0 var(--ag-cg)}
+.work.ag .cgroup-h{background:#fff;border-bottom-color:var(--ag-fl-line)}
+.work.ag .cgroup-b .item,.work.ag .item{border-color:var(--ag-fl-line);box-shadow:none}
+.work.ag .al-card{border-color:var(--ag-fl-line);box-shadow:inset 3px 0 0 var(--ag-lvc,var(--ag-c-4))}
+.work.ag .pane-h,.work.ag .pane-f{border-color:var(--ag-fl-line)}
+
+/* ── 12) 일정: 일정 카드 = 색 테두리 상자 → 옅은 바탕 + 왼쪽 3px 색 선 ── */
+.work.ag .ev{border:0;box-shadow:inset 3px 0 0 var(--ag-k);border-radius:4px}
+.work.ag .ev.past{box-shadow:inset 3px 0 0 var(--ag-c-4)}
+.work.ag .sched th,.work.ag .sched td{border-color:var(--ag-fl-line-soft)}
+.work.ag .sched thead th{border-bottom:1px solid var(--ag-fl-line)}
+.work.ag .month{background:var(--ag-fl-line-soft)}
+
+/* ── 13) 다듬기(1차 캡처 확인 후) ── */
+/* 기한 섞임 막대 — 상자가 없어져 밑줄처럼 보이던 것: 가운데 짧게 · 2px */
+.work.ag .cell .mixbar{left:12px;right:12px;height:2px;bottom:1px}
+/* 처리 패널 [인원 늘리기] 점선 상자 → 1px 선 */
+.work.ag .recruit{border:1px solid var(--ag-fl-line);background:var(--ag-fl-head)}
+.work.ag tr.camp th,.work.ag tr.camp td{border-bottom-style:solid;border-bottom-color:var(--ag-fl-line-soft)}
+.work.ag .item.is-done,.work.ag .al-card.is-snoozed{border-style:solid}
+/* 일정: 팀 머리줄 보라 면 → 옅은 회색 줄 · 미담당 줄 분홍 면 → 흰 바탕 + 빨간 선만 */
+.work.ag .t-row th{background:var(--ag-fl-head);color:var(--ag-c-14);border-bottom:1px solid var(--ag-fl-line)}
+.work.ag .s-un td{background:#fff}
+.work.ag .s-un .sname{background:#fff;box-shadow:inset 3px 0 0 var(--ag-danger)}
+.work.ag .tot-row th,.work.ag .tot-row td{border-top:1px solid var(--ag-fl-line);background:var(--ag-fl-head)}
+/* 일정 종류 칩(모집 마감 …) — 색 테두리 알약 → 테두리 없는 점 + 글자 */
+.work.ag .kchip{border-color:transparent;background:none}
+.work.ag .kchip:hover{background:var(--ag-fl-hover)}
+/* 업체 이슈 칩 — 색 테두리 → 옅은 바탕만 */
+.work.ag .ichip{border-color:transparent;background:var(--ag-c-2)}
+.work.ag .ichip.is-hot{border-color:transparent}
+.work.ag .ichip.is-soon{border-color:transparent}
+.work.ag .ichip:hover{border-color:transparent;background:var(--ag-c-3)}
+/* 보고서 거르기 알약 — 검정 채움 → 주색 옅은 바탕(업체 화면과 같게) */
+.work.ag #rf-all:checked ~ .s-tools label[for=rf-all],.work.ag #rf-on:checked ~ .s-tools label[for=rf-on],
+.work.ag #rf-exp:checked ~ .s-tools label[for=rf-exp],.work.ag #rf-off:checked ~ .s-tools label[for=rf-off]{background:var(--ag-main-light);border-color:var(--ag-main);color:var(--ag-main)}
