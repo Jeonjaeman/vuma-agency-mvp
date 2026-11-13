@@ -1,0 +1,5248 @@
+/* ==========================================================================
+   뷰마 MASTER 관리자 — 공통 디자인 시스템
+   광고주 어드민(client)과 동일 톤: 사이드바 220px + Material Symbols + #7346F3
+   순수 CSS. 목업용 (페이지 구성 확인 목적)
+   ========================================================================== */
+
+/* ── Design Tokens ── */
+:root {
+	--color-main: #7346f3;
+	--color-main-hover: #5f33d6;
+	--color-main-light: #f2eeff;
+	--color-main-bg: #f7f5ff;
+
+	--color-danger: #dc2f02;
+	--color-danger-light: #fdece7;
+	--color-success: #00b578;
+	--color-success-light: #e6f8f1;
+	--color-warning: #ff8f00;
+	--color-warning-light: #fff5e5;
+	--color-info: #0088ff;
+	--color-info-light: #e9f4ff;
+
+	--c-14: #0e0e0e;
+	--c-11: #363636;
+	--c-9: #525252;
+	--c-8: #888888;
+	--c-7: #a0a0a0;
+	--c-5: #cfcfcf;
+	--c-4: #dbdbdb;
+	--c-3: #e7e7e7;
+	--c-2: #f3f3f3;
+	--c-1: #ffffff;
+	--color-bg: #edecf0;
+
+	/*
+	  테두리 색 이름   [2026-09-17]
+
+	  ★ 화면 곳곳에 var(--color-border, #e5e7eb) 라고 적혀 있는데
+	    정작 --color-border 라는 이름이 이 파일에 없었다.
+	    그래서 늘 대체값 #e5e7eb 가 나왔고, 토큰 색(#dbdbdb)과 섞여
+	    같은 화면에 테두리 색이 두 가지로 보였다.
+	      #dbdbdb 225곳 · #e7e7e7 40곳 · #e5e7eb 15곳 이상
+	  ※ 리뷰어·광고주 사이트에서 쓰던 표기를 가져오면서
+	    이름만 가져오고 값은 안 가져온 경우다.
+	  ※ 이 한 줄로 master.css 한 곳과 화면 파일 12곳 이상의
+	    인라인 스타일이 한꺼번에 제 색을 찾는다 — 그쪽은 손대지 않는다.
+	*/
+	--color-border: #dbdbdb;
+
+	--sidebar-w: 220px;
+	--topbar-h: 60px;
+	--font: 'Noto Sans KR', sans-serif;
+	--radius: 8px;
+	--shadow-sm: 0 1px 3px rgba(0, 0, 0, .08);
+	--shadow-md: 0 4px 14px rgba(0, 0, 0, .08);
+	--tr: all .18s ease;
+}
+
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+html,
+body {
+	width: 100%;
+	height: 100%;
+	font-family: var(--font);
+	font-size: 14px;
+	color: var(--c-14);
+	background: var(--color-bg);
+}
+
+/*
+═══════════════════════════════════════════════════════════
+페이지 자체는 스크롤하지 않는다 — 앱 셸 구조   [2026-09-17 확인]
+
+  .dashboard 가 height:100vh / overflow:hidden 이고
+  스크롤은 .main-view 안쪽이 맡는다. 그래야 사이드바와 탑바가
+  늘 제자리에 붙어 있다. 관리자 콘솔에서 흔한 방식이다.
+  → 이 규칙은 지우면 안 된다. 지우면 세로 스크롤바가 이중으로 생긴다.
+    overflow-x 만 auto 로 바꾸는 것도 안 된다 — CSS 규칙상
+    한 축이 auto 면 hidden 이던 다른 축도 auto 로 끌려 올라간다.
+
+  ★ 다만 이 규칙에는 대가가 있다. 가로로 넘쳐도 스크롤바가 생기지 않아
+    '넘쳤다' 는 사실이 눈에도, 자동 점검에도 잡히지 않는다.
+    실제로 2026-09-17 점검 전까지 35개 화면 전부
+    documentElement.scrollWidth 로는 '가로넘침 0' 으로 나왔지만,
+    1280px 에서도 표가 잘려 버튼을 누를 수 없는 상태였다.
+
+  ── 그래서 앞으로 점검은 이렇게 한다 ───────────────────
+  scrollWidth 를 보지 말고, 요소마다 getBoundingClientRect().right 가
+  documentElement.clientWidth 를 넘는지 본다.
+  이 값은 overflow:hidden 과 무관하게 잡힌다.
+  ※ 가로 스크롤을 일부러 연 곳(.table-wrap, .card__body:has(>.tbl)) 안쪽은
+    넘쳐도 정상이므로, 조상에 overflow-x:auto 가 있으면 건너뛴다.
+
+  ── 2026-09-17 실측 ────────────────────────────────────
+  위 방식으로 36개 화면 × 390px 을 훑어 잔여 넘침 0 을 확인했다.
+═══════════════════════════════════════════════════════════
+*/
+body {
+	overflow: hidden;
+}
+
+a {
+	text-decoration: none;
+	color: inherit;
+}
+
+img {
+	display: block;
+	max-width: 100%;
+}
+
+button {
+	font-family: inherit;
+	cursor: pointer;
+}
+
+ul {
+	list-style: none;
+}
+
+.material-symbols-outlined {
+	font-size: 20px;
+	line-height: 1;
+	vertical-align: middle;
+}
+
+/* Scrollbar — 6px */
+* {
+	scrollbar-width: thin;
+	scrollbar-color: var(--c-5) transparent;
+}
+
+::-webkit-scrollbar {
+	width: 6px;
+	height: 6px;
+}
+
+::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+	background: var(--c-5);
+	border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+	background: var(--c-7);
+}
+
+/* ==========================================================================
+   LAYOUT SHELL
+   ========================================================================== */
+.dashboard {
+	display: flex;
+	width: 100vw;
+	height: 100vh;
+	overflow: hidden;
+}
+
+/* ── Sidebar ── */
+.sidebar {
+	width: var(--sidebar-w);
+	min-width: var(--sidebar-w);
+	background: #fff;
+	border-right: 1px solid var(--c-3);
+	display: flex;
+	flex-direction: column;
+	height: 100vh;
+}
+
+.sidebar-brand {
+	padding: 20px 18px 14px;
+	border-bottom: 1px solid var(--c-3);
+}
+
+.sidebar-brand .brand-label {
+	font-size: 11px;
+	font-weight: 600;
+	color: var(--c-14); /* [10-21] ← var(--c-8) */
+	letter-spacing: .04em;
+}
+
+.sidebar-brand .brand-name {
+	font-size: 20px;
+	font-weight: 700;
+	color: var(--color-main);
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	margin-top: 3px;
+}
+
+.sidebar-nav {
+	flex: 1;
+	overflow-y: auto;
+	padding: 12px 12px 20px;
+}
+
+.nav-group {
+	margin-bottom: 6px;
+}
+
+.nav-group__label {
+	font-size: 11px;
+	font-weight: 700;
+	color: var(--c-14); /* [10-21] ← var(--c-7) */
+	padding: 12px 12px 6px;
+	letter-spacing: .03em;
+}
+
+.nav-item {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	height: 38px;
+	padding: 0 12px;
+	border-radius: var(--radius);
+	/*
+	  ★ [2026-09-17] 13.5 → 13px
+	    이 파일에는 13px(224곳)과 13.5px(219곳)이 함께 쓰이고 있었다.
+	    0.5px 는 눈으로 구분되지 않는다. 값만 둘로 갈려 있었을 뿐이다.
+	    사이드바 메뉴와 표 본문이 서로 다른 크기였던 셈이라 13px 로 모은다.
+	    (같은 이유로 .tab-btn · .ma-tab · .timeline__text · .lightbox__cap 도 함께)
+	*/
+	font-size: 13px;
+	font-weight: 500;
+	color: var(--c-11);
+	transition: var(--tr);
+	position: relative;
+}
+
+.nav-item .material-symbols-outlined {
+	font-size: 20px;
+	color: var(--c-8);
+}
+
+.nav-item:hover {
+	background: var(--c-2);
+}
+
+.nav-item.active {
+	background: var(--color-main-light);
+	color: var(--color-main);
+	font-weight: 700;
+}
+
+.nav-item.active .material-symbols-outlined {
+	color: var(--color-main);
+}
+
+.nav-item__badge {
+	margin-left: auto;
+	min-width: 18px;
+	height: 18px;
+	padding: 0 5px;
+	background: var(--color-danger);
+	color: #fff;
+	font-size: 11px;
+	font-weight: 700;
+	border-radius: 9px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.sidebar-footer {
+	padding: 12px 18px;
+	border-top: 1px solid var(--c-3);
+	font-size: 11px;
+	color: var(--c-14); /* [10-21] ← var(--c-7) */
+}
+
+/* ── Main + Topbar ── */
+.main-content {
+	flex: 1;
+	min-width: 0;
+	height: 100vh;
+	display: flex;
+	flex-direction: column;
+	background: var(--color-bg);
+}
+
+.topbar {
+	height: var(--topbar-h);
+	min-height: var(--topbar-h);
+	background: #fff;
+	border-bottom: 1px solid var(--c-3);
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 0 24px;
+}
+
+.topbar__title {
+	display: flex;
+	flex-direction: column;
+}
+
+.topbar__crumb {
+	font-size: 11px;
+	color: var(--c-14); /* [10-21] ← var(--c-8) */
+}
+
+.topbar__page {
+	font-size: 17px;
+	font-weight: 700;
+	color: var(--c-14);
+}
+
+.topbar__actions {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+}
+
+/*
+═══════════════════════════════════════════════════════════
+사이드바 서랍 — 900px 이하   [2026-09-17]
+
+  ── 무엇이 문제였나 ────────────────────────────────────
+  .sidebar 가 어느 폭에서도 220px 을 붙들고 있었다 (min-width 때문).
+    1280 → 본문 1060   1024 → 804   768 → 548
+     600 → 380          480 → 260    390 → 170
+  390px 에서는 화면의 56% 를 사이드바가 먹고 본문은 170px,
+  카드 하나가 128px 이었다. 표가 있는 30개 화면 전부
+  보이는 칸이 0~3개였다 (리뷰어 관리는 13칸 중 2칸).
+
+  ※ master.css 51,502자 중 반응형 규칙이 432자뿐이었고
+    사이드바·표·상단바를 다루는 규칙은 하나도 없었다.
+
+  ── 어떻게 했나 ────────────────────────────────────────
+  900px 이하에서 사이드바를 화면 밖으로 밀어 두고,
+  탑바의 햄버거를 누를 때만 덮어 연다. 본문은 폭을 전부 되찾는다.
+  여닫는 것은 inc/header.inc.html 의 <script> 가 한다 (클래스만 붙였다 뗀다).
+
+  ※ 리뷰어 사이트의 .mobile-nav-drawer 와 같은 방식이다.
+    거기서 배운 것 하나 — 서랍이 화면을 통째로 덮으면
+    바깥을 눌러 닫을 자리가 없어진다. 그래서 상한을 같이 둔다.
+═══════════════════════════════════════════════════════════
+*/
+.sidebar-toggle {
+	display: none;			/* 넓은 화면에서는 필요 없다 — 사이드바가 늘 보인다 */
+	align-items: center;
+	justify-content: center;
+	width: 38px;
+	height: 38px;
+	margin-right: 12px;
+	flex-shrink: 0;
+	border: 1px solid var(--c-3);
+	border-radius: var(--radius-sm, 8px);
+	background: #fff;
+	color: var(--c-11);
+	cursor: pointer;
+	transition: background .15s ease;
+}
+
+.sidebar-toggle:hover {
+	background: var(--c-2);
+}
+
+.sidebar-backdrop {
+	display: none;
+	position: fixed;
+	inset: 0;
+	z-index: 998;
+	background: rgba(0, 0, 0, .4);
+}
+
+@media (max-width: 900px) {
+	.sidebar-toggle {
+		display: inline-flex;
+	}
+
+	.sidebar {
+		position: fixed;
+		top: 0;
+		left: 0;
+		z-index: 999;
+		max-width: calc(100vw - 48px);	/* 바깥을 눌러 닫을 자리를 남긴다 */
+		transform: translateX(-100%);
+		transition: transform .25s ease;
+		box-shadow: 0 0 24px rgba(0, 0, 0, .18);
+	}
+
+	.sidebar.is-open {
+		transform: translateX(0);
+	}
+
+	.sidebar-backdrop.is-open {
+		display: block;
+	}
+
+	/* 사이드바가 자리를 비웠으니 본문이 폭을 전부 쓴다 */
+	.main-content {
+		width: 100%;
+	}
+
+	.topbar {
+		padding: 0 14px;
+		gap: 10px;
+	}
+
+	/*
+	  탑바 정리   [2026-09-17]
+
+	  ★ 사이드바를 걷어내니 탑바가 좁다는 것이 드러났다.
+	    390px 실측 — 오른쪽 아이콘·계정칩이 244px 을 먹고
+	    제목에 68px 만 남아 '리뷰어 관 / 리' 로 끊겼다.
+	    제목 영역 높이가 82px 이라 60px 짜리 탑바 밖으로 삐져나오고 있었다.
+
+	  ※ 무엇을 덜어낼지 — 화면 이름은 남기고 나머지를 접는다.
+	    · 빵부스러기(회원 / 리뷰어 관리) : 바로 아래 본문에 같은 제목이 또 있다. 감춘다.
+	    · 계정 이름·권한 : 아바타 한 글자만 남긴다. 누구로 로그인했는지는 그것으로 안다.
+	*/
+	.topbar__title {
+		min-width: 0;			/* flex 안에서 줄어들 수 있게 — 이게 없으면 안 줄어든다 */
+		flex: 1 1 auto;
+	}
+
+	.topbar__crumb {
+		display: none;
+	}
+
+	.topbar__page {
+		font-size: 16px;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;	/* 긴 이름은 … 로 줄인다 — 줄바꿈보다 낫다 */
+	}
+
+	.topbar__actions {
+		flex-shrink: 0;
+		gap: 8px;
+	}
+
+	.admin-chip__meta {
+		display: none;
+	}
+}
+
+.topbar__icon {
+	position: relative;
+	width: 38px;
+	height: 38px;
+	border-radius: 8px;
+	border: none;
+	background: var(--c-2);
+	color: var(--c-9);
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.topbar__icon:hover {
+	background: var(--c-3);
+}
+
+.topbar__icon .badge-dot {
+	position: absolute;
+	top: 8px;
+	right: 9px;
+	width: 7px;
+	height: 7px;
+	border-radius: 50%;
+	background: var(--color-danger);
+	border: 1.5px solid #fff;
+}
+
+.admin-chip {
+	display: flex;
+	align-items: center;
+	gap: 9px;
+	padding: 5px 10px 5px 6px;
+	border-radius: 999px;
+	background: var(--c-2);
+}
+
+.admin-chip__avatar {
+	width: 30px;
+	height: 30px;
+	border-radius: 50%;
+	background: var(--color-main);
+	color: #fff;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	font-weight: 700;
+	font-size: 13px;
+}
+
+.admin-chip__meta {
+	line-height: 1.25;
+}
+
+.admin-chip__name {
+	font-size: 13px;
+	font-weight: 700;
+}
+
+.admin-chip__role {
+	font-size: 11px;
+	color: var(--c-14); /* [10-21] ← var(--c-8) */
+}
+
+.role-switcher {
+	margin-top: 1px;
+	border: 1px solid var(--c-4);
+	border-radius: 4px;
+	font-size: 11px;
+	color: var(--c-14); /* [10-21] ← var(--c-9) */
+	background: #fff;
+	padding: 1px 4px;
+	font-family: inherit;
+	cursor: pointer;
+	max-width: 130px;
+}
+
+.role-switcher:focus {
+	outline: none;
+	border-color: var(--color-main);
+	box-shadow: 0 0 0 2px rgba(115, 70, 243, .12);
+}
+
+/* Skeleton / empty (로딩·빈 상태) */
+.skeleton {
+	position: relative;
+	overflow: hidden;
+	background: var(--c-2);
+	border-radius: 6px;
+}
+
+.skeleton::after {
+	content: '';
+	position: absolute;
+	inset: 0;
+	transform: translateX(-100%);
+	background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .65), transparent);
+	animation: shimmer 1.3s infinite;
+}
+
+@keyframes shimmer {
+	100% {
+		transform: translateX(100%);
+	}
+}
+
+.skeleton-row {
+	height: 14px;
+	margin: 12px 0;
+}
+
+.empty-icon {
+	font-size: 44px;
+	color: var(--c-5);
+	margin-bottom: 6px;
+}
+
+.empty-block {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	text-align: center;
+	color: var(--c-14); /* [10-21] ← var(--c-7) */
+	padding: 48px 20px;
+	font-size: 13px;
+}
+
+.main-view {
+	flex: 1;
+	min-height: 0;
+	overflow-y: auto;
+	padding: 24px;
+}
+
+/* ==========================================================================
+   PAGE PRIMITIVES
+   ========================================================================== */
+.page-header {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 16px;
+	margin-bottom: 18px;
+}
+
+.page-header__title {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	font-size: 20px;
+	font-weight: 700;
+}
+
+.page-header__desc {
+	font-size: 13px;
+	color: var(--c-14); /* [10-21] ← var(--c-8) */
+	margin-top: 4px;
+}
+
+.page-header__actions {
+	display: flex;
+	gap: 8px;
+	flex-shrink: 0;
+}
+
+/*
+화면별 도움말 아이콘   [2026-09-07]
+  ★ 제목 옆 — 모든 화면에서 같은 자리 — 에 붙는 작은 물음표 버튼.
+    inc/pageHeader.inc.html 이 $masterActive 와 일치하는 도움말이
+    있을 때만 찍는다. 누르면 레이어(#pageHelpModal)가 뜬다.
+*/
+.page-header__help {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 24px;
+	height: 24px;
+	border: none;
+	border-radius: 50%;
+	background: var(--c-2);
+	color: var(--c-14); /* [10-21] ← var(--c-8) */
+	flex-shrink: 0;
+	cursor: pointer;
+}
+
+.page-header__help .material-symbols-outlined {
+	font-size: 16px;
+}
+
+.page-header__help:hover {
+	background: var(--color-main);
+	color: #fff;
+}
+
+/* 화면별 도움말 레이어 안의 '탭별 안내' 구획 */
+.page-help__tabs {
+	margin-top: 18px;
+	padding-top: 14px;
+	border-top: 1px dashed var(--c-3);
+}
+
+.page-help__tabsTitle {
+	font-size: 13px;
+	font-weight: 700;
+	color: var(--c-14); /* [10-21] ← var(--c-8) */
+	margin-bottom: 10px;
+}
+
+.page-help__tab {
+	padding: 12px 14px;
+	background: var(--c-2);
+	border-radius: 8px;
+	margin-bottom: 8px;
+}
+
+.page-help__tab:last-child {
+	margin-bottom: 0;
+}
+
+.page-help__tabLabel {
+	font-size: 13px;
+	font-weight: 700;
+	margin-bottom: 4px;
+}
+
+.page-help__tabBody {
+	font-size: 13px;
+	color: var(--c-14); /* [10-21] ← var(--c-8) */
+	line-height: 1.6;
+}
+
+.page-help__tabBody p {
+	margin: 0 0 6px;
+}
+
+.page-help__tabBody p:last-child {
+	margin-bottom: 0;
+}
+
+.page-help__tabBody ul {
+	margin: 6px 0 0;
+	padding-left: 18px;
+}
+
+.page-help__tabBody li {
+	margin-bottom: 4px;
+}
+
+/* 탭 하나만 콕 집어 보여줄 때 — 나머지 탭으로 가는 바로가기 묶음 */
+.page-help__siblingNav {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+/* 탭별 안내 목록에서 '지금 보는 화면'만 살짝 강조 */
+.page-help__tab.is-current {
+	background: #eef2ff;
+	outline: 1px solid var(--color-main);
+	outline-offset: -1px;
+}
+
+.page-help__nowBadge {
+	display: inline-block;
+	margin-left: 6px;
+	padding: 1px 7px;
+	border-radius: 999px;
+	background: var(--color-main);
+	color: #fff;
+	font-size: 11px;
+	font-weight: 500;
+	vertical-align: middle;
+}
+
+/* 실시간 설정값 안내 — help.data.php 의 'live' 콜백이 그리는 상자 */
+.page-help__live {
+	margin-top: 14px;
+	padding: 12px 14px;
+	background: #eef6ff;
+	border: 1px solid #cfe3fb;
+	border-radius: 8px;
+	font-size: 13px;
+	line-height: 1.6;
+}
+
+.page-help__live b {
+	font-weight: 700;
+}
+
+/*
+탭 도움말 링크로 바로 들어왔을 때 — 잠깐 '여기' 라고 알려 준다   [2026-11-11]
+  ★ 글이 길어 그 자리에 가도 어디를 보라는 건지 알 수 없다.
+  ★ 2.6초 뒤 스스로 사라진다(help.html 의 goTabAnchor 참고) —
+    계속 남아 있으면 그 탭만 특별한 것처럼 보인다.
+  ※ scroll-margin-top 은 본문 위 여백 — 테두리가 화면 끝에 딱 붙지 않게.
+*/
+.page-help__tab { scroll-margin-top: 80px; }
+
+.page-help__tab.is-linked {
+	outline: 2px solid var(--color-main);
+	outline-offset: 3px;
+	border-radius: 8px;
+	background: var(--color-main-light);
+}
+
+/* 한 화면에 발송 항목이 여러 개일 때(영상 제작 요청 등) 상자마다 붙는 작은 제목 */
+.page-help__liveHead {
+	font-size: 12px;
+	font-weight: 700;
+	color: var(--c-14); /* [10-21] ← var(--c-8) */
+	margin-bottom: 6px;
+}
+
+/* Filter bar */
+.filter-bar {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px;
+	background: #fff;
+	border: 1px solid var(--c-3);
+	border-radius: var(--radius);
+	padding: 12px 14px;
+	margin-bottom: 16px;
+}
+
+.filter-bar .search-input {
+	flex: 1;
+	min-width: 200px;
+}
+
+.input,
+.select,
+.search-input {
+	height: 38px;
+	padding: 0 12px;
+	border: 1px solid var(--c-4);
+	border-radius: 6px;
+	font-size: 13px;
+	color: var(--c-14);
+	background: #fff;
+	font-family: inherit;
+}
+
+.input:focus,
+.select:focus,
+.search-input:focus {
+	outline: none;
+	border-color: var(--color-main);
+	box-shadow: 0 0 0 3px rgba(115, 70, 243, .1);
+}
+
+/*
+═══════════════════════════════════════════════════════════
+파일 선택칸   [2026-09-17]
+
+  ── 무엇이 문제였나 ────────────────────────────────────
+  <input type="file"> 에 글자 입력칸용 .input 을 그대로 붙여 놓았다.
+  .input 은 height:38px + padding:0 12px 이다.
+
+  ★ 파일칸은 안에 '파일 선택' 이라는 브라우저가 그리는 버튼과
+    '선택된 파일 없음' 이라는 글자, 둘이 나란히 들어간다.
+    그 둘을 세로 가운데로 맞춰 주는 장치가 없어
+    버튼이 위로 뜨고 글자 밑줄이 어긋나 보였다.
+  ★ padding: 0 12px 은 위아래 여백이 0 이라는 뜻이다.
+    브라우저 기본 버튼이 칸 높이를 꽉 채우지 못해 더 떠 보였다.
+
+  ── 어떻게 했나 ────────────────────────────────────────
+  칸을 flex 로 만들어 안의 둘을 세로 가운데에 맞춘다.
+  브라우저가 그리는 버튼(::file-selector-button)에는
+  이 사이트의 보조 버튼 모양을 입혀 낯설지 않게 한다.
+  ※ 높이는 고정하지 않는다 — 파일 이름이 길면 늘어나야 한다.
+═══════════════════════════════════════════════════════════
+*/
+.input[type="file"] {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	height: auto;
+	min-height: 38px;
+	padding: 5px 8px;
+	line-height: 1.4;
+	cursor: pointer;
+}
+
+.input[type="file"]::file-selector-button {
+	flex-shrink: 0;
+	height: 28px;
+	padding: 0 12px;
+	margin: 0;
+	border: 1px solid var(--c-4);
+	border-radius: var(--radius-sm, 6px);
+	background: var(--c-2);
+	color: var(--c-11);
+	font-family: inherit;
+	font-size: 12px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: background .15s ease;
+}
+
+.input[type="file"]::file-selector-button:hover {
+	background: var(--c-3);
+}
+
+.select {
+	cursor: pointer;
+	min-width: 120px;
+}
+
+textarea.input {
+	height: auto;
+	padding: 10px 12px;
+	resize: vertical;
+	width: 100%;
+	line-height: 1.5;
+}
+
+label.field-label {
+	display: block;
+	font-size: 12px;	/* 12.5 → 12 : 반 픽셀 값을 없앤다 [2026-09-17] */
+	font-weight: 600;
+	color: var(--c-14); /* [10-21] ← var(--c-9) */
+	margin-bottom: 6px;
+}
+
+.field {
+	margin-bottom: 14px;
+}
+
+/* Buttons */
+.btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	height: 38px;
+	padding: 0 16px;
+	border-radius: 6px;
+	border: 1px solid transparent;
+	font-size: 13px;
+	font-weight: 600;
+	transition: var(--tr);
+	white-space: nowrap;
+	background: #fff;
+}
+
+.btn .material-symbols-outlined {
+	font-size: 18px;
+}
+
+.btn--primary {
+	background: var(--color-main);
+	color: #fff;
+}
+
+.btn--primary:hover {
+	background: var(--color-main-hover);
+}
+
+.btn--outline {
+	border-color: var(--color-main);
+	color: var(--color-main);
+	background: #fff;
+}
+
+.btn--outline:hover {
+	background: var(--color-main-light);
+}
+
+.btn--ghost {
+	border-color: var(--c-4);
+	color: var(--c-14); /* [10-21] ← var(--c-9) */
+	background: #fff;
+}
+
+.btn--ghost:hover {
+	background: var(--c-2);
+}
+
+.btn--danger {
+	background: var(--color-danger);
+	color: #fff;
+}
+
+.btn--danger:hover {
+	filter: brightness(.93);
+}
+
+.btn--success {
+	background: var(--color-success);
+	color: #fff;
+}
+
+.btn--sm {
+	height: 30px;
+	padding: 0 10px;
+	font-size: 12px;
+}
+
+.btn--block {
+	width: 100%;
+}
+
+/*
+비활성화된 버튼 — 눌러도 되는 것처럼 보이면 안 된다   [2026-09-07]
+  ★ 색깔있는 variant(--primary/--outline/--danger 등)는 각자 색을 갖고 있어
+    disabled 속성만으로는 그대로 색이 남아 눌러도 될 것처럼 보인다.
+    선택자 자체(클래스 2개 결합)가 variant 단일 클래스보다 우선하도록 두어
+    순서와 무관하게 항상 이겨서 회색으로 덮는다.
+  ※ disabled 속성과 .is-disabled 클래스(속성을 못 거는 <a> 등에 씀) 둘 다 잡는다.
+*/
+.btn:disabled,
+.btn[disabled],
+.btn.is-disabled {
+	background: var(--c-2) !important;
+	border-color: var(--c-3) !important;
+	color: var(--c-7) !important;
+	opacity: .6;
+	cursor: not-allowed;
+	pointer-events: none;
+	box-shadow: none;
+}
+
+/* Cards */
+.card {
+	background: #fff;
+	border: 1px solid var(--c-3);
+	border-radius: var(--radius);
+	box-shadow: var(--shadow-sm);
+}
+
+.card__head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 16px 18px;
+	border-bottom: 1px solid var(--c-2);
+}
+
+.card__title {
+	font-size: 15px;
+	font-weight: 700;
+}
+
+.card__body {
+	padding: 18px;
+}
+
+/*
+  카드 안에 래퍼 없이 놓인 표   [2026-09-17]
+
+  ★ 표는 대개 .table-wrap 에 싸여 있고, 그쪽에 가로 스크롤을 열어 두었다.
+    그런데 아래 여섯 군데는 .card__body 안에 표가 바로 들어 있어
+    래퍼가 없다. 390px 실측 — 칸은 346px 인데 표가 그보다 넓다.
+        대시보드 418 · 운영 캘린더 422 · 정산·포인트 694
+        정산 결재함 565 / 383 · 자동화 규칙 619
+    래퍼를 마크업에 새로 두는 대신, 표를 품은 카드에만 스크롤을 연다.
+  ※ :has() 를 쓰므로 표가 없는 카드는 건드리지 않는다.
+    (표가 없는 카드에 overflow 를 걸면 그림자·툴팁이 잘린다)
+*/
+.card__body:has(> .tbl) {
+	overflow-x: auto;
+	-webkit-overflow-scrolling: touch;
+	overscroll-behavior-x: contain;
+}
+
+/* KPI stat cards */
+.stat-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+	gap: 14px;
+	margin-bottom: 20px;
+}
+
+.stat-card {
+	background: #fff;
+	border: 1px solid var(--c-3);
+	border-radius: var(--radius);
+	padding: 18px;
+	box-shadow: var(--shadow-sm);
+}
+
+.stat-card__top {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.stat-card__label {
+	font-size: 13px;
+	color: var(--c-14); /* [10-21] ← var(--c-8) */
+	font-weight: 600;
+}
+
+.stat-card__icon {
+	width: 34px;
+	height: 34px;
+	border-radius: 9px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.stat-card__value {
+	font-size: 28px;
+	font-weight: 800;
+	margin-top: 8px;
+	letter-spacing: -.02em;
+}
+
+.stat-card__delta {
+	font-size: 12px;
+	margin-top: 4px;
+	color: var(--c-14); /* [10-21] ← var(--c-8) */
+}
+
+.stat-card__delta.up {
+	color: var(--color-success);
+}
+
+.stat-card__delta.down {
+	color: var(--color-danger);
+}
+
+.ic-main {
+	background: var(--color-main-light);
+	color: var(--color-main);
+}
+
+.ic-warn {
+	background: var(--color-warning-light);
+	color: var(--color-warning);
+}
+
+.ic-danger {
+	background: var(--color-danger-light);
+	color: var(--color-danger);
+}
+
+.ic-success {
+	background: var(--color-success-light);
+	color: var(--color-success);
+}
+
+.ic-info {
+	background: var(--color-info-light);
+	color: var(--color-info);
+}
+
+/* Table */
+/*
+═══════════════════════════════════════════════════════════
+표가 넘칠 때 가로로 밀어 볼 수 있게 한다   [2026-09-17]
+
+  ── 무엇이 문제였나 ────────────────────────────────────
+  overflow: hidden 이었다. 모서리 라운드를 깎기 위한 것이었는데,
+  표가 가로로 넘치면 넘친 부분이 '잘려서 사라졌다'. 스크롤도 안 됐다.
+
+  ★ 모바일만의 문제가 아니었다. 1280px 에서도 잘리고 있었다.
+      영상 제작 요청  표 1,149px  → 133px 잘림 ('처리' 칸)
+      리뷰어 관리     표 1,109px  →  93px 잘림 ('최종 로그인'·'상태')
+    실제로 '히스토리' 버튼이 중간에서 잘려 누를 수 없었다.
+  ★ 1024px 에서는 더 심하다.
+      영상 제작 요청  389px 잘림 (3칸)
+      리뷰어 관리     349px 잘림 (5칸)
+  ★ 390px 에서는 표 있는 30개 화면 전부 보이는 칸이 0~3개였다.
+
+  ── 왜 잘린 줄도 몰랐나 ────────────────────────────────
+  body 에 overflow-x: hidden 이 걸려 있어 가로 스크롤바가 생기지 않는다.
+  그래서 자동 점검을 돌려도 35개 화면 전부 '가로넘침 0' 으로 나온다.
+  안 넘친 것이 아니라, 넘친 것이 보이지 않았을 뿐이다.
+  ※ 그 body 규칙은 사이드바까지 손본 뒤에 걷어내는 것이 순서다.
+    지금 걷으면 페이지 전체가 가로로 흔들린다.
+
+  ── 지금 한 것 ─────────────────────────────────────────
+  overflow: hidden → overflow-x: auto.
+  가로만 스크롤을 열고 세로는 그대로 둔다(hidden 이어야 라운드가 유지된다).
+  표를 카드로 접지 않은 이유 — 마스터의 표는 11~13칸짜리가 있어
+  카드로 펴면 한 건이 화면 서너 개 높이가 된다. 여기서는 미는 편이 낫다.
+═══════════════════════════════════════════════════════════
+*/
+.table-wrap {
+	background: #fff;
+	border: 1px solid var(--c-3);
+	border-radius: var(--radius);
+	overflow-x: auto;
+	overflow-y: hidden;
+	-webkit-overflow-scrolling: touch;	/* iOS 관성 스크롤 */
+	overscroll-behavior-x: contain;		/* 끝까지 밀어도 뒤 페이지가 따라 움직이지 않게 */
+	box-shadow: var(--shadow-sm);
+}
+
+.tbl {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 13px;
+}
+
+.tbl thead th {
+	background: #fafafb;
+	text-align: left;
+	padding: 12px 14px;
+	font-size: 12px;
+	font-weight: 700;
+	color: var(--c-14); /* [10-21] ← var(--c-9) */
+	border-bottom: 1px solid var(--c-3);
+	white-space: nowrap;
+}
+
+.tbl tbody td {
+	padding: 13px 14px;
+	border-bottom: 1px solid var(--c-2);
+	color: var(--c-11);
+	vertical-align: middle;
+	/*
+	  ★ [2026-09-17] 낱말 가운데서 끊지 않는다.
+	    칸이 좁아지면 브라우저가 마지막 수단으로 한 글자씩 떨어뜨린다.
+	    실제로 '결재대기' 가 결/재/대/기 네 줄로 서 있었다.
+	    keep-all 이면 낱말째로 다음 줄에 내려가거나, 안 되면 칸을 넓힌다
+	    (넓어져도 위 .table-wrap 이 가로로 밀 수 있으니 갇히지 않는다).
+	*/
+	word-break: keep-all;
+}
+
+.tbl tbody tr:last-child td {
+	border-bottom: none;
+}
+
+.tbl tbody tr:hover {
+	background: var(--color-main-bg);
+}
+
+.tbl .col-num {
+	color: var(--c-14); /* [10-21] ← var(--c-7) */
+	width: 44px;
+}
+
+.tbl .cell-strong {
+	font-weight: 700;
+	color: var(--c-14);
+}
+
+.tbl .cell-sub {
+	font-size: 12px;
+	color: var(--c-14); /* [10-21] ← var(--c-8) */
+}
+
+/*
+	액션 칸
+	  ★ 줄바꿈을 막는다.   [2026-08-13]
+	    버튼이 하나인 행과 넷인 행이 섞이면, 넷인 행만 두 줄이 되어 행 높이가 들쭉날쭉해진다.
+	    가로로 늘어놓고 필요하면 칸이 넓어지게 둔다.
+	  ※ 세로 가운데 정렬 — 버튼과 옆 칸의 글자 높이를 맞춘다.
+*/
+.cell-actions {
+	display: flex;
+	gap: 6px;
+	flex-wrap: nowrap;
+	align-items: center;
+	white-space: nowrap;
+}
+
+.mono {
+	font-family: ui-monospace, Menlo, Consolas, monospace;
+	font-size: 12px;
+	color: var(--c-14); /* [10-21] ← var(--c-9) */
+}
+
+/*
+영문 전용 글자는 아무 글자 사이에서나 줄바꿈 (break-all)   [2026-09-30]
+  대상 : .mono (코드 C20260060 · campaignRecruitStart · 메일 주소 · IP · 사업자번호) · <code>
+  ★ 한글 칸은 keep-all 그대로다 — 낱말 가운데서 끊지 않는다(결재대기 → 결/재/대/기 방지).
+    영문 코드·메일은 띄어쓰기가 없는 한 덩어리라 keep-all 이면 칸을 밀어내거나 넘친다.
+  ★ 표·dl 은 칸마다 keep-all 을 따로 걸어 두어 선택자를 같이 적어야 이긴다.
+  ★ 목록 표의 코드 칸(td.mono — C20260060 · IP)도 예외 없이 break-all.   [2026-09-30 확정]
+    칸이 좁으면 C20260 / 060 처럼 두 줄로 접힐 수 있다 — 요청에 따라 그대로 둔다.
+    (처음엔 한 줄 고정(nowrap)으로 예외를 뒀다가 운영자 요청으로 뺐다)
+*/
+.mono,
+code,
+.dl dd.mono,
+.tbl tbody td.mono,
+.frame-wrap table.tbl tbody td.mono {
+	word-break: break-all;
+}
+
+/* Badges / pills */
+.badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	padding: 3px 9px;
+	border-radius: 999px;
+	font-size: 11px;	/* 11.5 → 11 [2026-09-17] */
+	font-weight: 700;
+	line-height: 1.4;
+	/*
+	  ★ [2026-09-17] 뱃지는 줄을 나누지 않는다.
+	    '결재대기'·'환불완료' 같은 상태말이 좁은 칸에서 세로로 서 버렸다.
+	    뱃지는 한 덩어리로 읽혀야 상태로 읽힌다.
+	*/
+	white-space: nowrap;
+}
+
+.badge--main {
+	background: var(--color-main-light);
+	color: var(--color-main);
+}
+
+.badge--gray {
+	background: var(--c-2);
+	color: var(--c-14); /* [10-21] ← var(--c-9) */
+}
+
+.badge--success {
+	background: var(--color-success-light);
+	color: var(--color-success);
+}
+
+.badge--warning {
+	background: var(--color-warning-light);
+	color: #b56a00;
+}
+
+.badge--danger {
+	background: var(--color-danger-light);
+	color: var(--color-danger);
+}
+
+.badge--info {
+	background: var(--color-info-light);
+	color: var(--color-info);
+}
+
+.badge--outline {
+	background: #fff;
+	border: 1px solid var(--c-4);
+	color: var(--c-14); /* [10-21] ← var(--c-9) */
+}
+
+/*=====================================================
+눌러서 바꾸는 뱃지   [2026-11-10]
+
+  ★ 왜 생겼나
+    회원 상세의 수신동의(SMS·마케팅·이메일)를 운영자가 바꿀 수 있게
+    하면서, **보여주는 자리와 바꾸는 자리를 하나로** 합쳤다.
+    같은 값을 어딘가 다른 칸에서 또 고치게 두면, 화면에 보이는 것과
+    저장된 것이 어긋났을 때 어느 쪽이 맞는지 알 수 없다.
+
+  ★★ 바로 옆에 **눌러도 안 바뀌는** 뱃지가 있다 (활성 · 본인인증).
+    똑같이 생기면 운영자는 그것도 눌러 보고, 아무 일이 없으면
+    고장으로 읽는다. 그래서 누를 수 있는 것에만 작은 연필을 붙인다.
+    색·크기는 건드리지 않는다 — 상태를 읽는 눈이 흐려진다.
+
+  ※ .badge 가 이미 글자크기·굵기·여백·모서리를 정해 두었다.
+    button 이 기본으로 들고 오는 것(테두리·시스템 글꼴)만 지운다.
+=====================================================*/
+button.badge {
+	border: 0;
+	font-family: inherit;
+	cursor: pointer;
+	-webkit-appearance: none;
+	appearance: none;
+}
+
+button.badge::after {
+	content: "\270E";	/* ✎ */
+	font-size: 10px;
+	opacity: .6;
+}
+
+button.badge:hover { filter: brightness(.93); }
+
+/* 키보드로 옮겨 왔을 때도 어디에 있는지 보여야 한다 */
+button.badge:focus-visible {
+	outline: 2px solid var(--color-main, #6246ea);
+	outline-offset: 2px;
+}
+
+button.badge:disabled {
+	cursor: default;
+	filter: none;
+	opacity: .7;
+}
+
+.grade {
+	font-weight: 700;
+}
+
+.grade--bronze {
+	color: #b06b3a;
+}
+
+.grade--silver {
+	color: #8a92a6;
+}
+
+.grade--gold {
+	color: #d4a017;
+}
+
+.grade--platinum {
+	color: #6b7fd4;
+}
+
+.grade--vip {
+	color: var(--color-main);
+}
+
+/* Tabs */
+.tabs {
+	display: flex;
+	gap: 4px;
+	border-bottom: 1px solid var(--c-3);
+	margin-bottom: 16px;
+}
+
+.tab-btn {
+	height: 40px;
+	padding: 0 16px;
+	background: none;
+	border: none;
+	border-bottom: 2px solid transparent;
+	font-size: 13px;	/* 13.5 → 13 : 반 픽셀 차이를 없앤다 [2026-09-17] */
+	font-weight: 600;
+	color: var(--c-14); /* [10-21] ← var(--c-8) */
+	margin-bottom: -1px;
+	/*
+	  ★ [2026-09-17] 글자가 1px 위로 떠 있던 것을 내린다.
+
+	    활성 탭 밑줄 자리로 border-bottom 2px 을 깔아 두었는데,
+	    그 2px 이 높이 40px 안에 포함된다(box-sizing: border-box).
+	    글자가 놓이는 자리는 38px 이 되고, 남은 2px 은 전부 아래에 붙는다.
+	    그래서 글자가 상자 한가운데보다 1px 위에 앉았다.
+	    실측 — 상자 중심 120.0 / 글자 중심 119.0
+
+	    밑줄 두께만큼 위쪽에 여백을 주어 되돌린다.
+	    (밑줄을 걷어내면 활성 표시가 사라지므로 그쪽은 손대지 않는다)
+	*/
+	padding-top: 2px;
+}
+
+.tab-btn.active {
+	color: var(--color-main);
+	border-bottom-color: var(--color-main);
+}
+
+/*=====================================================
+탭 옆 물음표 — 그 탭의 도움말로   [2026-11-11]
+
+  ★ 지금 보고 있는 탭에만 붙는다(inc/helpTabLink.inc.php 주석 참고).
+  ★ 탭 글자보다 작고 흐리게 둔다. 이건 '있으면 눌러 보는 것' 이지
+    탭 이름과 겨룰 요소가 아니다 — 같은 굵기로 두면 탭이 일곱 개로 보인다.
+=====================================================*/
+.tab-help {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 22px;
+	height: 22px;
+	margin: 0 2px 0 -8px;		/* 탭 글자에 바싹 붙인다 — 어느 탭의 물음표인지 */
+	align-self: center;
+	border-radius: 50%;
+	color: var(--c-8);
+	text-decoration: none;
+	flex: 0 0 auto;
+}
+.tab-help:hover {
+	background: var(--color-main-light);
+	color: var(--color-main);
+}
+.tab-help .material-symbols-outlined { font-size: 16px; }
+
+/*=====================================================
+상세 창 제목 옆 도움말 물음표   [2026-11-11]
+
+  ★ 자리는 **제목과 닫기(X) 사이**다. 다른 화면의 물음표가 늘
+    제목 옆에 있어서, 여기만 다른 자리면 찾지 못한다.
+  ★ 창을 열자마자 보인다 — 탭을 눌러야 나타나면
+    처음 보는 사람이 가장 필요할 때 없는 셈이다.
+  ★ 지금 연 탭에 맞춰 링크가 바뀐다
+    (script/default.js 의 _tabHelp 가 href 만 갈아끼운다).
+  ※ 제목이 길어도 밀려나지 않게 flex:0 0 auto.
+=====================================================*/
+.modal__help {
+	flex: 0 0 auto;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 26px;
+	height: 26px;
+	margin-left: 6px;
+	margin-right: auto;		/* 닫기(X)는 오른쪽 끝에 그대로 둔다 */
+	border-radius: 50%;
+	color: var(--c-8);
+	text-decoration: none;
+}
+.modal__help:hover {
+	background: var(--color-main-light);
+	color: var(--color-main);
+}
+.modal__help .material-symbols-outlined { font-size: 18px; }
+
+/*=====================================================
+도움말 슬라이드 — 상세 창 위에 겹쳐 뜨는 설명 패널   [2026-11-12]
+
+  ★ 상세 창(.modal) 보다 **위에** 떠야 한다. 그 창을 보면서
+    읽는 것이 목적이라, 아래로 깔리면 쓸모가 없다.
+  ★ 폭은 상세 창보다 **조금 넓게** 잡았다. 글과 그림이 함께 들어가는데
+    상세 창과 같은 폭이면 그림이 눌려 글자가 안 보인다.
+  ※ 조각 : inc/helpSlide.inc.html
+=====================================================*/
+.help-slide {
+	position: fixed;
+	inset: 0;
+	z-index: 1200;			/* .modal 보다 위 */
+	visibility: hidden;
+	pointer-events: none;
+}
+.help-slide.is-on { visibility: visible; pointer-events: auto; }
+
+.help-slide__dim {
+	position: absolute;
+	inset: 0;
+	background: rgba(0,0,0,.28);
+	opacity: 0;
+	transition: opacity .18s ease;
+}
+.help-slide.is-on .help-slide__dim { opacity: 1; }
+
+.help-slide__panel {
+	position: absolute;
+	top: 0;
+	right: 0;
+	width: 560px;
+	max-width: 92vw;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	background: #fff;
+	box-shadow: -8px 0 28px rgba(0,0,0,.12);
+	transform: translateX(100%);
+	transition: transform .22s ease;
+}
+.help-slide.is-on .help-slide__panel { transform: translateX(0); }
+
+.help-slide__head {
+	flex: 0 0 auto;
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	padding: 14px 16px;
+	border-bottom: 1px solid var(--c-2, #eee);
+}
+.help-slide__title {
+	font-weight: 700;
+	font-size: 15px;
+	margin-right: auto;
+}
+.help-slide__open,
+.help-slide__close {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 30px;
+	height: 30px;
+	border: 0;
+	background: none;
+	border-radius: 50%;
+	color: var(--c-8, #666);
+	cursor: pointer;
+	text-decoration: none;
+}
+.help-slide__open:hover,
+.help-slide__close:hover {
+	background: var(--color-main-light, #f2eeff);
+	color: var(--color-main, #6246ea);
+}
+.help-slide__open .material-symbols-outlined,
+.help-slide__close .material-symbols-outlined { font-size: 20px; }
+
+/*
+  ★ iframe 은 기본 높이가 150px 다. flex:1 만으로는 늘지 않는 브라우저가
+    있어 height:100% 를 함께 준다 — 안 그러면 본문이 손바닥만 하게 뜬다.
+*/
+.help-slide__frame {
+	flex: 1 1 auto;
+	width: 100%;
+	height: 100%;
+	border: 0;
+}
+
+/* 문서 하나만 보는 모드 — 목차가 없으니 본문이 전부 쓴다 */
+.help-wrap--solo { display: block; }
+.help-wrap--solo .help-body { padding: 16px 18px 40px; }
+.help-article__more { margin-top: 28px; font-size: 13px; }
+
+/*
+탭이 많은 탭바 — 줄이지 말고 가로로 밀기   [2026-11-05]
+
+  ★ .tabs 는 flex 라서, 탭이 늘면 각 버튼이 **쪼그라든다.**
+    글자가 버튼 안에서 줄바꿈되어 '초 과 모 집' 처럼 세로로 서 버린다
+    (정책·마스터데이터 탭이 10개가 되면서 실제로 그렇게 됐다).
+  ★ 그래서 기본 .tabs 는 건드리지 않는다 — 탭 3~4개짜리 화면이 여럿이고,
+    그쪽은 지금 모양이 맞다. 탭이 많은 곳만 이 수식어를 붙인다.
+  ※ 가로 스크롤 막대는 얇게 둔다. 두꺼우면 탭 밑줄과 겹쳐 지저분하다.
+*/
+.tabs--scroll {
+	flex-wrap: nowrap;
+	overflow-x: auto;
+	overflow-y: hidden;
+	-webkit-overflow-scrolling: touch;
+	scrollbar-width: thin;
+}
+
+.tabs--scroll .tab-btn {
+	flex: 0 0 auto;
+	white-space: nowrap;
+}
+
+.tabs--scroll::-webkit-scrollbar { height: 4px; }
+.tabs--scroll::-webkit-scrollbar-thumb { background: var(--c-3); border-radius: 2px; }
+
+.tab-panel {
+	display: none;
+}
+
+.tab-panel.active {
+	display: block;
+	animation: fadeIn .2s ease;
+}
+
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+		transform: translateY(4px);
+	}
+
+	to {
+		opacity: 1;
+		transform: none;
+	}
+}
+
+/* Progress / lifecycle stepper */
+.stepper {
+	display: flex;
+	align-items: center;
+	gap: 0;
+	flex-wrap: wrap;
+}
+
+.stepper__item {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	font-size: 12px;
+	color: var(--c-14); /* [10-21] ← var(--c-7) */
+}
+
+.stepper__dot {
+	width: 22px;
+	height: 22px;
+	border-radius: 50%;
+	background: var(--c-3);
+	color: var(--c-14); /* [10-21] ← var(--c-7) */
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 11px;
+	font-weight: 700;
+}
+
+.stepper__item.done .stepper__dot {
+	background: var(--color-success);
+	color: #fff;
+}
+
+.stepper__item.current .stepper__dot {
+	background: var(--color-main);
+	color: #fff;
+}
+
+.stepper__item.current {
+	color: var(--color-main);
+	font-weight: 700;
+}
+
+.stepper__sep {
+	width: 26px;
+	height: 2px;
+	background: var(--c-3);
+	margin: 0 4px;
+}
+
+/* Modal */
+/*
+모달 (core/script/modal.js 가 여닫는다)
+
+  ※ 2026-07 극성 뒤집음.
+    예전엔 display:flex 가 기본이고 마크업에 .hidden 을 박아서 숨겼다.
+    그래서 .hidden 을 빠뜨린 모달은 페이지 로드때부터 열린 채로 떴고,
+    www/admin(클래스를 더해서 여는 방식)과도 반대라 공통화가 안됐다.
+    지금은 기본이 닫힘이고 .is-open 을 더해야 열린다 → 빠뜨리면 '안 열림'(안전한 실패).
+*/
+.modal-backdrop {
+	position: fixed;
+	inset: 0;
+	background: rgba(20, 20, 30, .5);
+	display: none;
+	align-items: center;
+	justify-content: center;
+	padding: 20px;
+	z-index: 100;
+
+	/*
+	마지막 안전장치   [2026-08-14]
+	  ★ 어떤 이유로든 모달이 화면보다 커졌을 때 통째로 스크롤되게 한다.
+	    안쪽(.modal__body)이 스크롤하는 것이 정상이지만,
+	    새로 만든 모달이 그 구조를 안 지켰거나 화면이 아주 짧으면
+	    아래쪽 버튼에 손이 닿지 않는다. 그때 여기가 받아 준다.
+	  ※ align-items:center 인 채로 스크롤을 켜면 위쪽이 잘려 못 올라간다.
+	    .modal 의 margin:auto 가 가운데 정렬을 대신하고, 넘칠 때는 잘리지 않는다.
+	*/
+	overflow-y: auto;
+	overscroll-behavior: contain;
+}
+
+.modal-backdrop.is-open {
+	display: flex;
+}
+
+.modal {
+	background: #fff;
+	width: 100%;
+	max-width: 560px;
+	/*
+	★ 화면 여백(위아래 20px)까지 빼고 계산한다.   [2026-08-14]
+	  88vh 는 화면 전체의 88% 라 여백을 모르고, 짧은 화면에서 아래가 잘렸다.
+	*/
+	max-height: calc(100vh - 40px);
+	border-radius: 12px;
+	display: flex;
+	flex-direction: column;
+	box-shadow: 0 20px 60px rgba(0, 0, 0, .3);
+	animation: modalUp .2s ease;
+
+	/* 넘칠 때 잘리지 않는 가운데 정렬 (위 .modal-backdrop 설명 참고) */
+	margin: auto;
+	flex-shrink: 0;
+}
+
+.modal--lg {
+	max-width: 780px;
+}
+
+@keyframes modalUp {
+	from {
+		opacity: 0;
+		transform: translateY(12px);
+	}
+
+	to {
+		opacity: 1;
+		transform: none;
+	}
+}
+
+.modal__head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 18px 22px;
+	border-bottom: 1px solid var(--c-2);
+	flex-shrink: 0;	/* 헤더는 줄어들지 않고 고정 */
+}
+
+.modal__title {
+	font-size: 16px;
+	font-weight: 700;
+}
+
+.modal__close {
+	width: 32px;
+	height: 32px;
+	border: none;
+	background: none;
+	color: var(--c-14); /* [10-21] ← var(--c-8) */
+	border-radius: 6px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.modal__close:hover {
+	background: var(--c-2);
+}
+
+.modal__body {
+	padding: 22px;
+	overflow-y: auto;
+	/* 내용이 길어지면 이 영역만 스크롤(헤더/푸터는 고정). 모든 모달 공통 */
+	flex: 1 1 auto;
+	min-height: 0;
+	overscroll-behavior: contain;
+}
+
+/*
+═══════════════════════════════════════════════════════════
+모달 버튼 줄   [2026-09-17]
+
+  ── 무엇이 문제였나 ────────────────────────────────────
+  flex-wrap 이 없어 버튼이 줄을 바꾸지 못했다.
+  거기에 justify-content: flex-end 라, 넘친 만큼이 '왼쪽으로' 밀려 나갔다.
+
+  ★ 왼쪽으로 넘친 것은 스크롤로도 닿지 못한다.
+    scrollLeft 는 음수가 될 수 없기 때문이다.
+    실제로 390px 광고주 상세에서 버튼 하나가 모달 밖 왼쪽에
+    '기' 한 글자만 남기고 잘려 있었다 — 누를 수 없는 버튼이다.
+  ※ 버튼 수는 권한에 따라 달라진다(비밀번호 초기화·포인트 조정 등).
+    권한이 많은 운영자일수록 더 많이 밀려난다.
+
+  ── 어떻게 고쳤나 ──────────────────────────────────────
+  줄을 바꿀 수 있게 하고(flex-wrap), 줄이 바뀌었을 때 위아래 간격을 준다.
+  버튼 자체도 줄어들지 않게 해 글자가 잘리지 않도록 한다.
+═══════════════════════════════════════════════════════════
+*/
+.modal__foot {
+	display: flex;
+	flex-wrap: wrap;		/* 넘치면 아랫줄로 — 왼쪽으로 밀려나지 않게 */
+	justify-content: flex-end;
+	align-items: center;
+	gap: 8px;			/* 줄바꿈 시 세로 간격도 8px */
+	padding: 16px 22px;
+	border-top: 1px solid var(--c-2);
+	flex-shrink: 0;	/* 푸터(버튼)는 줄어들지 않고 고정 */
+}
+
+/* 버튼이 찌그러져 글자가 잘리는 것을 막는다 */
+.modal__foot > .btn,
+.modal__foot > button,
+.modal__foot > a {
+	flex-shrink: 0;
+	white-space: nowrap;
+}
+
+/*
+  폼(<form>)이 본문/푸터를 감싼 모달도 스크롤되게 한다.
+    이때 .modal__body 는 .modal 의 직접 자식이 아니라 form 안에 있어
+    flex 제약이 끊긴다 → form 자체를 헤더 밑을 채우는 flex 컬럼으로 만들어
+    그 안의 .modal__body 만 스크롤되고 .modal__foot 는 고정되게 한다.
+*/
+.modal > form {
+	display: flex;
+	flex-direction: column;
+	flex: 1 1 auto;
+	min-height: 0;
+}
+
+/* Review image gallery (심사용 제출 이미지) */
+.rv-gallery {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.rv-gallery__main {
+	position: relative;
+	width: 100%;
+	height: 220px;
+	border-radius: 8px;
+	background: var(--c-2);
+	border: 1px solid var(--c-3);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--c-14); /* [10-21] ← var(--c-7) */
+	overflow: hidden;
+	cursor: zoom-in;
+}
+
+.rv-gallery__main .material-symbols-outlined {
+	font-size: 42px;
+}
+
+.rv-gallery__main img,
+.rv-thumb img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+}
+
+.rv-gallery__thumbs {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(78px, 1fr));
+	gap: 8px;
+}
+
+.rv-thumb {
+	position: relative;
+	aspect-ratio: 1 / 1;
+	border-radius: 6px;
+	background: var(--c-2);
+	border: 1px solid var(--c-3);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--c-14); /* [10-21] ← var(--c-7) */
+	cursor: zoom-in;
+	transition: var(--tr);
+	overflow: hidden;
+}
+
+.rv-thumb:hover {
+	border-color: var(--color-main);
+}
+
+.rv-thumb:hover img {
+	transform: scale(1.06);
+}
+
+.rv-thumb img {
+	transition: transform .2s ease;
+}
+
+.rv-thumb .material-symbols-outlined {
+	font-size: 22px;
+}
+
+.rv-photo-cap {
+	position: absolute;
+	left: 6px;
+	bottom: 6px;
+	background: rgba(0, 0, 0, .55);
+	color: #fff;
+	font-size: 10px;
+	padding: 1px 6px;
+	border-radius: 4px;
+	pointer-events: none;
+}
+
+/* Lightbox (이미지 크게보기 슬라이드) */
+.lightbox {
+	position: fixed;
+	inset: 0;
+	background: rgba(0, 0, 0, .92);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 300;
+}
+
+.lightbox.hidden {
+	display: none;
+}
+
+.lightbox__img {
+	max-width: 86vw;
+	max-height: 80vh;
+	border-radius: 8px;
+	box-shadow: 0 12px 48px rgba(0, 0, 0, .5);
+	object-fit: contain;
+	background: #111;
+}
+
+.lightbox__nav,
+.lightbox__close {
+	position: absolute;
+	border: none;
+	background: rgba(255, 255, 255, .14);
+	color: #fff;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	transition: var(--tr);
+}
+
+.lightbox__nav {
+	top: 50%;
+	transform: translateY(-50%);
+	width: 54px;
+	height: 54px;
+	border-radius: 50%;
+}
+
+.lightbox__nav .material-symbols-outlined {
+	font-size: 32px;
+}
+
+.lightbox__nav:hover,
+.lightbox__close:hover {
+	background: rgba(255, 255, 255, .28);
+}
+
+.lightbox__nav--prev {
+	left: 24px;
+}
+
+.lightbox__nav--next {
+	right: 24px;
+}
+
+.lightbox__close {
+	top: 22px;
+	right: 26px;
+	width: 46px;
+	height: 46px;
+	border-radius: 50%;
+}
+
+.lightbox__cap {
+	position: absolute;
+	bottom: 58px;
+	left: 50%;
+	transform: translateX(-50%);
+	color: #fff;
+	font-size: 13px;	/* 13.5 → 13 [2026-09-17] */
+	font-weight: 600;
+}
+
+.lightbox__counter {
+	position: absolute;
+	bottom: 24px;
+	left: 50%;
+	transform: translateX(-50%);
+	color: #fff;
+	font-size: 12.5px;
+	background: rgba(0, 0, 0, .5);
+	padding: 6px 14px;
+	border-radius: 999px;
+}
+
+@media (max-width: 600px) {
+	.lightbox__nav {
+		width: 42px;
+		height: 42px;
+	}
+
+	.lightbox__nav--prev {
+		left: 10px;
+	}
+
+	.lightbox__nav--next {
+		right: 10px;
+	}
+}
+
+/* Definition list (detail views) */
+.dl {
+	display: grid;
+	grid-template-columns: 120px 1fr;
+	gap: 10px 16px;
+	font-size: 13px;
+}
+
+.dl dt {
+	color: var(--c-14); /* [10-21] ← var(--c-8) */
+	font-weight: 600;
+	word-break: keep-all;
+}
+
+.dl dd {
+	color: var(--c-14);
+	/*
+	  ★ [2026-09-17] 낱말 가운데서 끊지 않는다.
+	    값 칸이 좁아지면 브라우저가 한 글자씩 떨어뜨린다.
+	    광고주 상세에서 '도달 가능 골드' 가 '도달 가 / 능 골드' 로 갈라져 있었다.
+	    (마스터 표 .tbl tbody td 에 넣은 것과 같은 처방)
+	*/
+	word-break: keep-all;
+	min-width: 0;	/* 격자 칸이 내용 때문에 안 줄어드는 것을 막는다 */
+}
+
+/*
+═══════════════════════════════════════════════════════════
+좁은 모달에서는 이름표를 값 위로 올린다   [2026-09-17]
+
+  ── 왜 ─────────────────────────────────────────────────
+  이름표 칸이 120px 로 고정이라, 모달이 좁아지면 값 칸에
+  170px 남짓만 남는다. 이메일·등급·안내문이 그 안에서
+  서너 줄로 접히고, 낱말이 갈라지기도 했다.
+
+  ※ 이 조각은 모달 안 아이프레임에서 그려진다.
+    그래서 여기 미디어쿼리는 '화면 폭' 이 아니라
+    '모달 폭' 에 반응한다 — 좁은 모달에서만 걸린다는 뜻이다.
+    (390px 화면에서 모달 350 → 아이프레임 약 340)
+═══════════════════════════════════════════════════════════
+*/
+/*
+제목 칸을 넓힌 변형 (.dl--wide)   [2026-11-03]
+
+  ★ 왜 기본값(120px)을 바꾸지 않았나
+    .dl 은 회원 상세·캠페인 상세 등 수십 군데가 쓴다. 120px 을 손대면
+    그 화면들의 줄맞춤이 전부 함께 움직인다 — 한 화면 때문에 전부를
+    흔들 이유가 없다.
+
+  ★ 언제 쓰나
+    제목이 길거나(‘정보보호 최고책임자’) 제목 옆에 물음표(.hint)가
+    붙어서 120px 안에 한 줄로 들어가지 않을 때. 두 줄로 접히면
+    물음표가 제목에서 떨어져 아래로 내려가, 무엇에 대한 설명인지
+    한눈에 이어지지 않는다.
+
+  ※ 아래 좁은 폭 미디어쿼리에서는 어차피 한 칸으로 떨어지므로
+    이 변형도 함께 풀린다.
+*/
+.dl--wide{ grid-template-columns: 170px 1fr; }
+
+@media (max-width: 560px) {
+	.dl,
+	.dl--wide {
+		grid-template-columns: 1fr;
+		gap: 2px 0;
+	}
+
+	.dl dt {
+		margin-top: 10px;
+		font-size: 12px;
+	}
+
+	.dl dt:first-of-type {
+		margin-top: 0;
+	}
+}
+
+/* Bulk action bar + table selection */
+.bulk-bar {
+	display: none;
+	align-items: center;
+	gap: 12px;
+	background: var(--color-main-light);
+	border: 1px solid var(--color-main);
+	border-radius: var(--radius);
+	padding: 10px 16px;
+	margin-bottom: 12px;
+}
+
+.bulk-bar.show {
+	display: flex;
+}
+
+.bulk-bar__count {
+	font-size: 13px;
+	font-weight: 600;
+	color: var(--color-main);
+}
+
+.bulk-bar__count b {
+	font-size: 15px;
+	font-weight: 800;
+}
+
+.bulk-bar__actions {
+	display: flex;
+	gap: 8px;
+	margin-left: auto;
+}
+
+.tbl .col-check {
+	width: 40px;
+	text-align: center;
+}
+
+.tbl input[type="checkbox"] {
+	width: 16px;
+	height: 16px;
+	accent-color: var(--color-main);
+	cursor: pointer;
+	vertical-align: middle;
+}
+
+.tbl tbody tr.row-selected {
+	background: var(--color-main-bg);
+}
+
+/* Pagination */
+.pagination {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 4px;
+	margin-top: 16px;
+}
+
+.pagination__btn {
+	min-width: 34px;
+	height: 34px;
+	padding: 0 8px;
+	border: 1px solid var(--c-4);
+	background: #fff;
+	border-radius: 6px;
+	font-size: 13px;
+	color: var(--c-14); /* [10-21] ← var(--c-9) */
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+}
+
+.pagination__btn:hover {
+	background: var(--c-2);
+}
+
+.pagination__btn.active {
+	background: var(--color-main);
+	border-color: var(--color-main);
+	color: #fff;
+	font-weight: 700;
+}
+
+.pagination__btn:disabled {
+	color: var(--c-5);
+	cursor: default;
+}
+
+.pagination__btn:disabled:hover {
+	background: #fff;
+}
+
+.pagination__info {
+	margin-left: 12px;
+	font-size: 12px;
+	color: var(--c-14); /* [10-21] ← var(--c-8) */
+}
+
+/* Member 360 detail */
+.profile-head {
+	display: flex;
+	align-items: center;
+	gap: 18px;
+	background: #fff;
+	border: 1px solid var(--c-3);
+	border-radius: var(--radius);
+	padding: 22px 24px;
+	box-shadow: var(--shadow-sm);
+	margin-bottom: 18px;
+	flex-wrap: wrap;
+}
+
+.profile-avatar {
+	width: 72px;
+	height: 72px;
+	border-radius: 50%;
+	background: var(--color-main);
+	color: #fff;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 26px;
+	font-weight: 800;
+	flex-shrink: 0;
+}
+
+.profile-meta {
+	min-width: 0;
+}
+
+.profile-name {
+	font-size: 20px;
+	font-weight: 800;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	flex-wrap: wrap;
+}
+
+.profile-sub {
+	font-size: 13px;
+	color: var(--c-14); /* [10-21] ← var(--c-8) */
+	margin-top: 4px;
+}
+
+.profile-stats {
+	display: flex;
+	gap: 24px;
+	margin-left: auto;
+	flex-wrap: wrap;
+}
+
+.profile-stat {
+	text-align: center;
+}
+
+.profile-stat__value {
+	font-size: 20px;
+	font-weight: 800;
+}
+
+.profile-stat__label {
+	font-size: 12px;
+	color: var(--c-14); /* [10-21] ← var(--c-8) */
+	margin-top: 2px;
+}
+
+.profile-actions {
+	display: flex;
+	gap: 8px;
+	flex-wrap: wrap;
+}
+
+/* Timeline (활동 이력) */
+.timeline {
+	position: relative;
+	padding-left: 22px;
+}
+
+.timeline::before {
+	content: '';
+	position: absolute;
+	left: 6px;
+	top: 4px;
+	bottom: 4px;
+	width: 2px;
+	background: var(--c-3);
+}
+
+.timeline__item {
+	position: relative;
+	padding: 0 0 18px 6px;
+}
+
+.timeline__item:last-child {
+	padding-bottom: 0;
+}
+
+.timeline__dot {
+	position: absolute;
+	left: -22px;
+	top: 2px;
+	width: 14px;
+	height: 14px;
+	border-radius: 50%;
+	background: #fff;
+	border: 3px solid var(--color-main);
+}
+
+.timeline__dot.gray {
+	border-color: var(--c-5);
+}
+
+.timeline__dot.danger {
+	border-color: var(--color-danger);
+}
+
+.timeline__time {
+	font-size: 12px;
+	color: var(--c-14); /* [10-21] ← var(--c-8) */
+}
+
+.timeline__text {
+	font-size: 13px;	/* 13.5 → 13 [2026-09-17] */
+	color: var(--c-11);
+	margin-top: 2px;
+}
+
+/* Mini charts (mockup — 순수 CSS) */
+.chart-bars {
+	display: flex;
+	align-items: flex-end;
+	gap: 12px;
+	height: 190px;
+	padding-top: 8px;
+}
+
+.chart-bars__col {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 6px;
+	height: 100%;
+}
+
+.chart-bars__stack {
+	width: 60%;
+	max-width: 36px;
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-end;
+	height: 100%;
+}
+
+.chart-bars__bar {
+	width: 100%;
+	background: var(--color-main);
+	border-radius: 4px 4px 0 0;
+}
+
+.chart-bars__bar.alt {
+	background: var(--color-info);
+	border-radius: 0;
+}
+
+.chart-bars__label {
+	font-size: 11px;
+	color: var(--c-14); /* [10-21] ← var(--c-8) */
+}
+
+.chart-legend {
+	display: flex;
+	gap: 16px;
+	margin-top: 12px;
+	font-size: 12px;
+	color: var(--c-14); /* [10-21] ← var(--c-8) */
+}
+
+.chart-legend span {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.chart-legend i {
+	width: 10px;
+	height: 10px;
+	border-radius: 2px;
+	display: inline-block;
+}
+
+.hbar {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	margin-bottom: 12px;
+}
+
+.hbar:last-child {
+	margin-bottom: 0;
+}
+
+.hbar__label {
+	width: 84px;
+	font-size: 12.5px;
+	color: var(--c-14); /* [10-21] ← var(--c-9) */
+	flex-shrink: 0;
+}
+
+.hbar__track {
+	flex: 1;
+	height: 10px;
+	background: var(--c-2);
+	border-radius: 5px;
+	overflow: hidden;
+}
+
+.hbar__fill {
+	height: 100%;
+	background: var(--color-main);
+	border-radius: 5px;
+}
+
+.hbar__fill.alt {
+	background: var(--color-info);
+}
+
+.hbar__val {
+	width: 68px;
+	text-align: right;
+	font-size: 12.5px;
+	font-weight: 700;
+}
+
+.rank-move.up {
+	color: var(--color-success);
+}
+
+.rank-move.down {
+	color: var(--color-danger);
+}
+
+.risk-dot {
+	display: inline-block;
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	margin-right: 6px;
+}
+
+.risk-dot.high {
+	background: var(--color-danger);
+}
+
+.risk-dot.mid {
+	background: var(--color-warning);
+}
+
+.risk-dot.low {
+	background: var(--c-5);
+}
+
+/* Operation calendar (운영 캘린더) */
+.cal {
+	background: #fff;
+	border: 1px solid var(--c-3);
+	border-radius: var(--radius);
+	box-shadow: var(--shadow-sm);
+	overflow: hidden;
+}
+
+.cal__head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 14px 18px;
+	border-bottom: 1px solid var(--c-2);
+}
+
+.cal__title {
+	font-size: 16px;
+	font-weight: 800;
+}
+
+.cal__nav {
+	display: flex;
+	gap: 6px;
+	align-items: center;
+}
+
+.cal__navbtn {
+	width: 32px;
+	height: 32px;
+	border: 1px solid var(--c-4);
+	background: #fff;
+	border-radius: 6px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--c-14); /* [10-21] ← var(--c-9) */
+	cursor: pointer;
+}
+
+.cal__navbtn:hover {
+	background: var(--c-2);
+}
+
+.cal__grid {
+	display: grid;
+	grid-template-columns: repeat(7, 1fr);
+}
+
+.cal__dow {
+	text-align: center;
+	font-size: 12px;
+	font-weight: 700;
+	color: var(--c-14); /* [10-21] ← var(--c-8) */
+	padding: 10px 0;
+	border-bottom: 1px solid var(--c-2);
+	background: #fafafb;
+}
+
+.cal__dow.sun {
+	color: var(--color-danger);
+}
+
+.cal__dow.sat {
+	color: var(--color-info);
+}
+
+.cal__cell {
+	min-height: 108px;
+	border-right: 1px solid var(--c-2);
+	border-bottom: 1px solid var(--c-2);
+	padding: 6px 7px;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.cal__cell:nth-child(7n) {
+	border-right: none;
+}
+
+.cal__cell.out {
+	background: #fafafb;
+}
+
+.cal__cell.out .cal__date {
+	color: var(--c-5);
+}
+
+.cal__date {
+	font-size: 12px;
+	font-weight: 700;
+	color: var(--c-14); /* [10-21] ← var(--c-9) */
+	align-self: flex-start;
+}
+
+.cal__cell.today .cal__date {
+	background: var(--color-main);
+	color: #fff;
+	min-width: 22px;
+	height: 22px;
+	border-radius: 50%;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0 4px;
+}
+
+.cal__ev {
+	font-size: 11px;
+	padding: 2px 6px;
+	border-radius: 4px;
+	font-weight: 600;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	cursor: pointer;
+}
+
+.cal__ev--settle {
+	background: var(--color-main-light);
+	color: var(--color-main);
+}
+
+.cal__ev--review {
+	background: var(--color-warning-light);
+	color: #b56a00;
+}
+
+.cal__ev--deadline {
+	background: var(--color-danger-light);
+	color: var(--color-danger);
+}
+
+.cal__ev--recruit {
+	background: var(--color-info-light);
+	color: var(--color-info);
+}
+
+.cal__more {
+	font-size: 10px;
+	color: var(--c-14); /* [10-21] ← var(--c-7) */
+	padding-left: 2px;
+}
+
+.cal-legend {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 16px;
+	padding: 12px 18px;
+	border-top: 1px solid var(--c-2);
+	font-size: 12px;
+	color: var(--c-14); /* [10-21] ← var(--c-8) */
+}
+
+.cal-legend span {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.cal-legend i {
+	width: 10px;
+	height: 10px;
+	border-radius: 3px;
+	display: inline-block;
+}
+
+/* Toast */
+.toast-container {
+	position: fixed;
+	bottom: 24px;
+	left: 50%;
+	transform: translateX(-50%);
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	z-index: 200;
+}
+
+.toast {
+	background: var(--c-14);
+	color: #fff;
+	padding: 12px 18px;
+	border-radius: 8px;
+	font-size: 13px;
+	box-shadow: var(--shadow-md);
+	animation: toastIn .2s ease;
+}
+
+.toast.success {
+	background: var(--color-success);
+}
+
+.toast.error {
+	background: var(--color-danger);
+}
+
+@keyframes toastIn {
+	from {
+		opacity: 0;
+		transform: translateY(10px);
+	}
+
+	to {
+		opacity: 1;
+		transform: none;
+	}
+}
+
+/* Helpers */
+.row {
+	display: flex;
+	gap: 12px;
+}
+
+.row--wrap {
+	flex-wrap: wrap;
+}
+
+.col {
+	flex: 1;
+	min-width: 0;
+}
+
+.grid-2 {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 16px;
+}
+
+.grid-3 {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 16px;
+}
+
+.mt-8 {
+	margin-top: 8px;
+}
+
+.mt-16 {
+	margin-top: 16px;
+}
+
+.mt-24 {
+	margin-top: 24px;
+}
+
+.mb-0 {
+	margin-bottom: 0;
+}
+
+.text-muted {
+	color: var(--c-14); /* [10-21] ← var(--c-8) */
+}
+
+.text-sm {
+	font-size: 12px;
+}
+
+.text-right {
+	text-align: right;
+}
+
+.text-danger {
+	color: var(--color-danger);
+}
+
+.text-success {
+	color: var(--color-success);
+}
+
+.nowrap {
+	white-space: nowrap;
+}
+
+.divider {
+	height: 1px;
+	background: var(--c-2);
+	margin: 16px 0;
+}
+
+.empty {
+	text-align: center;
+	color: var(--c-14); /* [10-21] ← var(--c-7) */
+	padding: 40px;
+	font-size: 13px;
+}
+
+/* Responsive (mockup: 사이드바는 항상 고정 표시, 내용만 축소) */
+@media (max-width: 900px) {
+	.main-view {
+		padding: 16px;
+	}
+
+	.grid-2,
+	.grid-3 {
+		grid-template-columns: 1fr;
+	}
+}
+/* KPI 카드를 링크로 쓸 때 (a 태그) */
+.stat-card--link {
+	display: block;
+	text-decoration: none;
+	color: inherit;
+	transition: border-color .15s, transform .15s;
+}
+
+.stat-card--link:hover {
+	border-color: var(--color-main);
+	transform: translateY(-2px);
+}
+
+/* 페이지네이션을 링크(a)로 쓸 때 — 서버가 페이지를 내려주므로 */
+a.pagination__btn,
+a.pagination__btn:hover {
+	text-decoration: none;
+}
+
+a.pagination__btn.active {
+	color: #fff;
+}
+
+/* 탭을 링크(a)로 쓸 때 — 서버가 탭별로 목록을 내려주므로 */
+a.tab-btn {
+	display: inline-flex;
+	align-items: center;
+	text-decoration: none;
+}
+
+a.tab-btn:hover {
+	text-decoration: none;
+	color: var(--color-main);
+}
+
+/* 1:1 문의 첨부파일 */
+.iq-file-list {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+}
+
+.iq-file {
+	display: inline-flex;
+	align-items: center;
+	gap: 3px;
+	padding: 6px 10px;
+	border: 1px solid var(--c-4);
+	border-radius: 6px;
+	background: #fff;
+	font-size: 12.5px;
+	color: var(--c-14); /* [10-21] ← var(--c-9) */
+	text-decoration: none;
+}
+
+.iq-file:hover {
+	border-color: var(--color-main);
+	color: var(--color-main);
+}
+
+.iq-file .material-symbols-outlined {
+	font-size: 16px;
+}
+
+.iq-file__size {
+	color: var(--c-14); /* [10-21] ← var(--c-8) */
+	font-size: 11px;
+}
+
+/* ==========================================================================
+   신고 처리 이력 / 안내 (cs/reportView.html)
+   ========================================================================== */
+
+/*
+	이력 타임라인 (ol)
+	  ★ 접이식 상자(.rp-history)와 이름을 나눠 둔다.   [2026-08-13]
+	    예전에는 둘 다 .rp-history 여서, 상자 안에 목록이 들어가면
+	    나중에 선언된 상자 규칙이 목록을 덮어 세로선이 사라지고
+	    타임라인 점이 상자 밖으로 튀어나왔다.
+*/
+.rp-history__list {
+	list-style: none;
+	margin: 0;
+	padding: 0 0 0 14px;
+	border-left: 2px solid var(--c-3);
+}
+
+.rp-history__item {
+	position: relative;
+	padding: 0 0 14px 12px;
+	font-size: 13px;
+}
+
+.rp-history__item:last-child {
+	padding-bottom: 0;
+}
+
+/* 타임라인 점 */
+.rp-history__item::before {
+	content: "";
+	position: absolute;
+	left: -21px;
+	top: 4px;
+	width: 10px;
+	height: 10px;
+	border-radius: 50%;
+	background: var(--c-5);
+	border: 2px solid #fff;
+}
+
+.rp-history__item--s1::before { background: var(--color-info); }
+.rp-history__item--s2::before { background: var(--color-success); }
+.rp-history__item--s3::before { background: var(--c-7); }
+
+.rp-history__head {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex-wrap: wrap;
+}
+
+.rp-history__who {
+	color: var(--c-11);
+	font-weight: 600;
+}
+
+.rp-history__date {
+	color: var(--c-14); /* [10-21] ← var(--c-8) */
+	font-size: 12px;
+	margin-left: auto;
+}
+
+/* 실제로 실행된 조치 (차단/패널티) — 눈에 띄어야 한다 */
+.rp-history__action {
+	margin-top: 6px;
+	padding: 6px 10px;
+	background: var(--color-danger-light);
+	color: var(--color-danger);
+	border-radius: 6px;
+	font-size: 12px;
+	font-weight: 600;
+}
+
+.rp-history__answer,
+.rp-history__memo {
+	margin-top: 6px;
+	padding: 8px 10px;
+	border-radius: 6px;
+	line-height: 1.6;
+	/*
+	  pre-wrap → normal   [2026-09-30]
+	  ★ 내용은 이미 nl2br 로 줄을 나눠 오는데, pre-wrap 이면 마크업의 들여쓰기 탭·줄바꿈까지
+	    그대로 그려져 상자 위아래에 빈 줄이 두세 줄씩 생기고 글이 가운데로 밀려 보였다
+	    (신고 처리 > 처리 이력 '처리결과 · 당사자 전달' 상자, 400px 패널에서 실측).
+	    줄바꿈은 <br> 이 맡으므로 normal 이면 충분하다.
+	*/
+	white-space: normal;
+}
+
+/* 처리결과 = 당사자에게 나간 내용 */
+.rp-history__answer {
+	background: var(--color-info-light);
+	color: var(--c-11);
+}
+
+/* 내부기록 = 운영자만. 당사자에게 나간 것과 눈으로 바로 구분돼야 한다 */
+.rp-history__memo {
+	background: var(--c-2);
+	color: var(--c-14); /* [10-21] ← var(--c-9) */
+	border-left: 3px solid var(--c-5);
+}
+
+.rp-history__tag {
+	display: block;
+	margin-bottom: 4px;
+	font-size: 11px;
+	font-weight: 700;
+	color: var(--c-14); /* [10-21] ← var(--c-8) */
+	letter-spacing: -0.2px;
+}
+
+/* 처리결과 첨부 (당사자 공개) */
+.rp-files {
+	margin-top: 12px;
+	padding-top: 12px;
+	border-top: 1px dashed var(--c-4);
+}
+
+.rp-file {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	margin: 0 8px 6px 0;
+	padding: 5px 10px;
+	background: var(--c-2);
+	border-radius: 6px;
+	font-size: 12.5px;
+	color: var(--color-main);
+	text-decoration: none;
+}
+
+.rp-file:hover {
+	background: var(--color-main-light);
+}
+
+.rp-file .material-symbols-outlined {
+	font-size: 15px;
+}
+
+.rp-file__size {
+	color: var(--c-14); /* [10-21] ← var(--c-8) */
+	font-size: 11px;
+}
+
+/* 처리 입력란 : 당사자 공개 / 운영자 전용을 눈으로 갈라놓는다 */
+/* 처리 이력 접이식 (기본 접힘, 클릭하면 펼쳐진다) */
+.rp-history {
+	margin-bottom: 16px;
+	border: 1px solid var(--c-2);
+	border-radius: 8px;
+	padding: 0 12px;
+}
+
+.rp-history__summary {
+	cursor: pointer;
+	list-style-position: inside;
+	padding: 11px 2px;
+	font-size: 12.5px;
+	font-weight: 600;
+	color: var(--c-14); /* [10-21] ← var(--c-9) */
+	user-select: none;
+}
+
+.rp-history__summary:hover {
+	color: var(--c-14);
+}
+
+.rp-history[open] .rp-history__summary {
+	border-bottom: 1px solid var(--c-2);
+	margin-bottom: 10px;
+}
+
+.rp-history__body {
+	padding-bottom: 12px;
+}
+
+.rp-box {
+	padding: 14px;
+	border-radius: 8px;
+	margin-bottom: 16px;
+}
+
+.rp-box--public {
+	background: var(--color-info-light);
+	border: 1px solid #bfe0ff;
+}
+
+.rp-box--private {
+	background: var(--c-2);
+	border: 1px solid var(--c-4);
+}
+
+.rp-box__head {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	margin-bottom: 10px;
+	font-size: 13px;
+	color: var(--c-11);
+}
+
+.rp-box__head .material-symbols-outlined {
+	font-size: 17px;
+}
+
+.rp-box__head .badge {
+	margin-left: auto;
+}
+
+.rp-box .input {
+	background: #fff;
+}
+
+/* 처리완료 시 차단된다는 사전 안내 */
+.rp-notice,
+.rp-locked {
+	display: flex;
+	align-items: flex-start;
+	gap: 8px;
+	padding: 10px 12px;
+	border-radius: 6px;
+	font-size: 12.5px;
+	line-height: 1.6;
+	margin-bottom: 16px;
+}
+
+.rp-notice {
+	background: var(--color-warning-light);
+	color: #8a4b00;
+}
+
+.rp-locked {
+	background: var(--c-2);
+	color: var(--c-9);
+}
+
+.rp-notice .material-symbols-outlined,
+.rp-locked .material-symbols-outlined {
+	font-size: 18px;
+	flex-shrink: 0;
+}
+
+/*
+안내 상자 글 안에 강조 조각이 섞인 경우   [2026-09-29]
+  ★ 이 상자는 [아이콘][글 한 덩어리] 두 조각을 flex 로 나란히 둔다.
+    그런데 자동화 규칙처럼 글 한가운데 <span class="mono">campaignStep</span> 이 끼면
+    글이 '앞 글 / 코드 / 뒷 글' 세 조각으로 쪼개져 좁은 기둥 세 개로 흩어졌다(400px 패널에서 실측).
+  · 글 사이에 강조 조각(.mono·b·strong·code·a)이 바로 들어 있으면 flex 를 풀어 한 문단으로 흐르게 한다.
+    (자동화 규칙 · 지역 추가 · 발신번호 등록 안내 상자)
+  ※ [아이콘][<span>글</span>] 로 제대로 감싼 상자(신고 상세)는 해당하지 않는다 — 그대로 flex.
+*/
+.rp-notice:has(> .mono, > b, > strong, > code, > a),
+.rp-locked:has(> .mono, > b, > strong, > code, > a) {
+	display: block;
+}
+
+.rp-notice:has(> .mono, > b, > strong, > code, > a) > .material-symbols-outlined,
+.rp-locked:has(> .mono, > b, > strong, > code, > a) > .material-symbols-outlined {
+	margin-right: 4px;
+	vertical-align: -4px;
+}
+
+/* ==========================================================================
+   AUTH / LOGIN — 관리자 로그인 (내부 운영자 전용)
+   ========================================================================== */
+.auth-body {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 100vh;
+	padding: 24px;
+	overflow: auto;
+	background:
+		radial-gradient(1100px 560px at 50% -12%, var(--color-main-light), transparent 62%),
+		var(--color-bg);
+}
+
+.auth-shell {
+	width: 100%;
+	max-width: 400px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 18px;
+}
+
+.auth-card {
+	width: 100%;
+	background: #fff;
+	border: 1px solid var(--c-3);
+	border-radius: 14px;
+	box-shadow: var(--shadow-md);
+	padding: 40px 34px 32px;
+}
+
+.auth-brand {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 4px;
+	margin-bottom: 26px;
+}
+
+.auth-brand__label {
+	font-size: 11px;
+	font-weight: 600;
+	color: var(--c-14); /* [10-21] ← var(--c-8) */
+	letter-spacing: .08em;
+}
+
+.auth-brand__name {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	font-size: 24px;
+	font-weight: 700;
+	color: var(--color-main);
+}
+
+.auth-brand__name .material-symbols-outlined {
+	font-size: 26px;
+}
+
+.auth-head {
+	text-align: center;
+	margin-bottom: 22px;
+}
+
+.auth-head__title {
+	font-size: 20px;
+	font-weight: 700;
+	color: var(--c-14);
+}
+
+.auth-head__desc {
+	margin-top: 6px;
+	font-size: 13px;
+	color: var(--c-14); /* [10-21] ← var(--c-8) */
+}
+
+.auth-form {
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+}
+
+.auth-field {
+	display: flex;
+	flex-direction: column;
+	gap: 7px;
+}
+
+.auth-field label {
+	font-size: 12.5px;
+	font-weight: 600;
+	color: var(--c-14); /* [10-21] ← var(--c-9) */
+}
+
+.auth-input-wrap {
+	position: relative;
+	display: flex;
+	align-items: center;
+}
+
+.auth-input-wrap .material-symbols-outlined {
+	position: absolute;
+	left: 13px;
+	font-size: 20px;
+	color: var(--c-7);
+	pointer-events: none;
+}
+
+.auth-input {
+	width: 100%;
+	height: 48px;
+	padding: 0 14px 0 42px;
+	border: 1px solid var(--c-4);
+	border-radius: 8px;
+	font-size: 14px;
+	font-family: inherit;
+	color: var(--c-14);
+	background: #fff;
+	transition: var(--tr);
+}
+
+.auth-input:focus {
+	outline: none;
+	border-color: var(--color-main);
+	box-shadow: 0 0 0 3px rgba(115, 70, 243, .1);
+}
+
+.auth-input::placeholder {
+	color: var(--c-7);
+}
+
+.auth-error {
+	display: none;
+	align-items: center;
+	gap: 5px;
+	font-size: 12.5px;
+	color: var(--color-danger);
+	margin-top: -2px;
+}
+
+.auth-error.show {
+	display: flex;
+}
+
+.auth-error .material-symbols-outlined {
+	font-size: 16px;
+}
+
+.auth-remember {
+	display: flex;
+	align-items: center;
+	gap: 7px;
+	margin-top: -2px;
+}
+
+.auth-remember input[type="checkbox"] {
+	width: 16px;
+	height: 16px;
+	accent-color: var(--color-main);
+	cursor: pointer;
+	margin: 0;
+}
+
+.auth-remember label {
+	font-size: 12.5px;
+	color: var(--c-14); /* [10-21] ← var(--c-9) */
+	cursor: pointer;
+	user-select: none;
+}
+
+.auth-submit {
+	height: 50px;
+	font-size: 15px;
+	margin-top: 6px;
+}
+
+.auth-hint {
+	margin-top: 18px;
+	padding: 11px 14px;
+	background: var(--color-main-bg);
+	border: 1px dashed rgba(115, 70, 243, .28);
+	border-radius: 8px;
+	font-size: 12.5px;
+	color: var(--c-14); /* [10-21] ← var(--c-9) */
+	text-align: center;
+	line-height: 1.5;
+}
+
+.auth-hint b {
+	color: var(--color-main);
+	font-weight: 700;
+}
+
+.auth-foot {
+	font-size: 11px;	/* 11.5 → 11 : 반 픽셀 차이를 없앤다 [2026-09-17] */
+	color: var(--c-14); /* [10-21] ← var(--c-7) */
+}
+
+@media (max-width: 480px) {
+	.auth-card {
+		padding: 32px 22px 26px;
+	}
+}
+
+
+/* =====================================================
+   회원 상세 (리뷰어 · 광고주) — 탭   [2026-08-12]
+
+     화면 : /member/reviewerView.html · /member/advertiserView.html
+     조각 : /inc/view/reviewers.inc.html · advertisers.inc.html
+
+   ★ 예전에는 조각 안에 <style> 로 들어 있었다.
+     같은 규칙이 두 벌이라 한쪽만 고치는 일이 생겨 여기로 모았다.
+   ===================================================== */
+
+/*
+탭 줄
+  ★ 아홉 개가 한 줄에 들어가야 한다.
+    줄바꿈하면 아래 밑줄이 끊겨 지금 탭이 어디인지 읽기 어렵고,
+    옆으로 밀리면 뒤쪽 탭이 있는 줄도 모른다.
+  ★ 위에 붙여 둔다(sticky) — 상세가 길어 내려가도 탭이 따라온다.
+*/
+.ma-tabs {
+	display: flex;
+	flex-wrap: nowrap;
+	gap: 2px;
+	margin-bottom: 16px;
+	border-bottom: 2px solid var(--color-border, #e5e7eb);
+	position: sticky;
+	top: 0;
+	z-index: 5;
+	background: #fff;
+}
+
+.ma-tab {
+	/*
+	  ★ [2026-09-17] flex: 0 1 auto → 0 0 auto, min-width 제거
+
+	    예전에는 칸을 줄여서 한 줄에 우겨넣으려 했다.
+	    그런데 white-space: nowrap 이라 글자는 안 줄어든다.
+	    상자만 줄고 글자는 그대로라 옆 탭 위로 넘쳐 서로 겹쳤다.
+
+	    340px 모달에서 실제로 계산해 보면 —
+	      쓸 수 있는 폭 306px ÷ 8칸 = 38px
+	      좌우 여백 14px 을 빼면 글자 자리는 24px
+	      '기본정보' 는 12.5px 글꼴로 약 50px 이 필요하다
+	    칸마다 26px 씩 넘친다. 줄이는 방법으로는 풀 수 없는 셈이다.
+	*/
+	flex: 0 0 auto;
+	/*
+	  ★ [2026-09-17] 위 여백 8 → 10px
+	    아래 border-bottom 2px 이 글자 아래에 더해져
+	    글자가 상자 한가운데보다 1px 위에 앉아 있었다.
+	    (실측 — 상자 중심 156.5 / 글자 중심 155.5)
+	    위 여백을 밑줄 두께만큼 늘려 맞춘다. .tab-btn 과 같은 처방.
+	*/
+	padding: 10px 10px 8px;
+	border: none;
+	border-bottom: 2px solid transparent;
+	margin-bottom: -2px;
+	background: none;
+	/*
+	  ※ [2026-09-17] --color-text-7 도 이 파일에 없는 이름이다.
+	    늘 대체값 #8a8f98 이 나온다. 마스터의 회색 이름은 --c-7 (#a0a0a0) 이다.
+	    색이 미묘하게 달라 보이던 이유다. 값만 바꾸면 톤이 바뀌므로
+	    여기서는 짚어만 두고 건드리지 않는다.
+	*/
+	color: var(--c-14); /* [10-21] ← var(--color-text-7, #8a8f98) */
+	font-size: 13px;	/* 13.5 → 13 : 위 .tab-btn 과 같은 이유 [2026-09-17] */
+	font-weight: 600;
+	white-space: nowrap;
+	cursor: pointer;
+}
+
+.ma-tab.is-active {
+	color: var(--color-main, #2b6cb0);
+	border-bottom-color: var(--color-main, #2b6cb0);
+}
+
+.ma-pager .btn {
+	min-width: 34px;
+}
+
+/*
+═══════════════════════════════════════════════════════════
+상세 탭 안의 표도 옆으로 밀 수 있게   [2026-09-17]
+
+  ── 무엇이 문제였나 ────────────────────────────────────
+  이 표들은 .table-wrap 없이 <table class="tbl"> 만 놓여 있다.
+  그래서 앞서 .table-wrap 에 연 가로 스크롤이 닿지 않았다.
+
+  ★ '운영자 쪽지' 탭에서 오른쪽이 통째로 잘려 있었다.
+    이 표는 네 칸인데 셋이 nowrap 이라 줄어들지 못한다.
+        일시 '2026.09.01 10:00'  약 110px
+        방향 '운영자 → 회원' 뱃지  약  95px
+        확인 '미확인'             약  45px
+        + 칸마다 좌우 여백 28px × 4 = 112px
+    합이 이미 360px 을 넘는데 모달 안은 약 306px 이다.
+    남는 폭이 없으니 '제목 / 내용' 은 글자가 잘리고
+    '확인' 칸은 아예 화면 밖으로 나갔다.
+
+  ── 왜 여기에 거나 ─────────────────────────────────────
+  표를 감쌀 상자를 새로 두려면 조각 파일 여러 개를 고쳐야 한다.
+  탭 내용이 꽂히는 자리(.ma-tabbody)와 정적인 탭 칸(.ma-pane)
+  두 곳에만 걸면 같은 효과를 낸다.
+  ※ :has() 로 표가 있는 칸만 고른다 — 표 없는 칸까지 스크롤 상자로
+    만들면 그림자나 드롭다운이 잘린다.
+═══════════════════════════════════════════════════════════
+*/
+.ma-tabbody:has(.tbl),
+.ma-pane:has(> .tbl) {
+	overflow-x: auto;
+	-webkit-overflow-scrolling: touch;
+	overscroll-behavior-x: contain;
+}
+
+/* 모달 안(아이프레임)에서는 탭이 화면 맨 위에 붙는다 — frame-wrap 의 위 여백을 상쇄한다 */
+.frame-wrap .ma-tabs {
+	top: 0;
+	margin-top: -16px;
+	padding-top: 12px;
+}
+
+/* 좁아지면 먼저 여백과 글자를 줄여 본다 */
+@media (max-width: 900px) {
+	.ma-tab {
+		padding: 10px 7px 8px;	/* 위 2px 은 밑줄 두께 상쇄 — 위 .ma-tab 주석 참고 [2026-09-17] */
+		font-size: 12px;	/* 12.5 → 12 : 반 픽셀 값을 없앤다 [2026-09-17] */
+	}
+}
+
+/*
+═══════════════════════════════════════════════════════════
+아주 좁아지면 옆으로 민다   [2026-09-17]
+
+  ── 앞선 판단을 뒤집는 것이라 이유를 적어 둔다 ────────
+  위 주석에 '가로 스크롤을 만들지 않는다' 고 적혀 있었다.
+  이유도 타당했다 — 옆으로 밀리면 뒤쪽 탭이 있는 줄 모르니까.
+  하지만 줄여서 우겨넣는 방법은 좁은 폭에서 아예 성립하지 않는다.
+  340px 모달에서 탭 여덟 개가 서로 겹쳐 글자가 뭉개졌다.
+  읽을 수 없는 한 줄보다, 밀어서 읽는 한 줄이 낫다.
+
+  ※ 뒤에 더 있다는 것은 잘린 탭이 알려 준다.
+    스크롤이 걸리면 다음 탭이 화면 끝에 반쯤 걸쳐 보인다.
+  ※ 줄바꿈(wrap)은 택하지 않았다.
+    위 주석대로 밑줄이 끊겨 지금 어느 탭인지 읽기 어려워진다.
+  ※ 이 조각은 모달 안 아이프레임에서 그려지므로
+    여기 560px 은 '화면 폭' 이 아니라 '모달 폭' 이다.
+═══════════════════════════════════════════════════════════
+*/
+@media (max-width: 560px) {
+	.ma-tabs {
+		overflow-x: auto;
+		overflow-y: hidden;
+		-webkit-overflow-scrolling: touch;
+		overscroll-behavior-x: contain;
+		scrollbar-width: none;		/* 줄이 얇아 막대가 탭을 가린다 */
+		/*
+		  누른 탭이 가장자리에 딱 붙지 않게 한다.
+		    탭을 누르면 브라우저가 그 탭을 보이는 데까지 끌어다 놓는데,
+		    그대로 두면 모달 끝에 반쯤 걸친 채 멈춘다.
+		    양옆에 12px 을 남겨 두면 온전히 보인다.
+		*/
+		scroll-padding-inline: 12px;
+	}
+
+	.ma-tabs::-webkit-scrollbar {
+		display: none;
+	}
+}
+
+/*
+모달 본문이 '화면 하나(아이프레임)' 인 경우   [2026-08-12]
+
+  회원 상세 · 쪽지 · 문자 · 메일이 여기 해당한다.
+  안쪽 화면이 스스로 여백을 갖고 있어 여기서는 여백을 주지 않는다.
+
+  ★ 아래 두 모서리를 둥글게 깎는다.
+    이 모달들은 버튼 줄(.modal__foot)이 없어 아이프레임이 맨 아래에 닿는다.
+    그대로 두면 네모난 흰 판이 모달의 둥근 모서리를 덮어 각져 보인다.
+*/
+.modal__body--frame {
+	padding: 0;
+	overflow: hidden;	/* 스크롤은 아이프레임 안쪽이 맡는다 */
+	border-radius: 0 0 12px 12px;
+
+	/*
+	자리가 모자라면 줄어든다.   [2026-08-14]
+	  ★ 예전에는 아이프레임 높이(74vh)가 고정이라, 화면이 짧으면
+	    모달 밖으로 밀려난 부분이 overflow:hidden 에 잘려 영영 안 보였다.
+	    (모달 88vh − 제목줄 61px < 74vh 가 되는 지점 — 세로 486px 아래)
+	  ★ flex 항목으로 두면 남은 자리에 맞춰 스스로 줄어든다.
+	    height 는 '이만큼이면 좋겠다' 는 기준값이고, 모자라면 양보한다.
+	*/
+	flex: 1 1 auto;
+	min-height: 0;
+	height: var(--frame-modal-h);
+}
+
+/*
+모달 안 화면의 높이   [2026-08-12]
+
+  ★ 재지 않고 처음부터 이 크기로 연다.
+    안쪽 내용에 맞춰 늘리면 열릴 때마다 크기가 달라지고,
+    맞추는 동안 창이 한 번 출렁인다.
+    광고주 상세가 쓰던 크기를 기준으로 삼아 모든 창을 같게 맞췄다.
+
+  ★ 바꾸려면 여기 한 곳만 고치면 된다.
+    상세 · 쪽지 · 문자 · 메일이 모두 이 값을 쓴다.
+
+  ※ 모달은 화면의 88% 까지 커지고(.modal max-height) 제목 줄이 약 61px 를 쓴다.
+    74vh 는 그 안에 들어오는 값이다 — 더 키우면 모달이 잘린다.
+*/
+:root {
+	--frame-modal-h: 74vh;
+}
+
+.modal__body--frame > iframe {
+	display: block;
+	width: 100%;
+	/* 높이는 감싼 칸이 정한다 — 화면이 짧으면 그만큼 줄어든다 */
+	height: 100%;
+	border: 0;
+}
+
+/* =====================================================
+   캠페인 상세 본문 자리   [2026-08-14]
+
+   ★ 왜 감싸는가
+     본문(core/inc/campaign/campaignDetailBody.inc.php)은 리뷰어 사이트를
+     기준으로 만들어졌다. 콘솔은 * { margin:0 } 같은 초기화가 걸려 있어
+     그대로 두면 문단 간격이 사라지고 목록 점이 안 보인다.
+     예전에 리뷰어 마크업을 옮겨 왔다가 모양이 무너진 것이 이 때문이다.
+   → .cd-scope 안에서만 본문 기본값을 되살린다. 콘솔 쪽은 건드리지 않는다.
+   ===================================================== */
+.cd-scope {
+	font-size: 14px;
+	line-height: 1.7;
+	color: #333;
+}
+
+.cd-scope p { margin: 0 0 8px; }
+.cd-scope ul,
+.cd-scope ol { padding-left: 20px; margin: 6px 0; }
+.cd-scope ul { list-style: disc; }
+.cd-scope ol { list-style: decimal; }
+.cd-scope img { max-width: 100%; height: auto; }
+
+/* 좁은 모달 안에서는 라벨을 위로 올린다 (좌우 배치는 자리가 안 나온다) */
+.cd-scope .cd-section {
+	flex-direction: column;
+	gap: 8px;
+}
+
+.cd-scope .cd-section__label { width: auto; }
+
+/* 지도는 콘솔에서 쓰지 않는다 (본문 쪽 $cdShowMap 이 이미 꺼져 있지만 이중으로 막는다) */
+.cd-scope #map { display: none !important; }
+
+/* 펼쳐보기 */
+.cd-fold__summary {
+	cursor: pointer;
+	font-weight: 700;
+	font-size: 14px;
+	color: #333;
+	padding: 6px 0;
+	user-select: none;
+}
+
+.cd-fold[open] .cd-fold__summary { margin-bottom: 12px; }
+
+/*
+캠페인 요약(오른쪽 카드)을 콘솔에서는 위아래로 눕힌다   [2026-08-14]
+  ★ 리뷰어 화면에서는 본문 오른쪽에 붙는 사이드바지만,
+    콘솔은 좁은 모달이라 옆에 세우면 본문이 못 읽을 만큼 좁아진다.
+  → 본문 위에 한 덩어리로 놓는다.
+*/
+.cd-scope .cd-aside-inline {
+	margin: 0 0 20px;
+	border: 1px solid #e7e7e7;
+	border-radius: 8px;
+	overflow: hidden;
+	background: #fff;
+}
+
+/* 콘솔에서는 제목 오른쪽 버튼 자리가 비어 있다 (운영자 버튼은 모달 푸터에 있다) */
+.cd-scope .cd-title-section {
+	padding: 0 0 16px;
+}
+
+/* =====================================================
+   쪽지함 — 운영자 읽음 현황   [2026-08-14]
+   ===================================================== */
+.note-readers,
+.note-unread {
+	display: block;
+	margin-top: 3px;
+	font-size: 12px;
+	line-height: 1.5;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+/* 안 읽은 사람은 눈에 띄어야 한다 — 챙기려고 보는 값이다 */
+.note-unread {
+	color: #c0392b;
+}
+
+/* 준비 안 된 설정 안내 */
+.note-setup-warn {
+	margin: 0 0 16px;
+	padding: 14px 16px;
+	background: #fff8e6;
+	border: 1px solid #f0d18a;
+	border-radius: 8px;
+	font-size: 13px;
+	color: #6b5314;
+}
+
+.note-setup-warn__title {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	margin: 0 0 8px;
+	font-weight: 700;
+}
+
+.note-setup-warn ul {
+	margin: 0;
+	padding-left: 18px;
+	list-style: disc;
+}
+
+.note-setup-warn li + li { margin-top: 4px; }
+
+.note-setup-warn code {
+	padding: 1px 5px;
+	background: #fff;
+	border: 1px solid #e6d6a8;
+	border-radius: 4px;
+	font-size: 12px;
+}
+
+/* ==========================================================================
+   문자·알림톡 내용 입력칸 — 휴대전화 문자창처럼 (공용)   [2026-09-03]
+
+     원래 message/directSendView.html 한 화면만 쓰던 모양(.ds-phone)이었다.
+     문자·알림톡 내용을 입력하는 화면(자동발송 샘플, 발송 항목, 알림톡 템플릿,
+     직접발송)마다 각자 넓적한 textarea 를 썼는데, 실제로 몇 줄로 보일지
+     가늠이 안 됐다. → 공용으로 옮겨 모든 화면이 같은 모양을 쓴다.
+
+     ★ 폭 340px 은 휴대전화 문자창과 비슷한 너비다.
+       넓게 두면 실제로 어떻게 보일지 가늠이 안 된다 — 그게 이 모양을 쓰는 이유다.
+     ※ .ds-phone__bar · __foot 는 화면마다 있을 수도, 없을 수도 있다(선택 사용).
+       없으면 그 줄 없이 입력칸 + 테두리만 보인다.
+   ========================================================================== */
+.ds-phone{
+	width:340px; max-width:100%;
+	border:1px solid #e3e5ec; border-radius:14px; background:#fff;
+	overflow:hidden;
+}
+.ds-phone__bar{
+	display:flex; align-items:center; justify-content:space-between;
+	padding:8px 12px; background:#f7f8fb; border-bottom:1px solid #eceef4;
+}
+.ds-phone__clear{
+	border:0; background:none; padding:0; cursor:pointer;
+	color:#c53030; font-size:12px;
+}
+.ds-phone__body{
+	display:block; width:100%; min-height:190px;
+	border:0; outline:0; resize:vertical;
+	padding:14px 12px; background:#fff;
+	font-size:14px; line-height:1.7; font-family:inherit;
+	white-space:pre-wrap;	/* 줄바꿈이 보이는 그대로 나가야 한다 */
+}
+.ds-phone__body[readonly]{ background:#fafbfd; color:#555; }
+.ds-phone__foot{
+	display:flex; gap:6px; flex-wrap:wrap;
+	padding:8px 12px; background:#fafbfd; border-top:1px solid #eceef4;
+}
+.ds-phone__chip{
+	border:1px solid #dfe2ea; background:#fff; border-radius:999px;
+	padding:4px 10px; font-size:12px; cursor:pointer; color:#4a5568;
+}
+.ds-phone__chip:hover{ background:#f2f4f8; }
+
+/*
+패널 안에서는 문자창을 한 줄 전체로   [2026-09-30]
+  ★ 위 340px 은 넓은 화면에서 '휴대전화 폭' 을 흉내 내려는 값이다.
+    400px 우측 패널은 안쪽 폭이 360~377px 이라 340px 이면 오른쪽만 20~37px 비어
+    위아래 입력칸·선택칸(한 줄 전체)과 오른쪽 끝선이 맞지 않았다(문자 보내기에서 실측 : 오른쪽 57px vs 20px).
+    패널 폭 자체가 이미 휴대전화 폭이라 흉내 낼 필요가 없다 → 꽉 채운다.
+  ※ 넓은 화면(문자 샘플 관리 등)은 340px 그대로.
+*/
+body[data-frame="1"] .ds-phone{
+	width: 100%;
+}
+
+/* ==========================================================================
+   도움말 (help.html)   [2026-09-07]
+   왼쪽 목차(고정) + 오른쪽 화면별 설명 — 한 페이지에 전부 그리고
+   검색으로 걸러 보이게 한다 (탭/AJAX 없이 가장 단순하게).
+   ========================================================================== */
+.help-wrap{
+	display: flex;
+	align-items: flex-start;
+	gap: 24px;
+}
+
+.help-toc{
+	position: sticky;
+	top: 16px;
+	flex: 0 0 240px;
+	max-height: calc(100vh - 32px);
+	overflow-y: auto;
+	background: #fff;
+	border: 1px solid var(--c-3);
+	border-radius: var(--radius);
+	box-shadow: var(--shadow-sm);
+	padding: 12px;
+}
+
+.help-toc__search{
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	border: 1px solid var(--c-4);
+	border-radius: 8px;
+	padding: 6px 10px;
+	margin-bottom: 10px;
+	color: var(--c-14); /* [10-21] ← var(--c-8) */
+}
+.help-toc__search .material-symbols-outlined{ font-size: 18px; }
+.help-toc__search input{
+	border: 0; outline: 0; flex: 1; font-size: 13px; background: transparent;
+}
+
+.help-toc__group + .help-toc__group{ margin-top: 14px; }
+.help-toc__label{
+	font-size: 11px; font-weight: 700;
+	/*
+	  ★ [2026-09-18] --c-7(#a0a0a0) → --c-14(#0e0e0e)
+	    왼쪽 목차의 구분자(홈·캠페인·회원·정산·신뢰안전·소통·시스템)다.
+	    11px 인 데다 회색이라 아래 항목(#444)보다 흐려,
+	    무리의 머리말이 아니라 비활성 항목처럼 보였다.
+	    구분자는 아래 것들을 묶어 주는 말이니 가장 진해야 한다.
+	*/
+	color: var(--c-14);
+	text-transform: uppercase; letter-spacing: .04em;
+	padding: 4px 8px;
+}
+.help-toc__item{
+	display: block;
+	padding: 7px 8px;
+	border-radius: 6px;
+	font-size: 13px;
+	color: var(--c-11);
+	text-decoration: none;
+	line-height: 1.4;
+}
+.help-toc__item:hover{ background: var(--c-2); }
+.help-toc__item.is-active{ background: var(--color-main-light); color: var(--color-main); font-weight: 600; }
+/*
+검색으로 걸러 숨긴다   [2026-09-07]
+  ★ .help-toc__item 은 display:block 을 직접 정하고 있어, 특정도(specificity)가
+    같은 브라우저 기본 [hidden]{display:none} 을 후순위(등록 순서)로 이겨버린다 —
+    JS 로 hidden 을 걸어도 화면에서 안 사라지는 원인이었다. 여기서 다시 확실히 죽인다.
+*/
+.help-toc__item[hidden],
+.help-toc__group[hidden],
+.help-article[hidden]{ display: none; }
+
+.help-body{ flex: 1; min-width: 0; }
+.help-empty{
+	text-align: center; color: var(--c-14); /* [10-21] ← var(--c-8) */ padding: 60px 0; font-size: 14px;
+}
+
+.help-article{
+	background: #fff;
+	border: 1px solid var(--c-3);
+	border-radius: var(--radius);
+	box-shadow: var(--shadow-sm);
+	padding: 22px 24px;
+	margin-bottom: 18px;
+	scroll-margin-top: 16px;
+}
+.help-article__head{
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	flex-wrap: wrap;
+}
+.help-article__crumb{
+	font-size: 12px; font-weight: 700; color: var(--color-main);
+	background: var(--color-main-light); border-radius: 999px; padding: 2px 10px;
+}
+.help-article__title{ font-size: 19px; font-weight: 800; margin: 0; flex: 1; min-width: 0; }
+.help-article__link{ white-space: nowrap; }
+.help-article__summary{ color: var(--c-14); /* [10-21] ← var(--c-9) */ font-size: 14px; margin: 10px 0 0; }
+
+.help-article__body{ margin-top: 14px; font-size: 14px; line-height: 1.8; color: var(--c-11); }
+.help-article__body p{ margin: 0 0 10px; }
+.help-article__body ul{ margin: 0 0 10px; padding-left: 20px; }
+.help-article__body li{ margin-bottom: 4px; }
+.help-article__body b{ color: var(--c-14); }
+
+.help-article__shots{
+	display: grid;
+	/*
+	  ★ [2026-09-18] auto-fill 260px → auto-fit 420px
+
+	    ── 무엇이 문제였나 ────────────────────────────────
+	    여기 들어가는 그림은 화면 전체를 찍은 캡처(1568px 폭)다.
+	    그런데 글 폭이 658px 인데 260px 짜리 칸이 두 개 만들어져
+	    캡처 한 장이 297px 로 눌렸다. 원본의 5분의 1이라 글자가 안 읽힌다.
+
+	    ★ auto-fill 은 채울 내용이 없어도 빈 칸을 만든다.
+	      그림이 한 장뿐인 글에서도 297px 두 칸으로 갈라 놓고
+	      한 칸을 비워 둔 셈이었다.
+	      auto-fit 은 빈 칸을 접어 주므로 한 장이면 폭을 다 쓴다.
+
+	    ※ 최소 폭을 420px 로 올려 두 칸이 되려면 글 폭이 854px 은 되게 했다.
+	      지금 글 폭(658px)에서는 한 줄에 한 장 — 캡처가 제 크기로 보인다.
+	*/
+	/*
+	  ★ [2026-09-18] minmax(420px, …) → minmax(min(420px, 100%), …)
+	    420px 은 '칸이 이보다 좁아지지 않는다' 는 뜻이라, 글 폭이 420px 보다
+	    좁은 모바일에서는 칸이 글 상자를 뚫고 나간다(390px 화면에서 126px 넘침).
+	    min(420px, 100%) 은 '넓을 때는 420px, 좁을 때는 있는 만큼' 이므로
+	    PC 에서는 지금과 똑같이 동작하면서 모바일에서만 접힌다.
+	*/
+	grid-template-columns: repeat(auto-fit, minmax(min(420px, 100%), 1fr));
+	gap: 14px;
+	margin-top: 16px;
+}
+.help-shot{ margin: 0; }
+.help-shot img{
+	width: 100%; display: block; border-radius: 8px; border: 1px solid var(--c-3);
+}
+.help-shot figcaption{
+	font-size: 12px; color: var(--c-14); /* [10-21] ← var(--c-8) */ margin-top: 6px; line-height: 1.5;
+}
+.help-shot--missing .help-shot__placeholder{
+	border: 1.5px dashed var(--c-4);
+	border-radius: 8px;
+	background: var(--c-1);
+	padding: 22px 14px;
+	text-align: center;
+	color: var(--c-7);
+}
+.help-shot__placeholder .material-symbols-outlined{ font-size: 26px; }
+.help-shot__need{ font-size: 12px; font-weight: 700; color: var(--c-14); /* [10-21] ← var(--c-8) */ margin: 4px 0 2px; }
+.help-shot__desc{ font-size: 12px; color: var(--c-14); /* [10-21] ← var(--c-9) */ margin: 0 0 4px; line-height: 1.5; }
+.help-shot__path{ font-size: 11px; color: var(--c-14); /* [10-21] ← var(--c-7) */ margin: 0; word-break: break-all; }
+
+@media (max-width: 900px){
+	/*
+	본문이 화면 폭을 다 쓰게 한다   [2026-09-18]
+
+	  ── 무엇이 잘못되어 있었나 ──────────────────────────
+	  .help-wrap 은 align-items:flex-start 다. 가로로 놓을 때는
+	  '목차와 본문을 위쪽에 맞춰라' 는 뜻이지만, 여기서 세로로 눕히는 순간
+	  align-items 가 맡는 축이 바뀐다 — 세로 배치에서 교차축은 '가로' 다.
+	  그래서 flex-start 가 '내용만큼만 좁게' 로 해석되어,
+	  본문이 화면 폭이 아니라 제 내용 폭(470px)을 갖고
+	  344px 짜리 상자를 126px 뚫고 나가 있었다. (390px 실측)
+
+	  목차만 멀쩡했던 것은 아래에서 width:100% 를 따로 박아 둔 덕이다.
+	  본문에는 그 구제가 없었다.
+
+	  ★ 고치는 곳은 align-items 다. 본문에 width:100% 를 덧대는 것으로도
+	    폭은 맞지만, 그러면 '왜 얘만 100% 를 적어야 하나' 라는 원인이 남는다.
+	    stretch 로 되돌리면 목차·본문이 함께 자연스럽게 꽉 찬다.
+	  ※ 넘침의 또 다른 원인이던 .help-article__shots 의 최소 칸 420px 은
+	    위쪽 minmax(min(420px,100%),1fr) 에서 함께 처리했다.
+	*/
+	.help-wrap{ flex-direction: column; align-items: stretch; }
+	.help-toc{ position: static; width: 100%; max-height: none; }
+}
+
+
+/* ==========================================================================
+   모달 → 우측 패널   [2026-09-29]
+
+   화면 가운데 떠서 본문을 가리던 모달을, 오른쪽에서 나와
+   본문을 왼쪽으로 밀어내는 패널로 바꾼다. 폭은 400px 고정(--panel-w).
+
+   ── 어떻게 하나 ──────────────────────────────────────────────
+   ★ 자바스크립트는 건드리지 않았다. CSS 만으로 한다.
+     모달을 여닫는 core/script/modal.js 는 .modal-backdrop 에
+     .is-open 을 붙였다 떼는 일만 한다. 그러니
+       ① .modal-backdrop 자체를 오른쪽 400px 짜리 판으로 바꾸고
+       ② "열린 모달이 하나라도 있으면(:has)" 본문(.main-content)에
+          오른쪽 여백 400px 를 줘서 밀어낸다.
+
+   ★ 이 블록은 위쪽 모달 규칙(1398행~, 3155행~)을 뒤에서 덮어쓴다.
+     원래 규칙은 지우지 않았다 — 되돌릴 때는 이 블록만 지우면 된다.
+
+   ── 바뀌는 동작 ──────────────────────────────────────────────
+   · 딤(어두운 배경)이 없다. 본문이 가려지지 않고 옆으로 비켜난다.
+     그래서 패널이 열린 채로도 본문을 보고 누를 수 있다.
+   · '바깥 눌러 닫기' 는 사라진다 — 패널 밖이 곧 본문이라 누를 딤이 없다.
+     닫기는 × · [닫기] 버튼 · ESC 로 한다 (modal.js 그대로).
+   · 모달을 연 채로 다른 모달을 열면 같은 자리에 겹쳐 뜬다.
+     나중에 연 것이 위에 오고, 그것을 닫으면 먼저 것이 다시 보인다.
+   ========================================================================== */
+:root {
+	--panel-w: 400px;	/* [2026-09-29] 360 → 400 */
+}
+
+.modal-backdrop {
+	/* 화면 전체를 덮던 판 → 오른쪽 400px 만 차지하는 판 */
+	inset: 0 0 0 auto;
+	width: var(--panel-w);
+	padding: 0;
+	background: #fff;
+	border-left: 1px solid var(--c-3);
+	box-shadow: -8px 0 24px rgba(20, 20, 30, .06);
+	align-items: stretch;
+	justify-content: stretch;
+	overflow: hidden;	/* 스크롤은 안쪽 .modal__body 가 맡는다 */
+}
+
+.modal-backdrop.is-open {
+	animation: panelIn .22s ease;
+}
+
+@keyframes panelIn {
+	from { transform: translateX(100%); }
+	to   { transform: none; }
+}
+
+/*
+안쪽 .modal — 가운데 뜬 카드에서 판 전체를 채우는 기둥으로
+  ★ .modal--lg(780px) 도 같이 400px 가 된다. 크기 구분은 더 이상 없다.
+*/
+.modal-backdrop > .modal,
+.modal-backdrop > .modal.modal--lg {
+	width: 100%;
+	max-width: none;
+	height: 100%;
+	max-height: none;
+	margin: 0;
+	border-radius: 0;
+	box-shadow: none;
+	animation: none;	/* 아래에서 올라오던 움직임 대신 판이 옆에서 들어온다 */
+}
+
+/*
+아이프레임 모달 (상세·쪽지·문자 등)
+  ★ 가운데 모달일 때는 74vh 로 높이를 정해 두었지만,
+    패널은 위아래가 꽉 차 있으니 제목 줄을 뺀 나머지를 전부 쓴다.
+    flex-basis 를 0 으로 둬야 '남은 자리' 를 기준으로 커진다
+    (auto 면 안쪽 내용 크기를 기준으로 잡아 아이프레임이 150px 로 쪼그라든다).
+*/
+.modal-backdrop .modal__body--frame {
+	flex: 1 1 0;
+	height: auto;
+	border-radius: 0;
+}
+
+/*
+패널 버튼 줄 — 언제나 패널 맨 아래에 붙는다   [2026-09-29]
+
+  ── 일반 모달 (.modal__foot) ─────────────────────────────
+  따로 할 일이 없다. .modal 이 패널 높이를 꽉 채우는 세로 기둥이고
+  .modal__body 만 늘어나며 스크롤하므로(flex:1) 버튼 줄은 이미 바닥에 있다.
+  배경만 흰색으로 못박아 둔다 — 스크롤한 내용이 버튼 뒤로 비치지 않게.
+*/
+.modal-backdrop .modal__foot {
+	background: #fff;
+}
+
+/*
+본문 칸의 높이 상한을 푼다
+  ★ 상담 처리(cs/counsel.html #cnModal)는 본문 칸에 인라인으로
+    max-height:72vh 를 박아 두었다. 가운데 모달일 때 화면 밖으로 넘치지 않게 한 것인데,
+    패널에서는 이 상한 때문에 본문이 바닥까지 못 내려가 버튼 줄이 112px 떠 있었다.
+    패널은 이미 화면 높이에 딱 맞으니 상한이 필요 없다.
+  ※ 인라인 style 이라 !important 가 아니면 이길 수 없다.
+*/
+.modal-backdrop .modal__body {
+	max-height: none !important;
+}
+
+/*
+  ── 버튼 줄이 본문 안쪽에 들어간 모달 ─────────────────────
+  몇몇 모달은 .modal__foot 을 .modal__body 안(폼 속)에 넣어 두었다
+  (알림톡 분류·문자 샘플·샘플 고르기 등). 이러면 버튼 줄이 본문과 함께 스크롤되어
+  내용이 길면 아래로 사라지고, 짧으면 패널 중간에 뜬다.
+
+  ★ 마크업을 옮기지 않고 CSS 로 해결한다 — 아이프레임의 .sv-foot 과 같은 방법.
+    본문과 그 안의 폼을 세로 기둥으로 만들고, 버튼 줄을
+    margin-top:auto 로 바닥에 내린 뒤 sticky 로 붙인다.
+  ★ 바깥으로 22px 씩 내미는 것은 .modal__body 의 안쪽 여백(22px)을 덮어
+    버튼 줄이 패널 가장자리까지 닿게 하려는 것이다.
+  ※ 인라인 style 의 margin-top:16px 이 박힌 곳이 있어 margin-top 만 !important.
+*/
+.modal-backdrop .modal__body:has(.modal__foot) {
+	display: flex;
+	flex-direction: column;
+}
+
+.modal-backdrop .modal__body > form:has(.modal__foot) {
+	flex: 1 0 auto;
+	display: flex;
+	flex-direction: column;
+}
+
+.modal-backdrop .modal__body .modal__foot {
+	margin-top: auto !important;
+	position: sticky;
+	bottom: -22px;
+	z-index: 2;
+	margin-left: -22px;
+	margin-right: -22px;
+	margin-bottom: -22px;
+	padding: 16px 22px;
+	border-top: 1px solid var(--c-2);
+}
+
+/*
+  ── 아이프레임 모달 (안쪽 화면의 .sv-foot) ─────────────────
+  상세·답변·결재 같은 화면은 모달 안에 '페이지' 를 통째로 띄운다
+  (inc/frameHeader.inc.html 을 쓰는 45개 화면). 버튼 줄도 그 안에 있다.
+
+  ★ 무엇이 문제였나
+    ① 안쪽 페이지 몸통(body)이 내용 높이에서 끝나고,
+       그 아래로 html 의 회색 바탕(#edecf0)이 비쳐 패널 아래가 회색이었다.
+    ② 버튼 줄이 내용 바로 밑에 붙어 있어 패널 중간에 떠 있었다.
+       내용이 길면 스크롤해 내려가야 [닫기] 가 보였다.
+
+  ★ 어떻게 고쳤나
+    · html 바탕을 흰색으로
+    · .frame-wrap 을 화면 높이만큼 늘린 세로 기둥으로 만들고,
+      버튼 줄을 margin-top:auto 로 바닥에 내린다 (내용이 짧을 때)
+    · position:sticky; bottom:0 으로 바닥에 붙인다 (내용이 길 때)
+
+  ★ body 의 overflow 를 풀어야 sticky 가 붙는다.
+    frameHeader 의 인라인 <style> 이 body 에 overflow-y:auto 를 걸어 두었는데,
+    그러면 body 가 '스크롤 상자' 가 되어 sticky 가 화면이 아니라 body 기준으로 계산된다.
+    body 는 내용만큼 길기 때문에 버튼 줄이 영영 바닥에 붙지 않는다.
+    → overflow 를 visible 로 돌리고, 가로 넘침은 clip 으로 자른다
+      (clip 은 hidden 과 달리 스크롤 상자를 만들지 않는다).
+    ※ 선택자를 html body[...] 로 한 칸 더 적은 것은 인라인 <style> 보다
+      뒤에 오지 않아도 이기기 위해서다 (master.css 가 먼저 읽힌다).
+
+  ★ margin-top 에만 !important 를 쓴다.
+    .sv-foot 은 16곳 모두 인라인 style 로 margin-top:20px 이 박혀 있다.
+    인라인 style 은 CSS 파일이 이길 수 없다 — 16개 파일을 고치는 대신 여기 한 곳에서 누른다.
+*/
+html:has(> body[data-frame="1"]) {
+	background: #fff;
+}
+
+html body[data-frame="1"] {
+	overflow: visible;
+	overflow-x: clip;
+}
+
+/*
+  ※ 버튼 줄(.sv-foot)이 있는 화면만 세로 기둥으로 바꾼다.
+    flex 로 바꾸면 위아래 여백 겹침(margin collapse)이 풀려 간격이 조금 달라질 수 있어,
+    바꿀 필요가 없는 화면(목록형 등)은 건드리지 않는다. 바탕 흰색은 위 html 규칙이 모두에 준다.
+*/
+body[data-frame="1"] > .frame-wrap:has(.sv-foot) {
+	min-height: 100vh;
+	display: flex;
+	flex-direction: column;
+}
+
+/* 버튼 줄이 <form> 안에 있으면 form 도 남은 높이를 채워야 바닥까지 내려간다 */
+body[data-frame="1"] > .frame-wrap > form:has(.sv-foot) {
+	flex: 1 0 auto;
+	display: flex;
+	flex-direction: column;
+}
+
+body[data-frame="1"] .sv-foot {
+	margin-top: auto !important;
+	position: sticky;
+	bottom: 0;
+	z-index: 2;
+	background: #fff;
+	/* .frame-wrap 의 좌우·아래 여백(20·20·22px)까지 덮어 패널 가장자리에 닿게 한다 */
+	margin-left: -20px;
+	margin-right: -20px;
+	margin-bottom: -22px;
+	padding-left: 20px;
+	padding-right: 20px;
+	padding-bottom: 16px;
+}
+
+/*
+버튼 줄이 든 폼 '뒤에' 다른 내용이 더 있는 화면   [2026-09-30]
+  ── 무엇이 문제였나 (자동화 규칙 편집에서 확인) ───────────────────────
+  [저장·비활성화·닫기] 줄은 규칙 폼(form) 안에 있고, '발송 항목 연결' 카드는 폼 밖(뒤)에 있다.
+  바닥 고정(sticky)은 자기를 품은 폼 안에서만 붙어 있으므로, 폼이 끝나는 자리 —
+  패널 한가운데 — 에 버튼 줄이 떠 있고, 그 아래로 카드가 이어졌다.
+  ── 어떻게 고쳤나 (마크업·스크립트는 그대로) ────────────────────────
+  · 그 폼만 display:contents — 폼의 상자를 없애 안쪽 칸들이 .frame-wrap 의 줄에 바로 선다.
+    (폼 자체는 그대로라 저장 버튼의 submit·입력값 전송은 바뀌지 않는다)
+  · 버튼 줄에 order:99 — 화면에서는 뒤따르는 카드보다 아래, 패널 맨 바닥으로 내려간다.
+    이제 품은 상자가 .frame-wrap 이라 끝까지 내려도 바닥에 붙어 있다.
+  · 마지막 카드 아래 14px — 끝까지 내렸을 때 버튼 줄과 붙지 않게 (위 '바닥 버튼 줄 위 여백' 과 같은 값).
+  ※ 폼 뒤에 '보이는' 내용(div 등)이 있을 때만. 숨긴 폼(display:none)만 뒤따르는 화면은 그대로다.
+*/
+body[data-frame="1"] > .frame-wrap > form:has(> .sv-foot):has(~ div) {
+	display: contents;
+}
+
+/*
+버튼 줄이 한 겹 더 안쪽에 든 화면   [2026-09-30]
+  ★ 쪽지 보기는 .frame-wrap > div[data-note-view] > div.field > form > .sv-foot 로 세 겹 안에 있다.
+    위 규칙(.frame-wrap > form)은 바로 아래 폼만 늘려서, 가운데 겹들이 내용 높이에서 멈추고
+    버튼 줄이 패널 바닥에서 77px 위에 떠 있었다(400×800 실측).
+  → 버튼 줄을 품은 겹마다 세로 flex + 남는 높이 채우기. 버튼 줄의 margin-top:auto 가 끝까지 밀어 내린다.
+*/
+body[data-frame="1"] .frame-wrap :is(div, form):has(.sv-foot) {
+	display: flex;
+	flex-direction: column;
+	flex: 1 0 auto;
+}
+
+body[data-frame="1"] > .frame-wrap > form:has(> .sv-foot):has(~ div) > .sv-foot {
+	order: 99;
+}
+
+body[data-frame="1"] > .frame-wrap > form:has(> .sv-foot) ~ div:not(:has(~ div)) {
+	margin-bottom: 14px;
+}
+
+/* 본문 밀어내기 */
+.main-content {
+	transition: margin-right .22s ease;
+}
+
+body:has(.modal-backdrop.is-open) .main-content {
+	margin-right: var(--panel-w);
+}
+
+/*
+좁은 화면 (720px 이하)
+  ★ 400px 를 밀어내고도 본문이 320px(가장 작은 휴대폰 폭)은 남아야 한다.
+    720px 보다 좁으면 그게 안 되므로, 밀지 않고 패널이 화면을 다 덮는다.
+    (패널 폭 360 일 때는 640 이었다 — 폭을 바꾸면 이 값도 같이 본다)
+*/
+@media (max-width: 720px) {
+	.modal-backdrop {
+		width: 100vw;
+		border-left: 0;
+	}
+
+	body:has(.modal-backdrop.is-open) .main-content {
+		margin-right: 0;
+	}
+}
+
+/* 움직임을 줄여 달라고 설정한 사용자에게는 미끄러지는 효과를 끈다 */
+@media (prefers-reduced-motion: reduce) {
+	.modal-backdrop.is-open { animation: none; }
+	.main-content { transition: none; }
+}
+
+
+/* ==========================================================================
+   패널 안 화면 다듬기   [2026-09-29]
+
+   400px 패널 안에서 회원 상세(광고주·리뷰어)를 열어 보니 세 군데가 걸렸다.
+   아래 규칙은 모두 '좁은 폭(560px 이하)' 에서만 걸린다.
+   ※ 패널 안 화면은 아이프레임이라, 여기서 560px 은 화면 폭이 아니라 패널 폭이다.
+   ========================================================================== */
+
+/*
+① 탭 — 밑줄형 한 줄 → 칸형 격자
+  ── 무엇이 문제였나 ───────────────────────────────────────
+  탭 9개에 필요한 폭은 505px 인데 패널 안쪽은 359px 이다.
+  9/17 에 '옆으로 밀어서 보는' 방식으로 정했는데(위 3105행 설명),
+  스크롤 막대를 숨겨 둔 탓에 뒤쪽 탭 네 개가 그냥 잘려 보였다.
+  더 있다는 표시가 없으니 비밀번호·메일 발송 탭은 있는 줄도 모른다.
+
+  ── 왜 칸형인가 ─────────────────────────────────────────
+  9/17 에 줄바꿈을 택하지 않은 이유는 '밑줄이 끊겨 지금 탭이 어디인지
+  읽기 어렵다' 는 것이었다. 그건 밑줄형이라서 생기는 문제다.
+  칸마다 테두리를 두르고 선택된 칸을 색으로 채우면
+  줄이 몇 개든 지금 탭이 한눈에 보인다 — 줄을 나눠도 되는 모양으로 바꾼다.
+  ★ 3칸 고정 격자로 둔다. 글자 길이대로 흘려 채우면(flex-wrap)
+    줄마다 칸 폭이 들쭉날쭉해진다. 9개 → 3×3 으로 딱 맞는다.
+  ※ 위에 붙는 것(sticky)은 그대로 둔다. 상세가 길어 내려가도 탭을 바꿀 수 있어야 한다.
+*/
+@media (max-width: 560px) {
+	.frame-wrap .ma-tabs {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: 4px;
+		overflow: visible;		/* 위 560px 규칙의 가로 스크롤을 끈다 */
+		padding-bottom: 12px;
+		border-bottom: 1px solid var(--c-3);
+	}
+
+	.frame-wrap .ma-tab {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		height: 32px;
+		padding: 0 4px;
+		margin: 0;
+		border: 1px solid var(--c-3);
+		border-radius: var(--radius-sm, 6px);
+		background: #fff;
+		color: var(--c-14); /* [10-21] ← var(--c-9) */
+		font-size: 13px;
+		font-weight: 600;
+	}
+
+	.frame-wrap .ma-tab.is-active {
+		border-color: var(--color-main);
+		background: var(--color-main-light);
+		color: var(--color-main);
+	}
+}
+
+/*
+② 본문 — 제목과 값이 구분되게
+  ── 무엇이 문제였나 ───────────────────────────────────────
+  좁으면 제목(dt)과 값(dd)을 한 줄씩 쌓는데,
+    제목  12px · 굵게(600) · 회색
+    값    13px · 보통(400) · 검정
+  으로 굵기가 거꾸로 걸려 있었다. 제목이 값보다 더 튀니 눈이 제목에 먼저 가고,
+  묶음 사이에 경계도 없어 '업체명 / 회사명 / 사업자등록번호 / -' 가 한 덩어리로 보였다.
+
+  ── 어떻게 고쳤나 ───────────────────────────────────────
+  · 제목은 작고 가볍게(12px·500·연회색) — 이름표 역할만 한다
+  · 값은 크고 또렷하게(14px·500·진한색) — 읽을 것은 이쪽이다
+  · 한 묶음이 끝날 때마다 가는 선을 긋는다
+*/
+@media (max-width: 560px) {
+	.dl {
+		gap: 0;
+	}
+
+	.dl dt {
+		margin-top: 12px;
+		font-size: 12px;
+		font-weight: 500;
+		color: var(--c-14); /* [10-21] ← var(--c-8) */
+	}
+
+	.dl dt:first-of-type {
+		margin-top: 0;
+	}
+
+	.dl dd {
+		margin-top: 4px;
+		padding-bottom: 12px;
+		border-bottom: 1px solid var(--c-2);
+		font-size: 14px;
+		font-weight: 500;
+		line-height: 1.5;
+	}
+
+	.dl dd:last-of-type {
+		padding-bottom: 0;
+		border-bottom: 0;
+	}
+}
+
+/*
+③ 패널 안 표 — 가로 표 → 한 줄씩 카드   [2026-09-29]
+  ── 무엇이 문제였나 ───────────────────────────────────────
+  780px 가운데 모달에 맞춰 만든 표들이 400px 패널에 들어오면서,
+  포인트 내역(일시·구분·내용·증감·잔액)은 증감·잔액 칸이 오른쪽으로 잘려 안 보였고
+  '내용' 칸은 두세 글자씩 줄바꿈되어 읽을 수가 없었다.
+  칸을 줄이는 것으로는 풀리지 않는다 — 다섯 칸이 들어갈 폭 자체가 없다.
+
+  ── 어떻게 바꿨나 ───────────────────────────────────────
+  한 행을 카드 하나로 펼친다.
+    · 첫 칸(대부분 '일시')은 카드 머리로 — 작게, 이름표 없이
+    · 나머지 칸은 '이름표 + 값' 한 줄씩 — 위 ② 본문(dl)과 같은 말투
+    · 카드 사이는 가는 선으로 가른다
+  이름표는 inc/frameFooter.inc.html 의 스크립트가 머리칸(th) 글자를 옮겨 붙인 것이다
+  (data-label). 탭을 눌러 나중에 불러온 표에도 붙는다.
+
+  ※ 패널 안 화면(.frame-wrap)에서만, 좁을 때(560px 이하)만 바뀐다.
+    같은 표를 넓은 화면·일반 페이지에서 보면 원래 표 그대로다.
+  ※ 내역이 없을 때의 한 칸짜리 행(colspan)은 가운데 안내문 그대로 둔다.
+*/
+@media (max-width: 560px) {
+	.frame-wrap table.tbl {
+		display: block;
+		width: 100%;
+		min-width: 0;
+		border: 0;
+	}
+
+	.frame-wrap table.tbl thead {
+		display: none;
+	}
+
+	.frame-wrap table.tbl tbody {
+		display: block;
+	}
+
+	/*
+	  머리칸을 thead 없이 첫 행에 둔 표 — 그 행도 숨긴다
+	  ★ [2026-09-29 고침] th 만 있는 행만 숨긴다.
+	    처음엔 'th 가 있는 행' 을 모두 숨겨서, [th 이름][td 값] 을 한 행에 짝지은 요약표
+	    (영상 제작 요청 히스토리 '요청 #4')가 통째로 사라져 빈 상자만 남았다.
+	*/
+	.frame-wrap table.tbl tbody tr:has(> th):not(:has(> td)) {
+		display: none;
+	}
+
+	.frame-wrap table.tbl tbody tr {
+		display: flex;
+		flex-direction: column;
+		gap: 5px;
+		padding: 14px 0;
+		border-bottom: 1px solid var(--c-2);
+	}
+
+	.frame-wrap table.tbl tbody tr:hover {
+		background: none;
+	}
+
+	/*
+	  ★ 이름표는 왼쪽에 띄워 두고(absolute) 값은 원래 흐름대로 둔다.
+	    칸을 flex·grid 로 바꾸면 칸 안의 글자·뱃지·줄바꿈(<br>)이 각각 따로 떨어진
+	    조각이 되어 옆으로 흩어지거나 이름표 줄로 끼어든다. 값은 건드리지 않는다.
+	*/
+	.frame-wrap table.tbl tbody td {
+		display: block;
+		position: relative;
+		min-width: 0;
+		padding: 0 0 0 74px;
+		border: 0;
+		text-align: left;
+		white-space: normal;
+		word-break: keep-all;
+		overflow-wrap: anywhere;
+		font-size: 13px;
+		line-height: 1.5;
+	}
+
+	/*
+	  ★ 값이 빈 칸도 한 줄 높이를 지킨다.
+	    이름표는 띄워 둔 것(absolute)이라 칸 높이에 들어가지 않는다.
+	    값이 비면 칸 높이가 0 이 되어 이름표가 다음 줄 이름표 위에 겹쳤다
+	    (캠페인 탭 — 코드가 없는 임시저장 캠페인에서 '코드' 와 '상태' 가 포개짐).
+	*/
+	.frame-wrap table.tbl tbody td[data-label] {
+		min-height: 19.5px;
+	}
+
+	.frame-wrap table.tbl tbody td[data-label]::before {
+		content: attr(data-label);
+		position: absolute;
+		left: 0;
+		top: 0;
+		width: 64px;
+		font-size: 12px;
+		font-weight: 500;
+		line-height: 19.5px;	/* 값 첫 줄(13px × 1.5)과 글자 기준선을 맞춘다 */
+		color: var(--c-14); /* [10-21] ← var(--c-8) */
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	/* 카드 머리 — 첫 칸은 이름표 없이 작게 */
+	.frame-wrap table.tbl tbody td:first-child {
+		padding-left: 0;
+		margin-bottom: 2px;
+		font-size: 12px;
+		color: var(--c-14); /* [10-21] ← var(--c-8) */
+	}
+
+	.frame-wrap table.tbl tbody td:first-child::before {
+		content: none;
+	}
+
+	/* 내역 없음 안내 등 한 칸짜리 행 */
+	.frame-wrap table.tbl tbody td[colspan] {
+		padding-left: 0;
+		text-align: center;
+		color: var(--c-14); /* [10-21] ← var(--c-8) */
+	}
+}
+
+/*
+④ 패널 안 검색 줄 — 날짜 범위가 두 줄로 갈라지지 않게   [2026-09-29]
+  ── 무엇이 문제였나 ───────────────────────────────────────
+  캠페인 탭 검색 줄은 [검색어 180px][날짜 150px] ~ [날짜 150px][검색] 로
+  폭이 인라인 style 로 박혀 있다. 349px 안에서 흘러내리며
+  '시작일' 은 윗줄, '~ 종료일' 은 아랫줄로 떨어져 범위로 읽히지 않았다.
+
+  ── 어떻게 바꿨나 ───────────────────────────────────────
+    1줄  [검색어 ─────────────── 한 줄 전체]
+    2줄  [시작일 ────] ~ [종료일 ────] [검색]
+    3줄  체크박스 등 나머지
+  ★ '날짜 ~ 날짜' 가 나란히 붙은 줄을 모양으로 고른다(:has).
+    클래스 이름으로 고르면 탭마다 따로 적어야 한다 — 같은 모양이면 모두 잡힌다.
+  ※ 폭이 인라인 style 이라 width 만 !important.
+*/
+@media (max-width: 560px) {
+	.frame-wrap div:has(> input[type="date"] + span + input[type="date"]) > input:not([type="date"]):not([type="checkbox"]):not([type="radio"]) {
+		flex: 1 1 100%;
+		width: auto !important;
+		min-width: 0;
+	}
+
+	.frame-wrap div:has(> input[type="date"] + span + input[type="date"]) > input[type="date"] {
+		flex: 1 1 0;
+		width: auto !important;
+		min-width: 0;
+	}
+
+	.frame-wrap div:has(> input[type="date"] + span + input[type="date"]) > label {
+		flex-basis: 100%;
+	}
+}
+
+/*
+검색 줄 바로 아래 표 — 붙어 버리는 간격   [2026-09-29]
+  ── 무엇이 문제였나 (탈퇴 회원에서 실측) ─────────────────────────
+  카드 안 검색 줄(form)이 인라인 style 로 padding:14px 18px 0 — 아래 여백이 0 이다.
+  원래 그 아래에 한 줄(빠른 선택 등)이 더 오는 화면에서 쓰던 값인데,
+  탈퇴 회원은 바로 표가 붙어 검색칸 밑과 표 머리 사이가 0px 이었다.
+  ── 어떻게 고쳤나 ───────────────────────────────────────
+  · 아래 여백 0 인 검색 줄 '바로 다음이 표 상자' 일 때만 아래 여백 14px (위 여백과 같은 값).
+    다음 줄이 따로 있는 화면(등급·알림 발송 설정 등)은 그대로다.
+  · 같은 모양의 안내문(p, 결제·이용권 > 승인 대기)도 함께 잡는다.
+*/
+:is(form, p)[style*="padding:14px 18px 0"]:has(+ .table-wrap) {
+	padding-bottom: 14px !important;	/* 인라인 style */
+}
+
+/*
+③-2 패널 안 표 상자(.table-wrap) — 안쪽 스크롤 없애고 여백 주기   [2026-09-29]
+  ── 무엇이 문제였나 (회원 상세 > 비밀번호 탭에서 실측) ───────────
+  · 정책 이력 · 초기화 이력 상자에 인라인 style 로 max-height:200·220px + overflow:auto 가 박혀 있다.
+    ③ 에서 표를 카드로 펼치니 높이가 늘어 '초기화 이력' 은 744px 짜리가 220px 상자 안에서
+    따로 스크롤했다. 패널 스크롤 안에 또 스크롤 — 두 겹이다.
+  · 상자는 테두리(1px #e7e7e7)가 있는데 카드는 좌우 여백 0 으로 테두리에 붙어 있었다.
+  · 마지막 카드의 밑줄이 상자 테두리와 겹쳐 두 줄로 보였다.
+
+  ── 어떻게 고쳤나 ───────────────────────────────────────
+  · 카드로 펼칠 때(560px 이하, 패널 안)만 상자 높이 제한을 풀어 패널 하나로만 스크롤한다.
+    (인라인 style 이라 !important)
+  · 상자 안쪽 좌우 14px — 비밀번호 상자(.ma-box) 안쪽 여백 14px 과 같은 값.
+  · 마지막 카드 밑줄은 지운다 — 상자 테두리가 그 역할을 한다.
+*/
+@media (max-width: 560px) {
+	.frame-wrap .table-wrap:has(> table.tbl) {
+		max-height: none !important;
+		overflow: visible !important;
+		padding: 0 14px;
+	}
+
+	/* 테두리를 끈 상자(인라인 border:none — 카드 안에 넣은 표)는 여백도 필요 없다. 카드가 이미 안쪽 여백을 준다 */
+	.frame-wrap .table-wrap[style*="border:none"]:has(> table.tbl) {
+		padding: 0;
+	}
+
+	.frame-wrap .table-wrap > table.tbl tbody tr:last-child {
+		border-bottom: 0;
+	}
+}
+
+/*
+③-3 [이름 th][값 td] 짝 표 (요약표) — 이름/값 한 줄씩   [2026-09-29]
+  ── 무엇이 문제였나 ───────────────────────────────────────
+  '요청 #4' 요약처럼 한 행에 [캠페인|값|종류|값] 을 짝지어 둔 표는
+  ③ 에서 숨겨졌다가(위 고침), 되살리면 th 가 표 머리칸 모양(회색 바탕·130px) 그대로 나온다.
+  또 이름표 스크립트가 첫 행을 머리칸으로 알고 td 에 엉뚱한 이름(첫 행 글자)을 붙인다.
+  ── 어떻게 바꿨나 ───────────────────────────────────────
+  · th = 이름표 (12px·500·#888, ② 본문과 같은 말투), td = 값 (14px) 로 한 줄씩 쌓는다.
+  · 이 표의 td 에는 스크립트가 붙인 이름표(::before)를 쓰지 않는다 — th 가 이미 이름이다.
+*/
+@media (max-width: 560px) {
+	.frame-wrap table.tbl tbody tr:has(> th):has(> td) {
+		gap: 0;
+		padding: 12px 0;
+	}
+
+	.frame-wrap table.tbl tbody tr:has(> th):has(> td) > th {
+		display: block;
+		width: auto !important;		/* 인라인 width:130px */
+		padding: 0;
+		margin-top: 12px;
+		border: 0;
+		background: none;
+		text-align: left;
+		font-size: 12px;
+		font-weight: 500;
+		color: var(--c-14); /* [10-21] ← var(--c-8) */
+	}
+
+	.frame-wrap table.tbl tbody tr:has(> th):has(> td) > th:first-child {
+		margin-top: 0;
+	}
+
+	/* td[colspan] 까지 같이 — 한 칸짜리 값(요청사항·취소 사유)이 '내역 없음' 처럼 가운데 회색으로 가던 것 */
+	.frame-wrap table.tbl tbody tr:has(> th):has(> td) > td,
+	.frame-wrap table.tbl tbody tr:has(> th):has(> td) > td[colspan] {
+		min-height: 0;
+		margin: 4px 0 0;
+		padding: 0;
+		text-align: left;
+		font-size: 14px;
+		color: var(--c-14);
+	}
+
+	/* [data-label] 까지 적어야 ③ 의 td[data-label]::before 보다 우선한다 — 빠지면 값 위에 엉뚱한 이름표가 겹친다 */
+	.frame-wrap table.tbl tbody tr:has(> th):has(> td) > td[data-label]::before {
+		content: none;
+	}
+}
+
+/*
+③-4 처리 이력(타임라인) 카드 — 한 건 = 한 상자   [2026-09-29]
+  대상 : table.tbl--timeline (영상 제작 요청 히스토리)
+  ── 무엇이 문제였나 (400px 패널 실측) ─────────────────────────
+  · 이력 카드 사이가 1px #f3f3f3 선 하나뿐이라 1번·2번·3번이 한 덩어리로 흘러 보였다.
+  · 카드 머리가 '1' 숫자 하나(12px 회색)라 어디서 한 건이 시작되는지 눈에 걸리지 않았다.
+  · 무엇을 했는지(처리 : 신청·포인트 차감)가 다른 줄과 같은 크기로 묻혀 있었다.
+  · 금액 칸만 인라인 text-align:right 라 값이 오른쪽 끝으로 튀어 나머지와 줄이 맞지 않았다.
+  · 값이 대부분 회색(cell-sub)이라 이름표(#888)와 값의 명도 차이가 없었다.
+  ── 어떻게 바꿨나 ───────────────────────────────────────
+    ┌──────────────────────────────┐
+    │ [#1]  2026.08.21 08:02:55     │  ← 순번 알약 + 일시 (한 줄)
+    │ 신청 · 포인트 차감            │  ← 처리 (15px 굵게, 카드 제목)
+    │ ─────────────────────────── │
+    │ 상태변화  신규 → 접수          │
+    │ 금액      -5,000P             │  ← 왼쪽 정렬로 맞춤
+    │ …                            │
+    └──────────────────────────────┘
+  · 카드마다 테두리(1px #e7e7e7)·라운드 8px·안쪽 12/14px, 카드 사이 8px.
+  · 값 글자는 #525252 로 한 단계 진하게 — 이름표(#888)와 구분된다.
+*/
+@media (max-width: 560px) {
+	/* .table-wrap 두 번 — ③-2 의 'border:none 상자 여백 0' 보다 앞서게 (이 카드 몸통은 padding:0 이라 여백이 필요하다) */
+	.frame-wrap .table-wrap.table-wrap:has(> table.tbl--timeline) {
+		padding: 12px 14px 4px;
+	}
+
+	.frame-wrap table.tbl--timeline tbody tr {
+		display: grid;
+		grid-template-columns: auto minmax(0, 1fr);
+		align-items: center;
+		column-gap: 8px;
+		row-gap: 6px;
+		margin-bottom: 8px;
+		padding: 12px 14px;
+		border: 1px solid var(--c-3);
+		border-radius: 8px;
+		background: #fff;
+	}
+
+	.frame-wrap table.tbl--timeline tbody tr:last-child {
+		border-bottom: 1px solid var(--c-3);	/* ③-2 의 '마지막 밑줄 지움' 을 되돌린다 — 여기선 상자 테두리다 */
+	}
+
+	.frame-wrap table.tbl--timeline tbody td {
+		grid-column: 1 / -1;
+		color: var(--c-14); /* [10-21] ← var(--c-9) */
+		text-align: left !important;	/* 금액 칸 인라인 right */
+	}
+
+	/* 순번 — 알약 */
+	.frame-wrap table.tbl--timeline tbody td:nth-child(1) {
+		grid-column: 1;
+		min-width: 32px;
+		margin: 0;
+		padding: 0 8px;
+		text-align: center !important;	/* 위 td 공통 left !important 를 이 알약만 되돌린다 */
+		border-radius: 9999px;
+		background: var(--color-main-light);
+		color: var(--color-main);
+		font-size: 12px;
+		font-weight: 700;
+		line-height: 20px;
+	}
+
+	.frame-wrap table.tbl--timeline tbody td:nth-child(1)::before {
+		content: "#";
+		position: static;
+		width: auto;
+		color: inherit;
+		font-weight: inherit;
+		line-height: inherit;
+	}
+
+	/* 일시 — 순번 옆 */
+	.frame-wrap table.tbl--timeline tbody td:nth-child(2) {
+		grid-column: 2;
+		min-height: 0;
+		padding-left: 0;
+		font-size: 12px;
+		color: var(--c-14); /* [10-21] ← var(--c-8) */
+	}
+
+	/* 처리 — 카드 제목 */
+	.frame-wrap table.tbl--timeline tbody td:nth-child(3) {
+		min-height: 0;
+		margin-bottom: 4px;
+		padding: 2px 0 10px;
+		border-bottom: 1px solid var(--c-2);
+		font-size: 15px;
+		font-weight: 700;
+		color: var(--c-14);
+	}
+
+	.frame-wrap table.tbl--timeline tbody td:nth-child(2)::before,
+	.frame-wrap table.tbl--timeline tbody td:nth-child(3)::before {
+		content: none;
+	}
+
+	/* 값 안의 회색 조각도 한 단계 진하게 (원장 # · 처리자 이름 등) */
+	.frame-wrap table.tbl--timeline tbody td:nth-child(n+4) .cell-sub {
+		color: var(--c-14); /* [10-21] ← var(--c-9) */
+	}
+
+	/* 내역 없음 한 칸 행은 상자 없이 */
+	.frame-wrap table.tbl--timeline tbody tr:has(> td[colspan]) {
+		display: block;
+		border: 0;
+	}
+}
+
+/*
+③-5 패널 안 모든 목록 카드 — 처리 이력(③-4)과 같은 '한 건 = 한 상자'   [2026-09-29]
+  대상 : 패널 안 table.tbl 의 데이터 행 전부
+         (회원 상세의 캠페인 · 운영자 쪽지 · 포인트 · 패널티 · 문자/메일 발송 · 비밀번호 이력 등)
+  ── 무엇이 문제였나 ───────────────────────────────────────
+  ③ 의 카드는 1px #f3f3f3 밑줄 하나로만 나뉘어, 건수가 많으면 어디서 한 건이 끝나는지 흐렸다.
+  처리 이력만 상자로 바꾸면 같은 패널 안에서 목록 말투가 두 가지가 된다.
+  ── 어떻게 바꿨나 ───────────────────────────────────────
+    ┌──────────────────────────────┐
+    │ 2026.06.04                    │  ← 첫 칸(대부분 일시) : 카드 머리, 12px 회색
+    │ [생활] PN풍년 …               │  ← 제목 칸 : 15px 굵게 + 아래 가는 선
+    │ ─────────────────────────── │
+    │ 코드      C20260023           │  ← 나머지 : 이름표 + 값
+    │ 상태      [완료]              │
+    └──────────────────────────────┘
+  · 상자 : 테두리 1px #e7e7e7 · 라운드 8px · 안쪽 12/14px · 사이 8px (③-4 와 같은 값)
+  · 제목 칸은 머리칸 글자로 고른다(스크립트가 붙인 data-label).
+      '캠페인' · '제목' · '제목 / 내용'
+    ★ 표 머리칸 글자를 바꾸면 여기도 같이 바꿔야 제목으로 잡힌다.
+      잡히지 않아도 깨지지는 않는다 — 평범한 '이름표 + 값' 줄로 나온다.
+  · 목록을 감싼 테두리 상자(.table-wrap)는 테두리를 뺀다 — 상자 안에 상자가 겹치지 않게.
+  · 값의 회색 글자(cell-sub)는 #525252 로 한 단계 진하게 — 이름표(#888)와 구분.
+  ※ th 가 있는 요약표(③-3), 내역 없음 한 칸 행, 처리 이력(③-4 전용 모양)은 제외.
+*/
+@media (max-width: 560px) {
+	.frame-wrap .table-wrap.table-wrap:has(> table.tbl:not(.tbl--timeline)) {
+		padding: 0;
+		border: 0;
+		border-radius: 0;
+		background: none;
+		box-shadow: none;
+	}
+
+	.frame-wrap table.tbl:not(.tbl--timeline) tbody tr:not(:has(> th)):not(:has(> td[colspan])) {
+		gap: 6px;
+		margin-bottom: 8px;
+		padding: 12px 14px;
+		border: 1px solid var(--c-3);		/* 마지막 행도 — ③-2 의 '마지막 밑줄 지움' 보다 뒤·우선 */
+		border-radius: 8px;
+		background: #fff;
+	}
+
+	/*
+	  제목 칸
+	  ★ 순서(order)로 카드 머리 바로 밑에 올린다.
+	    운영자 쪽지는 표 칸 순서가 [일시][방향][제목] 이라 제목이 '방향' 줄 아래 묻혔다.
+	    화면에 보이는 순서만 바꾸고 마크업은 그대로 둔다.
+	*/
+	.frame-wrap table.tbl:not(.tbl--timeline) tbody tr:not(:has(> th)) > td {
+		order: 2;
+	}
+
+	.frame-wrap table.tbl:not(.tbl--timeline) tbody tr:not(:has(> th)) > td:first-child {
+		order: 0;
+	}
+
+	.frame-wrap table.tbl:not(.tbl--timeline) tbody td:is([data-label="캠페인"], [data-label="제목"], [data-label="제목 / 내용"]) {
+		order: 1 !important;
+		min-height: 0;
+		margin-bottom: 4px;
+		padding: 0 0 10px;
+		border-bottom: 1px solid var(--c-2);
+		font-size: 15px;
+		font-weight: 700;
+		color: var(--c-14);
+	}
+
+	.frame-wrap table.tbl:not(.tbl--timeline) tbody td:is([data-label="캠페인"], [data-label="제목"], [data-label="제목 / 내용"])::before {
+		content: none;
+	}
+
+	/* 제목 칸 안에 딸린 본문 미리보기(운영자 쪽지 내용) — 제목만 굵게, 본문은 보통 */
+	.frame-wrap table.tbl:not(.tbl--timeline) tbody td:is([data-label="캠페인"], [data-label="제목"], [data-label="제목 / 내용"]) .cell-sub {
+		margin-top: 4px !important;
+		font-size: 13px;
+		font-weight: 400;
+		line-height: 1.5;
+	}
+
+	/* 값 글자 한 단계 진하게 (카드 머리 = 첫 칸은 그대로 회색) */
+	.frame-wrap table.tbl:not(.tbl--timeline) tbody td.cell-sub:not(:first-child),
+	.frame-wrap table.tbl:not(.tbl--timeline) tbody td:not(:first-child) .cell-sub {
+		color: var(--c-14); /* [10-21] ← var(--c-9) */
+	}
+}
+
+/*
+④-2 패널 안 폼 — 나란히 놓인 입력칸을 한 줄에 하나씩   [2026-09-29]
+  ── 무엇이 문제였나 (캠페인 공지 편집에서 확인) ───────────────
+  '캠페인 유형(200px 고정) | 제목(나머지)' 을 한 줄에 두는 틀(.row + .field 둘)이라
+  359px 안에서 제목 칸이 147px 로 줄어, 이름표 '제목 (비우면 NOTICE 로 표시)' 가
+  두 줄로 꺾이고 입력칸도 짧아졌다. 자동화 규칙·발송 템플릿 등도 같은 틀이다.
+
+  ── 어떻게 바꿨나 ───────────────────────────────────────
+  · 패널 안(560px 이하)에서 '.field 를 바로 품은 .row' 만 세로로 쌓는다.
+    입력칸+버튼이 한 줄인 검색 줄(.row 안에 .field 없음)은 건드리지 않는다.
+  · 폭은 인라인 style(flex:0 0 200px 등)이라 !important 로 풀어 한 줄 전체를 쓴다.
+  · 칸 사이 간격은 .field 의 아래 여백(14px)만 쓴다 — gap 12px 을 더하면 26px 로 벌어진다.
+*/
+@media (max-width: 560px) {
+	.frame-wrap .row:has(> .field) {
+		flex-direction: column;
+		align-items: flex-start !important;	/* 자동화 규칙 '연결' 줄은 인라인 flex-end — 세로로 쌓으면 칸이 오른쪽 58px 로 쪼그라들었다 */
+		gap: 0 !important;
+	}
+
+	.frame-wrap .row:has(> .field) > .field {
+		flex: 0 0 auto !important;
+		width: 100%;
+		min-width: 0 !important;
+	}
+}
+
+/*
+⑤ 패널 안 '읽기 전용 칸' — 위 ② 본문(dl)과 같은 말투로   [2026-09-29]
+  ── 무엇이 문제였나 ───────────────────────────────────────
+  상세 화면 대부분이 윗부분은 dl(작성자·유형·접수일…), 아랫부분은
+  .field(제목·내용…) 로 그려져 있다. ② 에서 dl 만 고쳐 두니
+  한 패널 안에 이름표 말투가 두 가지가 되었다.
+    dl 이름표      12px · 500 · #888  + 묶음마다 가는 선
+    .field 이름표  12px · 600 · #525252 + 선 없음
+  아래쪽 '제목' 이 위쪽 '작성자' 보다 진하고 굵어 값처럼 보이고,
+  '신고 내용' 처럼 값이 회색 상자(#888 글자)면 이름표가 값보다 더 진했다.
+  브라우저 실측(400px) 에서 걸린 화면 :
+    1:1문의 · 신고 상세 · 쪽지 보기 · 발송 상세 · 캠페인 보기 · 캠페인 심사 · 리뷰 보기
+
+  ── 어떻게 고쳤나 ───────────────────────────────────────
+  · 'dl 뒤에 오는, 입력칸이 없는 .field' 만 고른다 (:has).
+    입력칸 위의 이름표(폼)는 입력 상자가 값 역할을 하므로 그대로 둔다.
+  · 이름표·값·간격·구분선을 ② 와 똑같이 맞춘다 (12/500/#888 → 4px → 14/500/진한색).
+  · 회색 상자 안의 긴 글(내용)은 상자는 두고 글자만 진하게 — 읽을 것은 이쪽이다.
+  · dl 마지막 묶음에도 선을 되살려 두 부분이 한 목록으로 이어지게 한다.
+  · 읽기 칸 다음에 폼 칸이 오면 14px 띄워 '읽는 곳 / 쓰는 곳' 을 가른다.
+*/
+@media (max-width: 560px) {
+	.frame-wrap .dl ~ .field:not(:has(input:not([type="hidden"]), select, textarea)) {
+		margin: 0 !important;	/* 발송 상세 등은 인라인 style 로 margin-top:10px 가 박혀 있다 */
+		padding: 12px 0;
+		border-bottom: 1px solid var(--c-2);
+	}
+
+	.frame-wrap .dl ~ .field:not(:has(input:not([type="hidden"]), select, textarea)) > .field-label {
+		margin-bottom: 4px;
+		font-size: 12px;
+		font-weight: 500;
+		color: var(--c-14); /* [10-21] ← var(--c-8) */
+	}
+
+	/* 한 줄 값 (제목 · 보낸 운영자 등) — dd 와 같게 */
+	.frame-wrap .dl ~ .field:not(:has(input:not([type="hidden"]), select, textarea)) > .field-label + p:not([style*="background"]) {
+		font-size: 14px !important;	/* 인라인 style 로 14px 가 박힌 곳이 있어 맞춰 둔다 */
+		font-weight: 500;
+		line-height: 1.5;
+		color: var(--c-14);
+	}
+
+	/* 상자 안 긴 글 (내용) — 상자는 그대로, 글자만 진하게 */
+	.frame-wrap .dl ~ .field:not(:has(input:not([type="hidden"]), select, textarea)) > .field-label + p[style*="background"] {
+		color: var(--c-14);
+	}
+
+	/*
+	  dl 마지막 묶음 — 바로 뒤에 읽기 칸이 이어지면 선을 되살린다
+	  ★ :has() 안에 :has() 를 또 넣으면 규칙 전체가 무시된다(표준상 금지).
+	    그래서 '이름표 바로 다음이 입력칸이 아닌 칸' 을 모양으로 고른다.
+	*/
+	.frame-wrap .dl:has(+ .field > .field-label + :not(input, select, textarea, .input, .select)) dd:last-of-type {
+		padding-bottom: 12px;
+		border-bottom: 1px solid var(--c-2);
+	}
+
+	/* 읽기 칸 → 폼 칸 사이 */
+	.frame-wrap .dl ~ .field:not(:has(input:not([type="hidden"]), select, textarea)) + .field:has(input:not([type="hidden"]), select, textarea) {
+		margin-top: 14px !important;
+	}
+
+	/*
+	  접이식 상자(처리 이력)는 '읽기 칸' 이 아니다   [2026-09-30]
+	  ★ 신고 처리의 <details class="field rp-history"> 도 입력칸이 없는 .field 라 위 규칙에 걸려
+	    상자 안쪽 좌우 여백 12px → 0, 아래 간격 16px → 0 이 되었다.
+	    날짜가 상자 오른쪽 테두리에 붙고, 다음 안내 상자와 사이가 좁아졌다.
+	    → 상자 모양을 되돌린다. 테두리는 다른 상자들과 같은 #e7e7e7 로.
+	*/
+	.frame-wrap .dl ~ details.field.rp-history {
+		margin: 12px 0 16px !important;	/* 위 : 앞 읽기 칸의 밑줄에서 12px (읽기 칸 안쪽 위아래 12px 과 같은 값) */
+		padding: 0 14px;
+		border: 1px solid var(--c-3);
+		border-radius: var(--radius);
+	}
+}
+
+
+/*
+패널 안 '체크 + 설명' 옵션 — 하나씩 상자로 가른다   [2026-09-30]
+  ── 무엇이 문제였나 (메일 보내기에서 확인) ───────────────────────
+  [수신확인 요청 + 설명] [광고성 메일 + 설명] 두 칸이 둘 다 인라인 margin-bottom:0 이라
+  앞 설명의 마지막 줄과 다음 체크박스 사이가 0px — 설명이 어느 체크에 딸린 것인지 헷갈렸다.
+  ── 어떻게 고쳤나 ───────────────────────────────────────
+  '체크박스 라벨 + 설명(p)' 으로 된 .field 를 옵션 상자로 그린다.
+    · 테두리 1px #e7e7e7 · 라운드 8px · 안쪽 12/14px · 상자 사이 8px
+    · 체크 이름은 굵게(600·진한색), 설명은 체크 글자 시작선에 맞춰 들여 쓴다
+    · 켜진 옵션은 테두리를 주 색으로 — 지금 무엇이 켜져 있는지 한눈에 보인다
+  ※ 패널 안에서만. 인라인 margin-bottom:0 이라 !important.
+  ※ '체크 라벨로 시작하는' 칸만 (label:first-child). 알림 발송 설정의 '채널·코드' 처럼
+    이름표 · 설명 · 체크가 섞인 칸까지 잡으면 긴 체크 문구가 통째로 굵어졌다.
+  ※ 체크 바로 다음이 설명(p) 인 칸만 (label + p). 알림 발송 설정의 '문자(SMS)도 함께 보내기'
+    처럼 체크 아래 입력창·칩이 딸린 큰 묶음은 옵션이 아니라 한 구역이라 건드리지 않는다.
+*/
+body[data-frame="1"] .field:has(> label:first-child > input[type="checkbox"]):has(> label:first-child + p) {
+	margin-bottom: 8px !important;
+	padding: 12px 14px;
+	border: 1px solid var(--c-3);
+	border-radius: var(--radius);
+	background: #fff;
+	transition: border-color .15s;
+}
+
+body[data-frame="1"] .field:has(> label:first-child > input[type="checkbox"]:checked):has(> label:first-child + p) {
+	border-color: var(--color-main);
+}
+
+body[data-frame="1"] .field:has(> label:first-child > input[type="checkbox"]):has(> label:first-child + p) > label:first-child {
+	font-size: 13px;
+	font-weight: 600;
+	color: var(--c-14);
+}
+
+/* 설명 — 체크박스(13px) + 간격(6px) 만큼 들여 체크 글자와 시작선을 맞춘다 */
+body[data-frame="1"] .field:has(> label:first-child > input[type="checkbox"]):has(> label:first-child + p) > p {
+	margin-top: 6px !important;
+	padding-left: 19px;
+}
+
+/*
+패널 안 '입력칸 + 버튼' 한 줄 — 높이·글자를 입력칸에 맞춘다   [2026-09-30]
+  ── 무엇이 문제였나 (400px 패널 29화면 × 탭 실측) ───────────────────────
+  입력칸(.select/.input)은 38px 인데 옆 버튼이 작은 버튼(.btn--sm, 30px·12px)이라
+  한 줄에 두 높이가 섞였다. 샘플 줄은 위쪽 맞춤(align-items:flex-start)까지 걸려
+  버튼 아래가 8px 비어 보였다.
+    · 문자 보내기 / 알림 발송 설정  — 샘플 선택 38 ↔ [상세보기] 30  (중심 4px 어긋남)
+    · 회원 상세 > 패널티 · 비밀번호 — 사유 입력 38 ↔ [계정 정지]·[초기화] 30
+    · 회원 상세 > 캠페인 검색 줄    — 입력·날짜 34(인라인) ↔ [검색]·[초기화] 30
+  ── 어떻게 고쳤나 ───────────────────────────────────────
+  입력칸과 버튼을 '바로 품은' 줄에서만, 둘 다 38px(입력칸 기본 높이)로 맞춘다.
+  작은 버튼은 글자도 입력칸과 같은 13px, 좌우 여백 14px 로 키운다.
+  ※ 인라인 height:34px 이 박힌 입력칸이 있어 !important.
+  ※ 패널(.modal-backdrop · 패널 안 문서)에서만. 목록 화면의 표 안 작은 버튼은 그대로다.
+  ※ textarea 는 제외 (input·select 만).
+*/
+:is(.modal-backdrop, body[data-frame="1"]) :is(div, form):has(> :is(.select, .search-input, input.input, select.input)):has(> .btn) > :is(.select, .search-input, input.input, select.input, .btn) {
+	height: 38px !important;
+}
+
+:is(.modal-backdrop, body[data-frame="1"]) :is(div, form):has(> :is(.select, .search-input, input.input, select.input)):has(> .btn) > .btn--sm {
+	padding: 0 14px;
+	font-size: 13px;
+}
+
+/*
+패널 바닥 버튼 줄 위 여백 — 마지막 내용과 붙지 않게   [2026-09-29]
+  ── 무엇이 문제였나 (결재 상세 검토 등, 400px 끝까지 내려서 실측) ─────────
+  마지막 내용(결재 의견 입력칸 등) 밑변 ↔ 버튼 줄 윗선 = 0px 인 화면 13곳.
+    결재 상세 · 1:1문의 · 쪽지 · 캠페인 공지 · FAQ · 공지 · 배너 · 발송 템플릿
+    리뷰 검수 · 충전 상세 …
+  (14px 인 곳은 마지막 칸이 .field 라 제 아래 여백 14px 이 남아 있던 화면뿐)
+  ★ .frame-wrap 아래 여백을 늘리는 것으로는 풀리지 않는다.
+    버튼 줄은 그 여백을 음수 margin(-22px)으로 먹고 바닥에 붙어 있는(sticky) 줄이라,
+    frame-wrap 여백을 늘리면 버튼 줄 '아래' 가 벌어질 뿐 내용과 버튼 사이는 그대로다.
+  ── 어떻게 고쳤나 ───────────────────────────────────────
+  버튼 줄 '바로 앞 형제' 에 아래 여백 14px 을 준다 (.field 기본 아래 여백과 같은 값).
+  버튼 줄은 margin-top:auto 라, 내용이 짧으면 여전히 바닥으로 내려가고
+  내용이 길어 끝까지 내렸을 때만 이 14px 이 최소 간격으로 남는다.
+  ※ 인라인 margin-bottom:0 이 박힌 칸이 있어 !important.
+*/
+body[data-frame="1"] .frame-wrap *:has(+ .sv-foot) {
+	margin-bottom: 14px !important;
+}
+
+/* ==========================================================================
+   목록 틀 통일 — '휴면 계정' 방식으로   [2026-09-29]
+
+   기준 화면 : /member/dormant.html
+     카드 몸통 18px → [검색 줄 상자] → 16px → [표 상자]
+       검색 줄 상자 : .filter-bar  (테두리 1px #e7e7e7 · 라운드 8px · 안쪽 12/14px)
+       표 상자      : .table-wrap  (테두리 1px #e7e7e7 · 라운드 8px)
+
+   ── 무엇이 문제였나 ───────────────────────────────────────
+   같은 '목록' 인데 화면마다 두 방식이 섞여 있었다 (실측 30개 화면).
+     휴면 계정형 : 위 기준대로 — 카드 안에 검색 상자 · 표 상자가 떠 있다
+     탈퇴 회원형 : 카드 몸통 여백 0(인라인) + 표 테두리 없음(인라인 border:none)
+                  → 표가 카드 가장자리까지 붙고, 검색 줄과 표 머리가 붙어 보였다
+   탈퇴 회원형 화면 :
+     · 검색 줄 + 표   : 상담 · 광고주 등급 · 리뷰어 등급 · 알림 발송 설정 · 결제·이용권
+     · 제목 + 표      : 대시보드 · 운영 캘린더 · 매칭·선정 감독 · 정산(7) · 결재함 · 자동화 규칙
+                        약관 · 수수료 · 등급 · 패널티 규칙 · 기간 · 지역 · 발신번호 · 문자 단가
+                        분류·채널 · 영상 단가 · 쪽지 발송 · 반려된 충전 · 통합 검색
+
+   ── 어떻게 바꿨나 ───────────────────────────────────────
+   서른 개 화면의 마크업을 하나씩 고치는 대신, 인라인 style 로 '0 · none' 을 걸어 둔 곳을
+   모양으로 골라 기준 화면 값으로 되돌린다 (인라인이라 !important).
+   ① 카드 몸통 여백 0 → 18px   (표·검색 줄·탭 패널을 품은 몸통만)
+   ② 표 상자의 border:none → 테두리·라운드·그림자 되살림
+   ③ 표 상자 없이 몸통에 바로 놓인 표 → 표 자체에 테두리·라운드
+      (border-collapse 를 separate 로 — collapse 에서는 라운드가 먹지 않는다.
+       모서리 칸에도 같은 라운드를 줘야 머리칸 회색 바탕이 모서리 밖으로 삐지지 않는다)
+   ④ 인라인 여백(14px 18px)으로 그린 검색 줄·빠른 선택 줄 → .filter-bar 와 같은 상자
+   ⑤ 결제·이용권 : 탭 줄의 좌우 18px · 탭 안 안내문의 인라인 여백은 ① 과 겹치므로 뺀다
+
+   ※ 패널(아이프레임) 안은 제외한다 — 400px 패널은 위 '패널 안 표' 블록들이 따로 다룬다.
+   ※ 기준 화면(휴면 계정)·이미 고친 탈퇴 회원은 인라인이 없어 여기 걸리지 않는다.
+   ========================================================================== */
+
+/* ① 카드 몸통 */
+body:not([data-frame="1"]) .card__body[style*="padding:0"]:has(> .tbl, > .table-wrap, > form, > .tab-panel) {
+	padding: 18px !important;
+}
+
+/* ② 테두리를 꺼 둔 표 상자 */
+body:not([data-frame="1"]) .card__body .table-wrap[style*="border:none"] {
+	border: 1px solid var(--c-3) !important;
+	border-radius: var(--radius) !important;
+	box-shadow: var(--shadow-sm) !important;
+}
+
+/* ③ 상자 없이 몸통에 바로 놓인 표 */
+body:not([data-frame="1"]) .card__body > table.tbl {
+	border-collapse: separate;
+	border-spacing: 0;
+	border: 1px solid var(--c-3);
+	border-radius: var(--radius);
+	box-shadow: var(--shadow-sm);
+}
+
+body:not([data-frame="1"]) .card__body > table.tbl > thead > tr:first-child > th:first-child {
+	border-top-left-radius: var(--radius);
+}
+
+body:not([data-frame="1"]) .card__body > table.tbl > thead > tr:first-child > th:last-child {
+	border-top-right-radius: var(--radius);
+}
+
+body:not([data-frame="1"]) .card__body > table.tbl > tbody > tr:last-child > td:first-child {
+	border-bottom-left-radius: var(--radius);
+}
+
+body:not([data-frame="1"]) .card__body > table.tbl > tbody > tr:last-child > td:last-child {
+	border-bottom-right-radius: var(--radius);
+}
+
+/* 줄 강조는 칸에 칠한다 — 줄(tr)에 칠하면 마지막 줄 모서리가 라운드 밖으로 네모나게 삐진다 */
+body:not([data-frame="1"]) .card__body > table.tbl > tbody > tr:hover {
+	background: none;
+}
+
+body:not([data-frame="1"]) .card__body > table.tbl > tbody > tr:hover > td {
+	background: var(--color-main-bg);
+}
+
+/* ④ 인라인 여백으로 그린 검색 줄 · 빠른 선택 줄 → .filter-bar 와 같은 상자 */
+body:not([data-frame="1"]) .card__body > :is(form, div)[style*="padding:14px 18px"] {
+	padding: 12px 14px !important;
+	margin-bottom: 16px;
+	background: #fff;
+	border: 1px solid var(--c-3);
+	border-radius: var(--radius);
+}
+
+/* ⑤ 결제·이용권 — 탭 줄 좌우 여백 · 탭 안 안내문 여백 */
+body:not([data-frame="1"]) .card__body > div[style*="padding:0 18px"] {
+	padding: 0 !important;
+}
+
+body:not([data-frame="1"]) .card__body .tab-panel > p[style*="padding:14px 18px"] {
+	padding: 0 0 12px !important;
+}
+
+/*=====================================================
+화면 아래 설명 상자 (.note-box)   [2026-11-03]
+
+  ★ 왜 만들었나
+    화면마다 "※ …" 안내를 인라인 style 로 각자 그렸다.
+    같은 성격의 글이 화면마다 배경·여백·줄간격이 달라, 어떤 데선
+    본문처럼 보이고 어떤 데선 경고처럼 보였다. 읽는 사람은 그 차이를
+    의미로 받아들인다 — 실제로는 그냥 손이 다른 것뿐인데.
+    문자 보내기 아래 안내(회색 상자)를 기준으로 통일한다.
+
+  ★ 어디에 쓰나
+    **보내기·저장 버튼 바로 위**, 누르기 전에 알아야 할 것.
+    화면 맨 위 긴 설명은 여기로 내린다 — 위쪽은 할 일(입력칸)이 먼저다.
+
+  [쓰는 법]
+    <p class="note-box">일반 안내</p>
+    <p class="note-box note-box--warn">되돌릴 수 없는 일에 대한 경고</p>
+
+  ※ --warn 은 아껴 쓴다. 전부 붉으면 아무것도 붉지 않은 것과 같다.
+=====================================================*/
+.note-box{
+	margin: 12px 0 0;
+	padding: 10px 12px;
+	background: #f7f8fb;
+	border-radius: 8px;
+	line-height: 1.7;
+	font-size: 13px;
+	color: #6b6b76;
+}
+
+.note-box > :is(p, ul, ol):first-child{ margin-top: 0; }
+.note-box > :is(p, ul, ol):last-child{  margin-bottom: 0; }
+
+/* 글 안에서 눈에 띄어야 하는 말 */
+.note-box strong{ color: #0e0e0e; }
+
+/*
+경고 — 되돌릴 수 없는 일
+  ※ 배경까지 붉게 하지 않는다. 왼쪽 띠와 글자색이면 충분하고,
+    상자 전체가 붉으면 그 아래 '보내기' 버튼이 묻힌다.
+*/
+.note-box--warn{
+	background: #fff5f5;
+	border-left: 3px solid #c53030;
+	color: #9b2c2c;
+}
+.note-box--warn strong{ color: #c53030; }
+
+/*=====================================================
+접어 둔 보조정보를 여는 작은 버튼 (.btn-req)   [2026-11-03]
+
+  ★ 목록에서 **대부분은 안 읽는 값**을 접어 둘 때 쓴다.
+    (영상 제작 요청의 '요청사항' — 접수·제작 여부를 보러 들어오지
+     요청 문구를 보러 들어오지 않는다)
+  ★ 버튼처럼 보이되 줄 높이를 늘리지 않는다. 표 안에서 한 줄을
+    더 차지하면 접어 둔 의미가 없다.
+  ※ 값이 있는 줄에만 그린다 — 눌러도 빈 칸이 열리는 버튼은 없느니만 못하다.
+=====================================================*/
+.btn-req{
+	display: inline-flex;
+	align-items: center;
+	gap: 3px;
+	margin-top: 4px;
+	padding: 1px 8px;
+	border: 1px solid #e2e2ea;
+	border-radius: 999px;
+	background: #f7f8fb;
+	color: #6b6b76;
+	font-size: 11.5px;
+	line-height: 1.7;
+	cursor: pointer;
+}
+.btn-req:hover{ background: var(--c-2, #eef0f7); border-color: #cfd2e0; }
+
+.btn-req__arrow{ font-size: 10px; transition: transform .15s; }
+.btn-req[aria-expanded="true"]{ background: var(--color-main-bg, #eef0f7); color: #0e0e0e; border-color: #cfd2e0; }
+.btn-req[aria-expanded="true"] .btn-req__arrow{ transform: rotate(180deg); }
+
+/*=====================================================
+오른쪽에서 나오는 패널 (.drawer)   [2026-11-03]
+
+  ★ 왜 모달이 아니라 서랍인가
+    자동화 규칙의 '히스토리' 처럼 **목록을 보던 자리를 잃지 않고**
+    옆에서 꺼내 보는 것이 맞는 내용이 있다. 가운데 모달은 뒤를 가려서,
+    닫고 나면 내가 몇 번째 줄을 보고 있었는지 다시 찾아야 한다.
+  ★ 폭은 고정하지 않고 상한만 둔다 — 좁은 화면에서는 꽉 차게.
+=====================================================*/
+.drawer-backdrop{
+	position: fixed; inset: 0; z-index: 900;
+	background: rgba(14,14,14,.35);
+	opacity: 0; visibility: hidden;
+	transition: opacity .18s;
+}
+.drawer-backdrop.is-open{ opacity: 1; visibility: visible; }
+
+.drawer{
+	position: fixed; top: 0; right: 0; bottom: 0; z-index: 901;
+	width: min(560px, 92vw);
+	display: flex; flex-direction: column;
+	background: #fff;
+	box-shadow: -8px 0 28px rgba(14,14,14,.14);
+	transform: translateX(100%);
+	transition: transform .2s ease;
+}
+.drawer.is-open{ transform: translateX(0); }
+
+.drawer__head{
+	display: flex; align-items: center; justify-content: space-between; gap: 10px;
+	padding: 14px 18px;
+	border-bottom: 1px solid var(--c-3);
+}
+.drawer__title{ font-weight: 700; font-size: 15px; }
+.drawer__close{
+	border: 0; background: none; cursor: pointer; color: #6b6b76;
+	display: inline-flex; align-items: center;
+}
+
+/* 내용이 길어도 머리말은 남는다 — 어느 규칙을 보고 있는지 놓치지 않게 */
+.drawer__body{ flex: 1; overflow: auto; padding: 0; }
+
+.drawer__foot{
+	padding: 10px 18px;
+	border-top: 1px solid var(--c-3);
+	background: #fafafb;
+}
+
+/*=====================================================
+회원 상세(.ma-pane) 글자 크기 정리   [2026-11-03]
+
+  ★ 무엇이 문제였나
+    리뷰어·광고주 상세가 한 화면 안에서 글자 크기가 들쭉날쭉했다.
+    .dl 은 13px 인데 그 안의 .cell-sub 는 12px, 뱃지는 11px, 링크(.mono)는
+    브라우저 기본 13.3px, 처리 이력 줄은 또 다른 크기 — 같은 줄에
+    네 가지 크기가 섞여 "어디가 값이고 어디가 설명인지" 가 흐려졌다.
+    인라인 style 로 하나씩 맞춰 온 탓에 화면마다 다르기도 했다.
+
+  ★ 크기를 셋으로만 쓴다
+      13px  값          (.dl dd · 본문)
+      12px  곁들이는 말 (.cell-sub · 처리 이력 · 설명)
+      11px  뱃지        (상태 표시)
+    더 늘리지 않는다. 네 번째 크기가 생기는 순간 다시 뒤죽박죽이 된다.
+
+  ★ 리뷰어·광고주 양쪽에 함께 건다 — 두 화면은 같은 틀(.ma-pane)을 쓴다.
+    한쪽만 고치면 나란히 놓고 볼 때 더 어색해진다.
+=====================================================*/
+.ma-pane .dl,
+.ma-pane .dl dt,
+.ma-pane .dl dd{ font-size: 13px; line-height: 1.7; }
+
+/* 곁들이는 말 — 값 옆이든 아래든 같은 크기 */
+.ma-pane .cell-sub,
+.ma-pane .dl dd small,
+.ma-pane .dl dd .cell-sub{ font-size: 12px; line-height: 1.7; }
+
+/* 링크·아이디처럼 또박또박 읽어야 하는 값도 본문과 같은 크기로 */
+.ma-pane .mono{ font-size: 13px; }
+
+/* 뱃지는 값보다 작게 — 상태는 곁들이는 표시지 값이 아니다 */
+.ma-pane .badge{ font-size: 11px; }
+
+/* 굵게 쓰는 값(이름·금액)도 크기는 본문과 같다 — 굵기로만 구분한다 */
+.ma-pane .cell-strong{ font-size: 13px; font-weight: 600; }
+
+/*
+처리 이력 한 줄 (언제·누가·사유)
+  ※ 값 아래 붙는 설명이라 .cell-sub 와 같은 크기다.
+    전에는 여기만 11.5px 로 적혀 있어 한 단계 더 작았다.
+*/
+.ma-pane .dl dd > div.cell-sub{ margin-top: 3px; }
+
+/*
+탭에 찍는 '확인할 것 있음' 점   [2026-11-03]
+  ★ 숫자를 쓰지 않는다. 몇 건인지는 들어가 보면 알고,
+    여기서 필요한 것은 '볼 게 있다/없다' 뿐이다.
+*/
+.ma-tab__dot{
+	margin-left: 3px;
+	color: #c53030;
+	font-size: 9px;
+	vertical-align: 2px;
+}
+
+/*=====================================================
+제목 옆 물음표 — 풍선도움말 (.hint)   [2026-11-03]
+
+  ★ 왜
+    설정 화면은 칸 오른쪽에 설명을 길게 달아 두었다. 그래서
+    줄마다 오른쪽 끝이 달라 보이고, 좁은 화면에서는 설명이 두세 줄로
+    접히며 어느 설명이 어느 칸 것인지 헷갈렸다.
+    설명은 대개 처음 한 번만 읽는다 — 늘 펼쳐 둘 이유가 없다.
+
+  ★ 스크립트 없이 연다
+    :hover 와 :focus-within 두 가지로만 연다. JS 가 실리지 않는
+    화면에서도 되고, 키보드로 탭 이동해도 열린다.
+    (마크업은 hintTip() — core/lib/classes/default.lib.php)
+
+  ★ 말풍선을 왼쪽에 맞춘 까닭
+    물음표는 항상 **제목 바로 뒤**, 즉 카드의 왼쪽 가장자리 근처에 선다.
+    가운데 정렬(translateX(-50%))로 두면 말풍선의 왼쪽 절반이
+    화면 밖으로 잘려 나간다. 왼쪽을 맞추고 꼬리만 물음표 쪽으로 옮긴다.
+
+  쓰는 법)
+    <dt>정식 상호 <?php echo hintTip("푸터에 표기되는 법인명");?></dt>
+=====================================================*/
+.hint{
+	position: relative;
+	display: inline-block;
+	vertical-align: middle;
+	margin-left: 4px;
+	cursor: help;
+}
+
+.hint__mark{
+	display: inline-flex; align-items: center; justify-content: center;
+	width: 15px; height: 15px;
+	border-radius: 50%;
+	background: #c8ccd4;
+	color: #fff;
+	font-size: 11px; font-weight: 700; line-height: 1;
+	transition: background .15s ease;
+}
+.hint:hover .hint__mark,
+.hint:focus-within .hint__mark{ background: var(--color-main, #6246ea); }
+
+/* 글씨를 지우고 윤곽만 남기는 브라우저가 없도록 색은 직접 적는다 */
+.hint__bubble{
+	position: absolute;
+	left: -8px;
+	bottom: calc(100% + 9px);
+	z-index: 80;
+
+	display: none;
+	width: max-content;
+	max-width: 320px;
+	padding: 9px 12px;
+
+	background: #2b2f36;
+	color: #fff;
+	border-radius: 7px;
+	box-shadow: 0 6px 18px rgba(14,14,14,.2);
+
+	font-size: 12px;
+	font-weight: 400;
+	line-height: 1.75;
+	text-align: left;
+	white-space: normal;
+	word-break: keep-all;
+}
+
+/* 꼬리 — 물음표 한가운데를 가리킨다 */
+.hint__bubble::after{
+	content: "";
+	position: absolute;
+	top: 100%; left: 14px;
+	margin-left: -5px;
+	border: 5px solid transparent;
+	border-top-color: #2b2f36;
+}
+
+.hint:hover .hint__bubble,
+.hint:focus-within .hint__bubble{ display: block; }
+
+/* 어두운 바탕에서는 굵은 글씨가 묻힌다 — 색으로 띄운다 */
+.hint__bubble b,
+.hint__bubble strong{ color: #ffd479; font-weight: 700; }

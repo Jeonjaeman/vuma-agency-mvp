@@ -1,0 +1,362 @@
+{
+ "pages": {
+  "dashboard": {
+   "file": "/index.html",
+   "label": "대시보드",
+   "icon": "dashboard",
+   "crumb": "홈"
+  },
+  "verify-autosend": {
+   "file": "/system/verifyAutoSend.html",
+   "label": "자동문자 사후인증",
+   "icon": "verified_user",
+   "crumb": "홈"
+  },
+  "inbox": {
+   "file": "/inbox.html",
+   "label": "알림·작업 센터",
+   "icon": "inbox",
+   "crumb": "홈"
+  },
+  "calendar": {
+   "file": "/calendar.html",
+   "label": "운영 캘린더",
+   "icon": "calendar_month",
+   "crumb": "홈"
+  },
+  "search": {
+   "file": "/search.html",
+   "label": "전역 검색",
+   "icon": "search",
+   "crumb": "홈"
+  },
+  "campaign-review": {
+   "file": "/campaign/campaignJudge.html",
+   "label": "캠페인 심사",
+   "icon": "fact_check",
+   "crumb": "캠페인"
+  },
+  "campaigns": {
+   "file": "/campaign/campaigns.html",
+   "label": "캠페인 관리",
+   "icon": "campaign",
+   "crumb": "캠페인"
+  },
+  "campaign-notice": {
+   "file": "/campaign/notices.html",
+   "label": "캠페인 공지",
+   "icon": "campaign",
+   "crumb": "캠페인"
+  },
+  "video-request": {
+   "file": "/campaign/videoRequests.html",
+   "label": "영상 제작 요청",
+   "icon": "movie",
+   "crumb": "캠페인"
+  },
+  "matching": {
+   "file": "/campaign/matching.html",
+   "label": "매칭·선정 감독",
+   "icon": "hub",
+   "crumb": "캠페인"
+  },
+  "over-recruit": {
+   "file": "/campaign/overRecruits.html",
+   "label": "초과모집",
+   "icon": "group_add",
+   "crumb": "캠페인"
+  },
+  "reviews": {
+   "file": "/system/reviews.html",
+   "label": "리뷰 검수",
+   "icon": "rate_review",
+   "crumb": "캠페인"
+  },
+  "review-photo": {
+   "file": "/system/reviewPhoto.html",
+   "label": "리뷰 사진 관리",
+   "icon": "photo_library",
+   "crumb": "캠페인"
+  },
+  "advertisers": {
+   "file": "/member/advertisers.html",
+   "label": "광고주 관리",
+   "icon": "store",
+   "crumb": "회원"
+  },
+  "agency-apply": {
+   "file": "/member/agencyApplies.html",
+   "label": "대행사 신청",
+   "icon": "handshake",
+   "crumb": "회원"
+  },
+  "reviewers": {
+   "file": "/member/reviewers.html",
+   "label": "리뷰어 관리",
+   "icon": "group",
+   "crumb": "회원"
+  },
+  "advertiser-grade": {
+   "file": "/member/advertiserGrades.html",
+   "label": "광고주 등급",
+   "icon": "workspace_premium",
+   "crumb": "회원"
+  },
+  "reviewer-grade": {
+   "file": "/member/reviewerGrades.html",
+   "label": "리뷰어 등급",
+   "icon": "military_tech",
+   "crumb": "회원"
+  },
+  "dormant": {
+   "file": "/member/dormant.html",
+   "label": "휴면 계정",
+   "icon": "bedtime",
+   "crumb": "회원"
+  },
+  "withdrawn": {
+   "file": "/member/withdrawn.html",
+   "label": "탈퇴 회원",
+   "icon": "person_off",
+   "crumb": "회원"
+  },
+  "settlement": {
+   "file": "/payment/settlement.html",
+   "label": "정산·포인트 원장",
+   "icon": "account_balance",
+   "crumb": "정산"
+  },
+  "billing": {
+   "file": "/payment/billing.html",
+   "label": "결제·이용권",
+   "icon": "payments",
+   "crumb": "정산"
+  },
+  "approvals": {
+   "file": "/system/approvals.html",
+   "label": "정산 결재함",
+   "icon": "approval",
+   "crumb": "정산"
+  },
+  "penalty": {
+   "file": "/cs/penalty.html",
+   "label": "패널티·분쟁·신고",
+   "icon": "gavel",
+   "crumb": "신뢰·안전"
+  },
+  "support": {
+   "file": "/cs/inquiry.html",
+   "label": "CS·1:1 문의",
+   "icon": "support_agent",
+   "crumb": "소통"
+  },
+  "counsel": {
+   "file": "/cs/counsel.html",
+   "label": "상담 신청",
+   "icon": "forum",
+   "crumb": "소통"
+  },
+  "messages": {
+   "file": "/message/notes.html",
+   "label": "쪽지함",
+   "icon": "mail",
+   "crumb": "소통"
+  },
+  "note-send": {
+   "file": "/message/noteSend.html",
+   "label": "쪽지 발송",
+   "icon": "forward_to_inbox",
+   "crumb": "소통"
+  },
+  "sms-box": {
+   "file": "/message/smsBox.html",
+   "label": "문자·알림톡 발송함",
+   "icon": "sms",
+   "crumb": "소통"
+  },
+  "mail-box": {
+   "file": "/message/mailBox.html",
+   "label": "메일 발송함",
+   "icon": "outgoing_mail",
+   "crumb": "소통"
+  },
+  "content": {
+   "file": "/cs/content.html",
+   "label": "콘텐츠·공지 운영",
+   "icon": "article",
+   "crumb": "소통"
+  },
+  "notifications": {
+   "file": "/cs/notifications.html",
+   "label": "발송관리",
+   "icon": "send",
+   "crumb": "시스템"
+  },
+  "send-template": {
+   "file": "/cs/sendTemplates.html",
+   "label": "문자 샘플·비용설정",
+   "icon": "forum",
+   "crumb": "시스템"
+  },
+  "send-payer": {
+   "file": "/cs/sendPayer.html",
+   "label": "자동발송 비용 부담",
+   "icon": "payments",
+   "crumb": "시스템"
+  },
+  "automation": {
+   "file": "/system/automation.html",
+   "label": "자동화 규칙",
+   "icon": "smart_toy",
+   "crumb": "시스템"
+  },
+  "db-check": {
+   "file": "/system/dbCheck.html",
+   "label": "DB 반영 점검",
+   "icon": "database",
+   "crumb": "시스템"
+  },
+  "blog-manage": {
+   "file": "/system/blogIndexCheck.html",
+   "label": "블로그관리",
+   "icon": "query_stats",
+   "crumb": "시스템"
+  },
+  "admins": {
+   "file": "/system/admins.html",
+   "label": "운영자·권한",
+   "icon": "admin_panel_settings",
+   "crumb": "시스템"
+  },
+  "audit-log": {
+   "file": "/system/auditLog.html",
+   "label": "감사 로그",
+   "icon": "history",
+   "crumb": "시스템"
+  },
+  "identity-log": {
+   "file": "/system/identityLog.html",
+   "label": "본인확인 인증로그",
+   "icon": "verified_user",
+   "crumb": "시스템"
+  },
+  "purge-log": {
+   "file": "/system/purgeLog.html",
+   "label": "개인정보 파기 이력",
+   "icon": "delete_sweep",
+   "crumb": "시스템"
+  },
+  "settings": {
+   "file": "/system/taxonomy.html",
+   "label": "정책·마스터데이터",
+   "icon": "settings",
+   "crumb": "시스템"
+  },
+  "mail-test": {
+   "file": "/system/mailTest.html",
+   "label": "메일·로그 진단",
+   "icon": "forward_to_inbox",
+   "crumb": "시스템"
+  },
+  "site-config": {
+   "file": "/system/siteConfig.html",
+   "label": "사이트 환경설정",
+   "icon": "tune",
+   "crumb": "시스템"
+  },
+  "send-number": {
+   "file": "/system/sendNumber.html",
+   "label": "발신번호 관리",
+   "icon": "dialpad",
+   "crumb": "소통"
+  },
+  "help": {
+   "file": "/help.html",
+   "label": "도움말",
+   "icon": "help",
+   "crumb": "도움말"
+  }
+ },
+ "groups": [
+  {
+   "label": "",
+   "items": [
+    "dashboard",
+    "inbox",
+    "calendar"
+   ]
+  },
+  {
+   "label": "캠페인",
+   "items": [
+    "campaign-review",
+    "campaigns",
+    "campaign-notice",
+    "matching",
+    "over-recruit",
+    "reviews",
+    "review-photo",
+    "video-request"
+   ]
+  },
+  {
+   "label": "회원",
+   "items": [
+    "advertisers",
+    "agency-apply",
+    "reviewers",
+    "advertiser-grade",
+    "reviewer-grade",
+    "dormant",
+    "withdrawn"
+   ]
+  },
+  {
+   "label": "정산",
+   "items": [
+    "settlement",
+    "billing",
+    "approvals"
+   ]
+  },
+  {
+   "label": "신뢰·안전",
+   "items": [
+    "penalty"
+   ]
+  },
+  {
+   "label": "소통",
+   "items": [
+    "support",
+    "counsel",
+    "messages",
+    "sms-box",
+    "mail-box",
+    "content"
+   ]
+  },
+  {
+   "label": "시스템",
+   "items": [
+    "automation",
+    "send-template",
+    "notifications",
+    "admins",
+    "audit-log",
+    "purge-log",
+    "settings",
+    "site-config",
+    "mail-test",
+    "blog-manage",
+    "db-check"
+   ]
+  },
+  {
+   "label": "",
+   "items": [
+    "help"
+   ]
+  }
+ ]
+}
