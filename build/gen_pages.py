@@ -243,14 +243,15 @@ def camp_panel(b, camp):
                     for k, n, d in iss) or '<p class="muted">걸린 이슈가 없습니다</p>'
     ty = G.ctype(camp)
     return (f'<section class="pane cg-{ty}" data-cp="{cp_id(b, camp)}" hidden>'
-            f'<header class="pane-h"><p class="pane-biz">{esc(b["name"])} <span>담당 {owner}</span></p>'
-            f'<h2 class="cp-title">{ty_badges(camp)}<b>{esc(camp)}</b></h2>'
-            f'<p class="pane-camp"><span class="cg-state">{st}</span></p></header>'
+            # [2026-11-13] 요청 "어떤 캠페인인지 모름 — 캠페인 제목 · 업체 보기는 업체명 옆 · 상세 관리는 캠페인명 옆에 나란히"
+            f'<header class="pane-h"><p class="pane-biz">{esc(b["name"])} '
+            f'<a class="mini-go" href="biz.html#biz={b["id"]}">업체 보기</a> <span>담당 {owner}</span></p>'
+            f'<h2 class="cp-title"><b>{esc(G.camp_title(b, camp))}</b>'
+            f'<a class="mini-go" href="campaigns.html#c-{cp_id(b, camp)}">상세 관리</a></h2>'
+            f'<p class="pane-camp">{ty_badges(camp)}<span class="cg-state">{st}</span></p></header>'
             f'<div class="pane-b"><h3 class="sec-t">일정</h3><ol class="timeline">{tl}</ol>'
             f'<h3 class="sec-t">이 캠페인에 걸린 이슈</h3><div class="ichips">{chips}</div>'
-            f'<p class="note">이슈를 누르면 대시보드의 그 칸이 열립니다 — 처리는 대시보드에서.</p></div>'
-            f'<footer class="pane-f"><a href="biz.html#biz={b["id"]}" class="ag-btn ghost">업체 보기 →</a>'
-            f'<a href="campaigns.html#c-{cp_id(b, camp)}" class="ag-btn">상세 관리 →</a></footer></section>')
+            f'<p class="note">이슈를 누르면 대시보드의 그 칸이 열립니다 — 처리는 대시보드에서.</p></div></section>')
 
 
 def schedule_page():

@@ -6,6 +6,7 @@
   실행: python -I build/gen_dashboard.py  →  mvp/dashboard.html
 """
 import html
+import re
 import random
 import sys
 from pathlib import Path
@@ -64,6 +65,11 @@ TYPE_NAME = {"v": "방문형", "s": "배송형", "p": "기자단"}
 
 def ctype(camp):
     return CAMP_META[camp][0]
+
+
+def camp_title(b, camp):
+    """[2026-11-13] 화면에 보이는 캠페인 제목 = 캠페인 리스트 카드와 같게 "[지역] 이름" (gen_campaigns card-title)"""
+    return f'[{b["name"].split()[0]}] {camp}' if b else camp
 
 
 def ccode(camp):
@@ -413,6 +419,11 @@ def by_campaign(items):
     return sorted(((c, d, n) for (c, d), n in out.items()), key=lambda x: x[1])
 
 
+def camp_href(camp, tab=None):
+    """[2026-11-13] 지금 패널(업체 · 이슈)의 그 캠페인 상세 — 이슈에 맞는 탭(신청자 · 리뷰 …)"""
+    return f'campaigns.html#c-{CUR["bid"]}-{ccode(camp)}-{tab or DETAIL_TAB.get(CUR["key"], "ov")}'
+
+
 def cgroup(camp, due, n, unit, inner):
     """[2026-11-09] 캠페인 영역 카드 — 사용자: "캠페인별 리뷰어가 이 캠페인에 해당한다고 영역을 명확히"
       카드 테두리 + 유형 색 왼쪽 띠 + 고정 머리(스크롤해도 어느 캠페인인지 보임) + 안쪽은 그 캠페인 리뷰어만"""
@@ -422,8 +433,9 @@ def cgroup(camp, due, n, unit, inner):
     gid = f'cg-{CUR["bid"]}-{CUR["key"]}-{ccode(camp)}'
     return (f'<section class="cgroup cg-{ty}" id="{gid}" data-type="{ty}" data-camp="{ccode(camp)}" aria-label="{esc(camp)} 캠페인">'
             # [2026-11-13] 요청 "캠페인 이름을 앞단으로, 기자단·블로그 같은 라벨은 그 아래로, 영역 색 띠는 제목칸에"
-            f'<header class="cgroup-h"><div class="cg-l1"><a class="cg-name js-cm" href="campaigns.html#c-{CUR["bid"]}-{ccode(camp)}-{DETAIL_TAB.get(CUR["key"], "ov")}" '
-            f'data-cm-title="{esc(b["name"]) if b else ""} · {esc(camp)}" title="캠페인 열기(대시보드 안 창)">{esc(camp)}<i aria-hidden="true">↗</i></a><em>{unit} {n}</em></div>'
+            f'<header class="cgroup-h"><div class="cg-l1"><b class="cg-name">{esc(camp_title(b, camp))}</b>'
+            f'<a class="mini-go js-cm" href="{camp_href(camp)}" data-cm-title="{esc(b["name"]) if b else ""} · {esc(camp_title(b, camp))}">캠페인 보기</a>'
+            f'<em>{unit} {n}</em></div>'
             f'<div class="cg-l2"><span class="ty ty-{ty}">{TYPE_NAME[ty]}</span><span class="chn">{ch}</span>'
             f'<span class="cg-state">{state}</span><span class="due {due_class(due)}">{due_label(due)}</span></div></header>'
             f'<div class="cgroup-b">{inner}</div></section>')
@@ -545,8 +557,16 @@ def recruit_box(kind, camp):
 
 
 def typed(li, camp):
-    """건(li)에 캠페인 유형을 붙인다 — 유형 칩으로 거를 때 JS 가 같이 뺀다"""
-    return li.replace("<li ", f'<li data-type="{ctype(camp)}" data-camp="{ccode(camp)}" ', 1)
+    """건(li)에 캠페인 유형을 붙인다 — 유형 칩으로 거를 때 JS 가 같이 뺀다
+       [2026-11-13] 이름 옆에 [캠페인에서 보기] — 그 캠페인 상세의 해당 탭(신청자 · 리뷰)을 가운데 창으로"""
+    li = li.replace("<li ", f'<li data-type="{ctype(camp)}" data-camp="{ccode(camp)}" ', 1)
+    m = re.search(r'<div class="item-main"><b>([^<]+)</b>', li)
+    if m:
+        b = CUR.get("biz")
+        go = (f'<a class="mini-go js-cm" href="{camp_href(camp)}" '
+              f'data-cm-title="{esc(b["name"]) if b else ""} · {esc(camp_title(b, camp))} · {m.group(1)}">캠페인에서 보기</a>')
+        li = li.replace(m.group(0), f'<div class="item-main"><div class="it-h"><b>{m.group(1)}</b>{go}</div>', 1)
+    return li
 
 
 def grouped(it, unit, li_fn, recruit=None):
@@ -689,15 +709,15 @@ def panel(b, key):
         f'<button type="button" class="pchip{" ag-on" if k == key else ""}" data-go="{b["id"]}-{k}">'
         f'{ISSUE_NAME[k]} {v["n"]}</button>' for k, v in sorted(b["issues"].items(), key=lambda kv: kv[1]["due"]))
     return (f'<section class="pane" data-panel="{b["id"]}-{key}" hidden>'
-            f'<header class="pane-h"><p class="pane-biz">{esc(b["name"])} <span>담당 {owner}'
+            # [2026-11-13] 요청 "상세 관리로 퉁쳐서 이동하지 말고 세부적으로" — 업체 이름 옆 [업체 보기] · 캠페인마다 [캠페인 보기] · 리뷰어마다 [캠페인에서 보기]
+            f'<header class="pane-h"><p class="pane-biz">{esc(b["name"])} '
+            f'<a class="mini-go js-cm" href="biz.html#biz={b["id"]}" data-cm-title="{esc(b["name"])} · 업체">업체 보기</a> <span>담당 {owner}'
             f'{" · <a href=\'#\'>변경</a>" if b["owner"] else ""}</span></p>'
             f'<h2>{ISSUE_NAME[key]} <em>{it["n"]}건</em> <span class="due js-due {due_class(it["due"])}">{due_label(it["due"])}</span></h2>'
             f'<p class="pane-camp js-mix">{due_mix(it["items"])}</p>'
             f'<div class="pchips" aria-label="이 업체의 다른 이슈">{chips}</div></header>'
             f'<div class="pane-b">{camp_index(b, key, it)}{panel_body(key, it)}</div>'
-            # [2026-11-13] [상세 관리 →] = 가운데 모달(대시보드를 떠나지 않게) — 캠페인 · 검수 · 지급 · 포인트 · 업체 모두. 제목 data-cm-title
-            f'<footer class="pane-f"><a href="{detail_href(b, key, it)}" class="ag-btn ghost js-cm" data-cm-title="{detail_title(b, key, it)}">상세 관리 →</a>'
-            f'<button type="button" class="ag-btn primary js-next">다음 ▶</button></footer></section>')
+            f'<footer class="pane-f pf-end"><button type="button" class="ag-btn primary js-next">다음 ▶</button></footer></section>')
 
 
 # ── 셸 ────────────────────────────────────────────
