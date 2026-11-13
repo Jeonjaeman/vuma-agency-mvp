@@ -387,7 +387,7 @@ def tbody_by_staff(bizs):
 def point_rows():
     return ('<dl class="kv"><dt>추가 예치 필요</dt><dd>165,000P</dd><dt>사용 가능 잔액</dt><dd class="bad">84,500P</dd></dl>'
             '<p class="ctx">초과모집 3명 요청 · 잔액이 부족해 대기 중입니다.</p>'
-            '<div class="acts wide"><a class="ag-btn primary" href="point.html">충전하기 (포인트) →</a>'
+            '<div class="acts wide"><a class="ag-btn primary js-cm" href="point.html" data-cm-title="포인트 충전">충전하기 (포인트) →</a>'
             '<button type="button" class="ag-btn" disabled title="잔액이 부족합니다">예치하고 진행</button></div>')
 
 
@@ -665,6 +665,14 @@ DETAIL_TAB = {"apply": "app", "select": "app", "prep": "rev", "review": "rev", "
 DETAIL_PAGE = {"review": "inspect.html", "pay": "payout.html", "point": "point.html"}
 
 
+DETAIL_TITLE = {"review": "리뷰 검수", "pay": "포인트 지급 확인", "point": "포인트", "owner": "업체 · 담당자 배정"}
+
+
+def detail_title(b, key, it):
+    """모달 머리 글자 — 캠페인 화면이면 캠페인 이름, 다른 화면이면 화면 이름"""
+    return f'{esc(b["name"])} · {DETAIL_TITLE.get(key) or esc(it["camp"])}'
+
+
 def detail_href(b, key, it):
     if key == "owner":
         return f'biz.html#biz={b["id"]}'          # 담당자 없음 = 업체 화면에서 배정
@@ -687,8 +695,8 @@ def panel(b, key):
             f'<p class="pane-camp js-mix">{due_mix(it["items"])}</p>'
             f'<div class="pchips" aria-label="이 업체의 다른 이슈">{chips}</div></header>'
             f'<div class="pane-b">{camp_index(b, key, it)}{panel_body(key, it)}</div>'
-            # [2026-11-13] 캠페인 화면으로 가는 링크 = 가운데 모달(대시보드를 떠나지 않게) — js-cm · 제목 data-cm-title
-            f'<footer class="pane-f"><a href="{detail_href(b, key, it)}" class="ag-btn ghost{" js-cm" if detail_href(b, key, it).startswith("campaigns.html") else ""}" data-cm-title="{esc(b["name"])} · {esc(it["camp"])}">상세 관리 →</a>'
+            # [2026-11-13] [상세 관리 →] = 가운데 모달(대시보드를 떠나지 않게) — 캠페인 · 검수 · 지급 · 포인트 · 업체 모두. 제목 data-cm-title
+            f'<footer class="pane-f"><a href="{detail_href(b, key, it)}" class="ag-btn ghost js-cm" data-cm-title="{detail_title(b, key, it)}">상세 관리 →</a>'
             f'<button type="button" class="ag-btn primary js-next">다음 ▶</button></footer></section>')
 
 
