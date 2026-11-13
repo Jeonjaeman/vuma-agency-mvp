@@ -185,3 +185,11 @@
 .work.ag .cg-l1 em{margin-left:auto;font-style:normal;font-size:12px;font-weight:700;color:var(--ag-c-14);white-space:nowrap}
 .work.ag .cg-l2{margin-top:6px;gap:6px;flex-wrap:wrap}
 .work.ag .cg-l2 .cg-state{margin-left:4px}
+
+/* [2026-11-13] 업체별/담당자별 탭 — 요청 "탭에 대한 조금 더 분명한 시각적 구분"
+   밑줄 탭 → 폴더 탭: 탭 줄 = 옅은 회색 바탕, 고른 탭 = 흰 바탕 + 위 주색 3px + 양옆 선 + 아래 선 없음(리스트와 이어짐), 안 고른 탭 = 회색 글자 */
+.work.ag .vtabs{gap:2px;padding:6px 6px 0;background:#f4f4f6;border-color:var(--ag-fl-line);border-bottom:1px solid var(--ag-fl-line)}
+.work.ag .vtabs label{height:40px;padding:0 18px;border:1px solid transparent;border-bottom:0;border-radius:8px 8px 0 0;margin-bottom:-1px;color:var(--ag-fl-sub)}
+.work.ag .vtabs label:hover{background:#ebebef;color:var(--ag-c-14)}
+.work.ag #v-biz:checked ~ .vtabs label[for=v-biz],.work.ag #v-staff:checked ~ .vtabs label[for=v-staff]{background:#fff;border-color:var(--ag-fl-line);box-shadow:inset 0 3px 0 var(--ag-main);color:var(--ag-c-14);font-weight:700;border-bottom-color:transparent;height:41px}
+.work.ag .vtabs + .grid-wrap{border-top:0}
