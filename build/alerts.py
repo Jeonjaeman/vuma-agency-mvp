@@ -63,10 +63,19 @@ def _text(kind, rev, camp):
     }[kind]
 
 
+# [2026-11-13] 알림 → 바로 상세 — 요청 "우측 각 항목들도 바로 상세 페이지 봐야 할 일이 있겠지?"
+#   업체 이름 옆 [업체 보기] = 오른쪽 업체 서랍(popover) · 캠페인 이름 옆 [캠페인 보기] = 가운데 캠페인 창(그 알림에 맞는 탭)
+CAMP_TAB = {"cancel": "app", "msg": "inq"}      # 나머지(신고 · 지급 실패 · 리뷰 삭제 · 재등록 · 입금) = 리뷰 탭
+
+
 def card(a, demo=False):
     kind, lv = a["kind"], KINDS[a["kind"]][0]
     tb = a.get("ty", "")
-    camp = (f' · <span class="ty ty-{tb}">{a["tyname"]}</span> {esc(a["camp"])}' if a.get("camp") else "")
+    biz_go = f' <button type="button" class="mini-go bdr-go" popovertarget="bdr-{a["bid"]}">업체 보기</button>'
+    camp_title = f'[{a["biz"].split()[0]}] {a["camp"]}' if a.get("camp") else ""
+    camp = (f'<span class="al-camp"><span class="ty ty-{tb}">{a["tyname"]}</span> {esc(camp_title)}'
+            f'<a class="mini-go js-cm" href="campaigns.html#c-{a["bid"]}-{a["code"]}-{CAMP_TAB.get(kind, "rev")}" '
+            f'data-cm-title="{esc(a["biz"])} · {esc(camp_title)}">캠페인 보기</a></span>' if a.get("camp") else "")
     esc_tag = (f'<p class="al-esc">처리 안 된 지 2시간이 넘어 <b>팀장 {a["lead"]}</b>님에게도 알렸습니다</p>' if a.get("esc") else "")
     snooze = "" if lv == "i" else (
         '<details class="snooze"><summary>나중에</summary><div class="sz">'
@@ -78,7 +87,7 @@ def card(a, demo=False):
             f'{f" data-go=\"{a["go"]}\"" if a.get("go") else ""}{attrs}>'
             f'<div class="al-h"><span class="lvb lv-{lv}">{LEVEL[lv]}</span><b>{KINDS[kind][1]}</b>'
             f'<span class="al-t">{a["time"]}</span><i class="new-dot" aria-label="새 알림"></i></div>'
-            f'<p class="al-biz">{esc(a["biz"])}{camp}</p>'
+            f'<p class="al-biz">{esc(a["biz"])}{biz_go}</p>{camp}'
             f'<p class="al-txt">{_text(kind, a["rev"], a.get("camp"))}</p>{esc_tag}'
             f'<div class="al-acts">{_acts(kind, a["rev"])}{done_btn}{snooze}</div></article>')
 
@@ -95,7 +104,7 @@ def make(bizs, camp_meta, type_name, staff_lead):
         ty = camp_meta[camp][0]
         a = {"id": f"a{i}", "kind": kind, "bid": b["id"], "biz": b["name"], "rev": rng.choice(REVIEWERS),
              "time": TIMES[min(i // 2, len(TIMES) - 1)], "camp": camp if kind not in ("charged", "assigned") else "",
-             "ty": ty, "tyname": type_name[ty]}
+             "ty": ty, "tyname": type_name[ty], "code": list(camp_meta).index(camp)}
         if kind == "rereview" and "review" in b["issues"]:
             a["go"] = f'{b["id"]}-review'
         if KINDS[kind][0] == "u" and i in (2, 4) and b["owner"]:
@@ -107,7 +116,8 @@ def make(bizs, camp_meta, type_name, staff_lead):
     demo_b = rng.choice(pool)
     demo_c = rng.choice(demo_b["camps"])
     demo = {"id": "a-demo", "kind": "cancel", "bid": demo_b["id"], "biz": demo_b["name"], "rev": "소소한하루",
-            "time": "방금", "camp": demo_c, "ty": camp_meta[demo_c][0], "tyname": type_name[camp_meta[demo_c][0]]}
+            "time": "방금", "camp": demo_c, "ty": camp_meta[demo_c][0], "tyname": type_name[camp_meta[demo_c][0]],
+            "code": list(camp_meta).index(demo_c)}
     return shown, snoozed, demo
 
 

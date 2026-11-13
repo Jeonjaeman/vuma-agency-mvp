@@ -701,3 +701,8 @@ a.cg-name:hover i{color:var(--ag-main)}
 .bdr-f{padding:12px 22px;border-top:1px solid var(--ag-c-3);display:flex;justify-content:flex-end}
 button.mini-go{cursor:pointer;font:inherit;font-size:11px;font-weight:600}
 .bdr-go::after{content:"›"}
+
+/* [2026-11-13] 알림 카드 — 업체 줄 [업체 보기] · 캠페인 줄 [캠페인 보기] */
+.al-biz{display:flex;align-items:center;flex-wrap:wrap;gap:2px}
+.al-camp{display:flex;align-items:center;flex-wrap:wrap;gap:4px;margin:2px 0 4px;font-size:12px;font-weight:700;color:var(--ag-c-11)}
+.al-camp .ty{font-size:10px;padding:0 5px}
