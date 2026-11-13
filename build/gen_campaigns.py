@@ -719,7 +719,7 @@ def detail(c):
     tabs = "".join(f'<a href="#c-{cid}-{k}" class="detail-tab{" add" if k in ("iss", "rep") else ""}" data-tab="{dt}" role="tab" '
                    f'aria-controls="c-{cid}-{k}">{lab}{tab_badge(c, k)}</a>' for k, dt, lab in TABS)
     body = {"ov": tab_ov, "iss": tab_iss, "app": tab_app, "rev": tab_rev, "log": tab_log, "inq": tab_inq, "rep": tab_rep}
-    panels = "".join(f'<div class="detail-panel detail-panel-{dt} is-active{" add" if k in ("iss", "rep") else ""}" id="c-{cid}-{k}" '
+    panels = "".join(f'<div class="detail-panel detail-panel-{dt} is-active{" add" if k == "rep" else ""}" id="c-{cid}-{k}" '
                      f'data-panel="{dt}" role="tabpanel">{body[k](c)}</div>' for k, dt, _l in TABS)
     watch = (f'<span class="watch" title="같은 캠페인을 다른 직원이 열어 두었습니다"><i></i>{c["watch"]}님이 보고 있습니다</span>' if c["watch"] else "")
     owner = b["owner"][1] if b["owner"] else "미담당"
