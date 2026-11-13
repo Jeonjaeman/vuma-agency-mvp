@@ -177,3 +177,11 @@
 .work.ag .lead{background:var(--ag-main-light);color:var(--ag-main)}
 /* 칸 뜻 표 — 거르기 칩과 같은 줄 오른쪽으로(탭이 리스트 위로 옮겨 자리가 남음) */
 .work.ag .toolbar .legend{flex-basis:auto;margin:0 0 0 auto}
+
+/* [2026-11-13] 처리 패널 캠페인 묶음 머리 — 이름 먼저(큰 글자) · 유형 · 채널 · 상태 라벨은 아래 줄 · 묶음 색 띠는 머리(제목칸)에만 */
+.work.ag .cgroup-h{box-shadow:inset 3px 0 0 var(--ag-cg);padding-left:16px}
+.work.ag .cg-l1{flex-wrap:nowrap;align-items:baseline}
+.work.ag .cg-l1 .cg-name{font-size:16px;font-weight:700;min-width:0}
+.work.ag .cg-l1 em{margin-left:auto;font-style:normal;font-size:12px;font-weight:700;color:var(--ag-c-14);white-space:nowrap}
+.work.ag .cg-l2{margin-top:6px;gap:6px;flex-wrap:wrap}
+.work.ag .cg-l2 .cg-state{margin-left:4px}

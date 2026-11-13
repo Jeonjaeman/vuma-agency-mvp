@@ -388,10 +388,10 @@ def cgroup(camp, due, n, unit, inner):
     state = camp_state(b, camp) if b else ""
     gid = f'cg-{CUR["bid"]}-{CUR["key"]}-{ccode(camp)}'
     return (f'<section class="cgroup cg-{ty}" id="{gid}" data-type="{ty}" data-camp="{ccode(camp)}" aria-label="{esc(camp)} 캠페인">'
-            f'<header class="cgroup-h"><div class="cg-l1"><span class="ty ty-{ty}">{TYPE_NAME[ty]}</span>'
-            f'<span class="chn">{ch}</span><b class="cg-name">{esc(camp)}</b></div>'
-            f'<div class="cg-l2"><span class="cg-state">{state}</span>'
-            f'<span class="due {due_class(due)}">{due_label(due)}</span><em>{unit} {n}</em></div></header>'
+            # [2026-11-13] 요청 "캠페인 이름을 앞단으로, 기자단·블로그 같은 라벨은 그 아래로, 영역 색 띠는 제목칸에"
+            f'<header class="cgroup-h"><div class="cg-l1"><b class="cg-name">{esc(camp)}</b><em>{unit} {n}</em></div>'
+            f'<div class="cg-l2"><span class="ty ty-{ty}">{TYPE_NAME[ty]}</span><span class="chn">{ch}</span>'
+            f'<span class="cg-state">{state}</span><span class="due {due_class(due)}">{due_label(due)}</span></div></header>'
             f'<div class="cgroup-b">{inner}</div></section>')
 
 
@@ -468,9 +468,7 @@ def review_li(due):
     ch, _u = rnd.choice(CHANNELS)
     return (f'<li class="item col" data-due="{due}"><div class="item-main"><b>{rnd.choice(REVIEWERS)}</b>'
             f'<span class="meta">{ch} · 등록 {rnd.randint(1, 3)}일 전 · <a href="#" class="ext">리뷰 보기 ↗</a></span></div>'
-            '<div class="checks"><label><input type="checkbox" checked> 필수 키워드</label>'
-            '<label><input type="checkbox" checked> 글자 수</label><label><input type="checkbox"> 사진 5장</label>'
-            '<label><input type="checkbox" checked> 광고 표시</label></div>'
+            # [2026-11-13] 검수 체크 항목(필수 키워드 · 글자 수 · 사진 · 광고 표시) 뺌 — 요청 "검수해야 할 항목 표기는 필요 없다"
             '<div class="acts"><button type="button" class="ag-btn sm primary" data-done="승인">승인</button>'
             '<button type="button" class="ag-btn sm" data-done="수정 요청 보냄">수정 요청</button>'
             '<button type="button" class="ag-btn sm ghost-danger" data-done="반려">반려</button></div></li>')
