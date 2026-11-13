@@ -334,6 +334,12 @@ def audit():
             f'<table class="tbl"><thead><tr><th>일시</th><th>운영자</th><th>행위</th><th>대상</th><th>내용</th></tr></thead><tbody>{trs}</tbody></table></section>')
 
 
+def ver(name):
+    """[2026-11-13] CSS 주소에 내용 해시를 붙인다 — GitHub Pages 가 10분 캐시라 새 페이지 + 옛 CSS 가 섞여 보였음"""
+    import hashlib
+    return hashlib.md5((ROOT / "master" / "css" / name).read_bytes()).hexdigest()[:8]
+
+
 def page():
     # [2026-11-13] 요청 "즉시 처리 알림은 기본이 우측 패널에서" — 오른쪽 패널 = 스크롤해도 붙어 있는 알림(대행사 대시보드의 오른쪽 패널과 같은 자리)
     body = (f'{head_line()}{sys_strip()}{board()}<div class="md-two">{platform()}{money()}</div>{audit()}{side_noti()}')
@@ -348,8 +354,8 @@ def page():
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
-<link rel="stylesheet" href="css/master.css">
-<link rel="stylesheet" href="css/md.css">
+<link rel="stylesheet" href="css/master.css?v={ver("master.css")}">
+<link rel="stylesheet" href="css/md.css?v={ver("md.css")}">
 </head>
 <body data-page="dashboard">
 <div class="dashboard md">

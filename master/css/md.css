@@ -162,3 +162,6 @@
 /* 좁은 화면에서 제목이 쪼개지지 않게 — 범례는 아래 줄로 */
 .md-board .card__head { flex-wrap: wrap; gap: 6px 12px; }
 .md-board .card__title { white-space: nowrap; }
+
+/* 즉시 처리 알림 — 뱃지 폭을 맞춰 제목이 한 줄로 서게 */
+.md-noti .badge { flex: none; min-width: 52px; justify-content: center; }
