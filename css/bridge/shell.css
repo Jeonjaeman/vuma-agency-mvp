@@ -21,3 +21,9 @@
    안쪽 카드(.pn-page 등)는 눌림 방지(flex-shrink:0)가 없어, 내용이 길면 카드가 화면 높이로 눌리고 안이 잘려 스크롤할 것이 없어진다.
    (광고주 실데이터는 짧아 안 드러남 · .cmp-page-card 는 광고주도 flex-shrink:0) → 뿌리 바로 아래 칸은 줄지 않게 */
 :is(.page-container,.cmp-layout) > *{flex-shrink:0}
+
+/* [2026-11-13] 삽입 모드(?embed=1, js/scope.js) — 대시보드 캠페인 창(가운데 모달) 안에 띄운 화면은 사이드바 없이 본문만 */
+html.is-embed .sidebar{display:none}
+html.is-embed .dashboard{width:100%}
+/* 캠페인 상세의 닫기(✕ = 목록으로)는 창 안에선 숨김 — 바깥 창의 ✕ 하나만(닫기 두 개가 헷갈림) */
+html.is-embed .cdetail > .modal-close{display:none}

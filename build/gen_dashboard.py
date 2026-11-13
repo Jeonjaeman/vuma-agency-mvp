@@ -402,7 +402,7 @@ def owner_rows():
 def late_rows(it, b=None):
     return (f'<p class="ctx">모집 마감이 {-it["due"]}일 지났는데 선정 단계로 넘어가지 않았습니다.</p>'
             '<div class="acts wide"><button type="button" class="ag-btn primary" data-done="선정 단계로 넘김" data-whole>이대로 진행</button>'
-            f'<a class="ag-btn" href="{detail_href(b, "late", it) if b else "#"}">기간 연장 (상세 관리) →</a></div>')
+            f'<a class="ag-btn js-cm" href="{detail_href(b, "late", it) if b else "#"}" data-cm-title="{esc(b["name"]) + " · " + esc(it["camp"]) if b else ""}">기간 연장 (상세 관리) →</a></div>')
 
 
 def by_campaign(items):
@@ -422,7 +422,8 @@ def cgroup(camp, due, n, unit, inner):
     gid = f'cg-{CUR["bid"]}-{CUR["key"]}-{ccode(camp)}'
     return (f'<section class="cgroup cg-{ty}" id="{gid}" data-type="{ty}" data-camp="{ccode(camp)}" aria-label="{esc(camp)} 캠페인">'
             # [2026-11-13] 요청 "캠페인 이름을 앞단으로, 기자단·블로그 같은 라벨은 그 아래로, 영역 색 띠는 제목칸에"
-            f'<header class="cgroup-h"><div class="cg-l1"><b class="cg-name">{esc(camp)}</b><em>{unit} {n}</em></div>'
+            f'<header class="cgroup-h"><div class="cg-l1"><a class="cg-name js-cm" href="campaigns.html#c-{CUR["bid"]}-{ccode(camp)}-{DETAIL_TAB.get(CUR["key"], "ov")}" '
+            f'data-cm-title="{esc(b["name"]) if b else ""} · {esc(camp)}" title="캠페인 열기(대시보드 안 창)">{esc(camp)}<i aria-hidden="true">↗</i></a><em>{unit} {n}</em></div>'
             f'<div class="cg-l2"><span class="ty ty-{ty}">{TYPE_NAME[ty]}</span><span class="chn">{ch}</span>'
             f'<span class="cg-state">{state}</span><span class="due {due_class(due)}">{due_label(due)}</span></div></header>'
             f'<div class="cgroup-b">{inner}</div></section>')
@@ -686,7 +687,8 @@ def panel(b, key):
             f'<p class="pane-camp js-mix">{due_mix(it["items"])}</p>'
             f'<div class="pchips" aria-label="이 업체의 다른 이슈">{chips}</div></header>'
             f'<div class="pane-b">{camp_index(b, key, it)}{panel_body(key, it)}</div>'
-            f'<footer class="pane-f"><a href="{detail_href(b, key, it)}" class="ag-btn ghost">상세 관리 →</a>'
+            # [2026-11-13] 캠페인 화면으로 가는 링크 = 가운데 모달(대시보드를 떠나지 않게) — js-cm · 제목 data-cm-title
+            f'<footer class="pane-f"><a href="{detail_href(b, key, it)}" class="ag-btn ghost{" js-cm" if detail_href(b, key, it).startswith("campaigns.html") else ""}" data-cm-title="{esc(b["name"])} · {esc(it["camp"])}">상세 관리 →</a>'
             f'<button type="button" class="ag-btn primary js-next">다음 ▶</button></footer></section>')
 
 
@@ -993,6 +995,14 @@ def build():
 </div>
 </div></main>
 </div>
+<!-- [2026-11-13] 캠페인 창(가운데 모달) — 요청 "대시보드 업무 클릭은 대시보드를 벗어나지 않게, 캠페인은 가운데 모달로"
+     안에는 캠페인 화면을 삽입 모드(?embed=1 — 사이드바 없음, js/scope.js)로 띄움. 여닫기 · 주소 넣기만 JS(js/dashboard.js) -->
+<dialog class="cmodal ag" id="cmodal" aria-labelledby="cm-title">
+	<header class="cm-h"><b id="cm-title" class="js-cm-title">캠페인</b>
+		<a class="ag-btn sm ghost js-cm-full" href="campaigns.html" target="_blank" rel="noopener">새 창으로 ↗</a>
+		<form method="dialog"><button class="cm-x" aria-label="닫기">✕</button></form></header>
+	<div class="cm-b"><p class="cm-load js-cm-load">불러오는 중…</p><iframe class="js-cm-frame" title="캠페인 화면" src="about:blank"></iframe></div>
+</dialog>
 <script src="js/scope.js"></script>
 <script src="js/dashboard.js"></script>
 </body>

@@ -9,6 +9,10 @@
 	'use strict';
 
 	var biz = new URLSearchParams(location.search).get('biz') || '';
+	// [2026-11-13] 삽입 모드(?embed=1) — 대시보드 캠페인 창(가운데 모달) 안에 띄울 때. 사이드바를 숨김(css/bridge/shell.css html.is-embed)
+	//   창 안에서 다른 화면으로 넘어가도 삽입 모드가 이어지게 아래 링크에 embed=1 을 같이 붙인다
+	var embed = new URLSearchParams(location.search).get('embed') === '1';
+	if (embed) document.documentElement.classList.add('is-embed');
 	var pick = biz && document.querySelector('.scope-pop [data-scope="' + biz + '"]');
 	if (!pick) biz = '';                        // 없는 업체 번호면 전체로
 
@@ -42,7 +46,7 @@
 	}
 
 	// 링크에 범위·보는 사람 붙이기 — 두 창 안 링크는 아래에서 따로 정하니 건너뜀
-	var carry = (biz ? '&biz=' + biz : '') + (me ? '&me=' + me : '');
+	var carry = (biz ? '&biz=' + biz : '') + (me ? '&me=' + me : '') + (embed ? '&embed=1' : '');
 	if (carry) {
 		document.querySelectorAll('a[href]').forEach(function (a) {
 			var h = a.getAttribute('href');

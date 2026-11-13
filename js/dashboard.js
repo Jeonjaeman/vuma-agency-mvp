@@ -626,4 +626,32 @@
 		if (t.matches('.js-clear')) { delete grid.dataset.filter; filterNote.hidden = true; return; }
 		if (t.matches('[data-done]')) return markDone(t);
 	});
+
+	// [2026-11-13] 캠페인 창(가운데 모달) — 요청 "대시보드에서 업무와 연계된 클릭은 대시보드를 벗어나지 않게, 캠페인은 가운데 모달로"
+	//   왜 JS 인가: 누른 링크마다 창 안 화면 주소(iframe src)를 바꿔 넣어야 하는데 CSS 로는 못 한다. 여닫기는 <dialog>.
+	//   창 안 = 캠페인 화면 삽입 모드(?embed=1 — 사이드바 없이, js/scope.js). [새 창으로 ↗] 는 원래 화면.
+	var cm = document.getElementById('cmodal');
+	if (cm) {
+		var cmFrame = cm.querySelector('.js-cm-frame'), cmLoad = cm.querySelector('.js-cm-load');
+		var embedUrl = function (href) {
+			var i = href.indexOf('#');
+			var path = i < 0 ? href : href.slice(0, i), hash = i < 0 ? '' : href.slice(i);
+			return path + (path.indexOf('?') < 0 ? '?' : '&') + 'embed=1' + hash;
+		};
+		document.addEventListener('click', function (e) {
+			var a = e.target.closest('a.js-cm');
+			if (!a || e.ctrlKey || e.metaKey || e.shiftKey) return;   // 새 탭으로 열기는 그대로 둠
+			e.preventDefault();
+			var href = a.getAttribute('href');
+			cm.querySelector('.js-cm-title').textContent = a.dataset.cmTitle || '캠페인';
+			cm.querySelector('.js-cm-full').setAttribute('href', href);
+			cmLoad.hidden = false;
+			cmFrame.src = embedUrl(href);
+			if (!cm.open) cm.showModal();
+		});
+		cmFrame.addEventListener('load', function () { if (cmFrame.src !== 'about:blank') cmLoad.hidden = true; });
+		cm.addEventListener('close', function () { cmFrame.src = 'about:blank'; });
+		// 바깥(어두운 곳)을 누르면 닫기
+		cm.addEventListener('click', function (e) { if (e.target === cm) cm.close(); });
+	}
 })();

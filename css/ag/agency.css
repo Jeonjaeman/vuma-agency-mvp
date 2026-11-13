@@ -634,3 +634,23 @@ button.who-go:hover b{text-decoration:underline}
 #v-biz:checked ~ .vtabs label[for=v-biz] em,#v-staff:checked ~ .vtabs label[for=v-staff] em{color:var(--ag-c-8)}
 #v-biz:focus-visible ~ .vtabs label[for=v-biz],#v-staff:focus-visible ~ .vtabs label[for=v-staff]{outline:2px solid var(--ag-main);outline-offset:-2px;border-radius:6px 6px 0 0}
 .vtabs + .grid-wrap{border-top-left-radius:0;border-top-right-radius:0}
+
+/* [2026-11-13] 캠페인 창(가운데 모달) — 대시보드에서 캠페인 화면을 떠나지 않고 봄(안 = 캠페인 화면 삽입 모드 iframe) */
+/* 광고주 main.css 의 * {margin:0} 이 dialog 가운데 맞춤(margin:auto)을 지워서 다시 넣음 */
+.cmodal{inset:0;margin:auto;width:min(1240px,calc(100vw - 64px));height:calc(100vh - 64px);max-width:none;max-height:none;padding:0;border:0;border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.25);overflow:hidden;color:var(--ag-c-14)}
+.cmodal[open]{display:flex;flex-direction:column}
+.cmodal::backdrop{background:rgba(15,15,20,.45)}
+.cm-h{display:flex;align-items:center;gap:8px;height:52px;padding:0 10px 0 20px;border-bottom:1px solid var(--ag-c-3);flex:none}
+.cm-h b{flex:1;min-width:0;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cm-h form{margin:0}
+.cm-x{width:36px;height:36px;border:0;border-radius:8px;background:none;font-size:16px;color:var(--ag-c-9);cursor:pointer}
+.cm-x:hover{background:var(--ag-c-2);color:var(--ag-c-14)}
+.cm-b{position:relative;flex:1;min-height:0;background:#edecf0}
+.cm-b iframe{display:block;width:100%;height:100%;border:0}
+.cm-load{position:absolute;inset:0;display:grid;place-items:center;margin:0;font-size:13px;color:var(--ag-c-8);background:#fff}
+.cm-load[hidden]{display:none}
+/* 처리 패널 캠페인 이름 = 캠페인 창 열기 링크 */
+a.cg-name{color:inherit;text-decoration:none}
+a.cg-name i{font-style:normal;font-size:12px;color:var(--ag-c-8);margin-left:4px}
+a.cg-name:hover{color:var(--ag-main);text-decoration:underline}
+a.cg-name:hover i{color:var(--ag-main)}
