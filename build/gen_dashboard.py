@@ -110,28 +110,10 @@ def due_class(d):
     return "is-later"       # 그 외 = 회색
 
 
-MULTI = ("apply", "review", "nudge", "pay")       # 건이 여러 캠페인에 걸칠 수 있는 이슈
-DUE_RANGE = {"apply": (0, 6), "review": (-1, 4), "nudge": (-1, 2), "pay": (1, 8)}
-
-
 def issue_from(items):
     """[2026-11-09] items = [(캠페인, 기한일수), ...] 한 건씩. 칸 기한 = 가장 급한 건"""
     items = sorted(items, key=lambda x: x[1])
     return {"n": len(items), "due": items[0][1], "camp": items[0][0], "items": items}
-
-
-def make_issue(key, camps):
-    if key in MULTI:
-        cnt = rnd.randint(1, 5)
-        k = min(cnt, len(camps), rnd.choice([1, 2, 2, 3]))   # 캠페인 1~3개에 나눠 걸림
-        lo, hi = DUE_RANGE[key]
-        dues = rnd.sample(range(lo, hi + 1), k)
-        split = [1] * k
-        for _ in range(cnt - k):
-            split[rnd.randrange(k)] += 1
-        return issue_from([(camps[j], dues[j]) for j in range(k) for _ in range(split[j])])
-    due = {"select": rnd.randint(0, 1), "point": 0, "late": -rnd.randint(1, 3)}[key]
-    return issue_from([(rnd.choice(camps), due)])
 
 
 def due_mix(items):
@@ -142,29 +124,80 @@ def due_mix(items):
     return " · ".join(f"{due_label(d)} {n}건" for d, n in sorted(seen.items()))
 
 
+# [2026-11-13] 더미 이슈 = 캠페인 단계에서 실제로 생기는 것만 — 요청 "상태가 겹치는 경우가 거의 없음, 각 상황별 실존하는 카운트만"
+#   근거(개발서버 읽기만): core/inc/define.inc.php $CAMPAIGN_STEP — 캠페인은 한 번에 한 단계
+#     4 모집중 → 5 모집완료 → 6 체험단선정완료 → 7 체험중 → 8 완료
+#   core/lib/classes/campaign.class.php — 리뷰 등록(검수 승인) 때 리뷰어 지급이 함께 일어남, 지급 실패 건만 지급 대기로 남음
+#   → 캠페인 하나 = 이슈 칸 하나가 기본. 체험중에서 검수 + 독촉만 드물게 함께(리뷰어마다 진도가 달라서)
+STEP_W = [(4, .32), (5, .08), (6, .15), (7, .35), (8, .10)]
+
+
+def pick_step():
+    x, acc = rnd.random(), 0
+    for st, w in STEP_W:
+        acc += w
+        if x < acc:
+            return st
+    return 7
+
+
+def camp_issues(camp, step):
+    """캠페인 한 개의 단계 → [(이슈, 기한일수, 건수)]"""
+    ty, r = ctype(camp), rnd.random()
+    if step == 4:   # 모집중 — 새 신청자 확인 · 마감 임박이면 선정 · 마감이 지났는데 선정 안 함
+        if r < .70:
+            return [("apply", rnd.randint(0, 6), rnd.randint(1, 5))]
+        if r < .85:
+            return [("select", rnd.randint(0, 1), 1)]
+        if r < .95:
+            return [("late", -rnd.randint(1, 3), 1)]
+        return []
+    if step == 5:   # 모집완료 — 선정해야 함
+        return [("select", rnd.randint(0, 1), 1)]
+    if step == 6:   # 체험단선정완료 — 배송형 발송 · 기자단 자료(방문형은 할 일 없음)
+        if ty == "s":
+            return [("prep", rnd.randint(0, 3), rnd.randint(1, 4))]
+        if ty == "p":
+            return [("prep", rnd.randint(-1, 2), rnd.randint(1, 4))]
+        return []
+    if step == 7:   # 체험중 — 올라온 리뷰 검수 · 안 올린 리뷰어 독촉 · 지급 실패 대기
+        if r < .45:
+            out = [("review", rnd.randint(-1, 4), rnd.randint(1, 4))]
+            if rnd.random() < .12:                     # 드물게 같은 캠페인에 독촉도
+                out.append(("nudge", rnd.randint(-1, 2), 1))
+            return out
+        if r < .70:
+            return [("nudge", rnd.randint(-1, 2), rnd.randint(1, 3))]
+        if r < .80:
+            return [("pay", rnd.randint(1, 8), rnd.randint(1, 2))]
+        return []
+    if step == 8:   # 완료 — 지급 실패가 남은 경우만
+        return [("pay", rnd.randint(1, 8), 1)] if r < .15 else []
+    return []
+
+
 def make_biz():
-    """업체 30곳 + 이슈 무작위 배치 (이슈 없는 업체도 섞음)"""
+    """업체 30곳 — 캠페인마다 단계 하나, 이슈는 그 단계 것만 (이슈 없는 업체도 섞음)"""
     owners = [s for s in STAFF]
     rows = []
     for i, name in enumerate(BIZ_NAMES):
         owner = None if i in (7, 22) else owners[i % len(owners)]
         camps = rnd.sample(CAMPAIGNS, rnd.randint(2, 3))
+        steps = {c: pick_step() for c in camps}
         issues = {}
         if i % 4 != 3:  # 4곳 중 1곳은 이슈 없음
-            for key in ["apply", "select", "review", "nudge", "pay", "point", "late"]:
-                p = {"apply": .45, "select": .18, "review": .4, "nudge": .22, "pay": .3, "point": .06, "late": .1}[key]
-                if rnd.random() < p:
-                    issues[key] = make_issue(key, camps)
-            prep_camps = [c for c in camps if ctype(c) in ("s", "p")]
-            if prep_camps and rnd.random() < .55:
-                items = []
-                for c in prep_camps[:2]:
-                    d = rnd.randint(0, 3) if ctype(c) == "s" else rnd.randint(-1, 2)
-                    items += [(c, d)] * rnd.randint(1, 4)
-                issues["prep"] = issue_from(items)
+            got = {}
+            for c in camps:
+                for key, due, n in camp_issues(c, steps[c]):
+                    got.setdefault(key, []).extend([(c, due)] * n)
+            # 포인트 부족 = 업체 단위 · 드묾(모집중 캠페인의 추가 모집 대기)
+            rec = [c for c in camps if steps[c] == 4]
+            if rec and rnd.random() < .07:
+                got["point"] = [(rec[0], 0)]
+            issues = {k: issue_from(v) for k, v in got.items()}
         if owner is None:
             issues["owner"] = issue_from([(camps[0], 0)])
-        rows.append({"id": f"b{i}", "name": name, "owner": owner, "camps": camps, "issues": issues})
+        rows.append({"id": f"b{i}", "name": name, "owner": owner, "camps": camps, "issues": issues, "steps": steps})
     # [2026-11-10 v0.8] 셸(업체 범위 목록 · 메뉴 숫자)도 같은 업체 데이터를 쓴다
     SCOPE_BIZ[:] = rows
     COUNTS.update({k: sum(b["issues"][k]["n"] for b in rows if k in b["issues"]) for k in ("review", "pay")})
