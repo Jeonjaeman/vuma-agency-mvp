@@ -1,0 +1,46 @@
+/* [2026-11-17] 시안성 층 — 광고주 화면 요소의 글자 크기 · 대비 · 초점만 고친다(모든 화면 맨 마지막에 실림)
+   요청: "대행사 데모에 시안성 개선 적용" — 근거 = 조사/20261117/뷰마3사이트_대비_UIUX비교.md 3-8 (실측)
+   ★ 이 파일만 예외로 광고주 모양 값을 덮는다(shell.css 의 '값 덮기 금지' 원칙의 예외). 지우면 광고주 원본 모양으로 돌아간다.
+   규칙
+     1) 화면마다 가장 먼저 볼 숫자를 크게(24~28px) — 지금 가장 큰 글자가 회사명(24px)이었다
+     2) 글자 바닥 12px — 11px 이하(배지 · 사이드바 아래 · 일정 막대 글자)를 12px 로
+     3) 대비 4.5:1 이상 — 연한 바탕 위 흰 글자 · 밝은 원색 글자를 진하게 */
+
+/* 1) 초점 ------------------------------------------------------------------ */
+/* 사이드바 회사명이 화면에서 가장 큰 글자였다 → 데이터보다 작게 */
+.sidebar .brand-name{font-size:19px;line-height:1.25}
+/* 홈: "오늘 확인해야할 일이 N개" 의 N */
+.task-count-msg .count-highlight{font-size:26px;font-weight:800;vertical-align:-2px;margin:0 2px}
+/* 포인트 관리: 보유 포인트 숫자 */
+.pm-desc #pmBalanceText{font-size:28px;font-weight:800;color:var(--color-text-14);vertical-align:-3px;margin:0 2px}
+/* 캠페인 리스트 상태 칩: 개수를 굵게, 0건 칩은 흐리게(.is-zero = 생성기가 붙임) */
+.cmp-status-tabs .status-tab .count{font-size:15px;font-weight:800}
+.cmp-status-tabs .status-tab.is-zero{opacity:.55}
+.cmp-status-tabs .status-tab.is-zero:hover{opacity:1}
+
+/* 2) 글자 바닥 12px ------------------------------------------------------- */
+.sidebar-biz,.sidebar-footer p{font-size:12px}
+.sidebar .btn-tag{font-size:12px}
+.card-tags .tag-code,.card-tags .tag-sns{font-size:12px}
+.tag-new{font-size:11px}
+.msg-read-state{font-size:12px}
+
+/* 3) 대비 ----------------------------------------------------------------- */
+.sidebar-footer p{color:#525252}
+/* 홈 일정 막대: 연한 그라데이션 위 흰 글자(1.6~2.9:1) → 진한 글자 */
+.timeline-bar:is(.bar-pink,.bar-blue,.bar-green,.bar-orange) :is(.phase-label,.bar-text){color:#1a1a1a;font-size:12px}
+/* 캠페인 카드: 밝은 초록(#2ecc71) 위 흰 글자 2.1:1 → 진한 초록 5.4:1 */
+.status-badge.bg-green,.tag-sns.bg-green{background:#007a4b}
+/* NEW 표시: 밝은 주황 2.2:1 → 5.2:1 */
+.tag-new{color:#a35a00}
+/* 쪽지 읽음 표시: 밝은 초록 2.7:1 → 5.8:1 */
+.msg-read-state.read{color:#00744d}
+.msg-read-state.unread{color:#c42a02}
+/* 결제 안내 · 약관 문단 */
+.pm-terms-box p,.pm-amount-notice span{color:#525252}
+/* 광고주 마크업에 박힌 회색(style="color:#777/#888", 4.5:1 경계 아래) — 이 층에서만 덮는다 */
+.pm-terms-box p[style],.pm-amount-notice span[style]{color:#525252 !important}
+/* 리뷰어 이력 0건 칸: 흐린 회색 2.3:1 → 6:1 (연회색 바탕이라 #767676 은 4.3) */
+.rev-history__toggle.is-empty,.rev-history__toggle.is-empty .rev-history__cnt{color:#5f5f5f}
+/* 쪽지 미리보기 · 홈 할 일 카드의 번호 · 작은 버튼 11px → 12px */
+.msg-snippet,.task-type-row .campaign-id,.task-actions .btn-tag{font-size:12px}

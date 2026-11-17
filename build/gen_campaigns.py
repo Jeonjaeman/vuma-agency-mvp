@@ -233,7 +233,7 @@ def list_view():
     radios = (f'<input type="radio" name="cs" id="cs-all" class="vr" checked>'
               + "".join(f'<input type="radio" name="cs" id="cs-{k}" class="vr">' for k, _n, _c in STEPS))
     stabs = (f'<label class="status-tab" for="cs-all">전체 <span class="count">{len(D.CAMPS)}</span></label>'
-             + "".join(f'<label class="status-tab" for="cs-{k}">{n} <span class="count">{cnt[k]}</span></label>' for k, n, _c in STEPS))
+             + "".join(f'<label class="status-tab{" is-zero" if not cnt[k] else ""}" for="cs-{k}">{n} <span class="count">{cnt[k]}</span></label>' for k, n, _c in STEPS))   # [11-17] 0건 = 흐리게(css/bridge/legible.css)
     chans = sorted({c["ch"] for c in D.CAMPS})
     owners = '<option value="">담당자 전체</option><option value="un">미담당</option>' + "".join(
         f'<option value="{sid}">{name} ({t})</option>' for sid, name, _l, t in G.STAFF)

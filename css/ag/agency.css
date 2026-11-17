@@ -5,10 +5,10 @@
 
 :root{
 	--ag-main:#7346f3; --ag-main-hover:#5f33d6; --ag-main-light:#f2eeff; --ag-main-bg:#f7f5ff;
-	--ag-danger:#dc2f02; --ag-danger-light:#fdece7;
+	--ag-danger:#c42a02; /* [11-17 시안성] */ --ag-danger-light:#fdece7;
 	--ag-success:#00b578; --ag-success-light:#e6f8f1;
-	--ag-warning:#b56a00; --ag-warning-light:#fff5e5;
-	--ag-info:#0077e6; --ag-info-light:#e9f4ff;
+	--ag-warning:#995800; --ag-warning-light:#fff5e5;
+	--ag-info:#0066cc; --ag-info-light:#e9f4ff;
 	--ag-c-14:#0e0e0e; --ag-c-11:#363636; --ag-c-9:#525252; --ag-c-8:#767676; --ag-c-5:#cfcfcf; --ag-c-4:#dbdbdb; --ag-c-3:#e7e7e7; --ag-c-2:#f3f3f3; --ag-c-1:#fff;
 	--ag-side-bg:#f4f3f6;
 	--ag-r-sm:8px; --ag-r-md:12px; --ag-r-lg:16px; --ag-r-xl:20px; --ag-r-full:999px;
@@ -161,7 +161,7 @@
 .dot{color:var(--ag-c-5);font-size:16px}
 .cell{width:54px;height:36px;border:1px solid;border-radius:var(--ag-r-sm);display:inline-flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;line-height:1.1;padding:0}
 .cell b{font-size:14px}
-.cell small{font-size:10px;font-weight:600}
+.cell small{font-size:11px;font-weight:600}
 .is-hot{background:var(--ag-danger-light);border-color:#f3a58f;color:var(--ag-danger)}
 .is-soon{background:var(--ag-warning-light);border-color:#efc98c;color:var(--ag-warning)}
 .is-later{background:var(--ag-c-2);border-color:var(--ag-c-3);color:var(--ag-c-11)}
@@ -454,7 +454,7 @@
 .cidx em{font-style:normal;font-weight:800;color:var(--ag-cg)}
 
 /* 격자 캠페인 줄 */
-.cfold{display:inline-flex;align-items:center;margin-left:8px;height:20px;padding:0 8px;border:1px solid var(--ag-c-4);border-radius:var(--ag-r-full);font-size:11px;font-weight:700;color:var(--ag-c-9);cursor:pointer;background:#fff}
+.cfold{display:inline-flex;align-items:center;margin-left:8px;height:20px;padding:0 8px;border:1px solid var(--ag-c-4);border-radius:var(--ag-r-full);font-size:12px;font-weight:700;color:var(--ag-c-9);cursor:pointer;background:#fff}
 .cfold input{position:absolute;opacity:0;width:1px;height:1px}
 .cfold::after{content:"▸";margin-left:4px}
 .cfold:has(input:checked){background:var(--ag-c-14);border-color:var(--ag-c-14);color:#fff}
@@ -628,7 +628,7 @@ button.who-go:hover b{text-decoration:underline}
 /* [2026-11-13] 업체별/담당자별 탭 — 리스트(격자) 바로 위에 붙은 밑줄 탭. 고른 탭 = 진한 글자 + 주색 2px 밑줄, 리스트 상자와 한 덩어리(위 모서리만 둥글게) */
 .vtabs{display:flex;gap:4px;padding:0 12px;border:1px solid var(--ag-c-3);border-bottom:0;border-radius:8px 8px 0 0;background:#fff}
 .vtabs label{display:inline-flex;align-items:baseline;gap:6px;height:46px;padding:0 14px;align-items:center;font-size:14px;font-weight:600;color:var(--ag-c-8);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
-.vtabs label em{font-style:normal;font-size:11px;font-weight:500;color:var(--ag-c-5)}
+.vtabs label em{font-style:normal;font-size:12px;font-weight:500;color:var(--ag-c-8)}
 .vtabs label:hover{color:var(--ag-c-14)}
 #v-biz:checked ~ .vtabs label[for=v-biz],#v-staff:checked ~ .vtabs label[for=v-staff]{color:var(--ag-c-14);font-weight:700;border-bottom-color:var(--ag-main)}
 #v-biz:checked ~ .vtabs label[for=v-biz] em,#v-staff:checked ~ .vtabs label[for=v-staff] em{color:var(--ag-c-8)}
@@ -707,3 +707,15 @@ button.mini-go{cursor:pointer;font:inherit;font-size:11px;font-weight:600}
 .al-biz{display:flex;align-items:center;flex-wrap:wrap;gap:2px}
 .al-camp{display:flex;align-items:center;flex-wrap:wrap;gap:4px;margin:2px 0 4px;font-size:12px;font-weight:700;color:var(--ag-c-11)}
 .al-camp .ty{font-size:10px;padding:0 5px}
+
+/* [2026-11-17] 시안성 — 대시보드 머리 숫자 칸(가장 먼저 볼 숫자를 크게. 전엔 문장 속 13px) */
+.ag-kpi{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 0}
+.ag-kpi > div{min-width:128px;padding:10px 16px;border:1px solid var(--ag-c-3);border-radius:var(--ag-r-md);background:#fff}
+.ag-kpi dt{font-size:12px;font-weight:600;color:var(--ag-c-9)}
+.ag-kpi dd{margin:2px 0 0;font-size:13px;font-weight:600;color:var(--ag-c-9)}
+.ag-kpi dd b{margin-right:2px;font-size:28px;font-weight:800;line-height:1.15;color:var(--ag-c-14)}
+.ag-kpi dd small{font-size:12px;font-weight:500}
+.ag-kpi .is-hot-k{border-color:#f3c3b5;background:var(--ag-danger-light)}
+.ag-kpi .is-hot-k dd b{color:var(--ag-danger)}
+/* [2026-11-17] 시안성 — 대행사 영역의 <small> 기본(브라우저 smaller ≈ 10.8px)을 12px 로. 자리 좁은 칸(.cell small 11px 등)은 각자 규칙이 이긴다 */
+:where(.ag) small{font-size:12px}

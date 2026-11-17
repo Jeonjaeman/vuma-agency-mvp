@@ -14,12 +14,12 @@
 .st-green{background:var(--ag-success-light);color:#00744d}
 .st-gray{background:var(--ag-c-2);color:var(--ag-c-9)}
 .st-red{background:var(--ag-danger-light);color:var(--ag-danger)}
-.rnd{font-size:11px;font-weight:700;color:var(--ag-c-8);background:var(--ag-c-2);padding:1px 7px;border-radius:var(--ag-r-full)}
+.rnd{font-size:12px;font-weight:700;color:var(--ag-c-9);background:var(--ag-c-2);padding:1px 7px;border-radius:var(--ag-r-full)}
 .ag-plus{color:#00744d}
 .bad{color:var(--ag-danger);font-weight:700}
 
 /* 대행사 추가분 표시(.add 점선) — [2026-11-12 v0.9] agency.css 로 옮김(대시보드처럼 ops.css 를 안 싣는 화면 사이드바에도 같게) */
-.add-tag{display:inline-block;font-size:10px;font-weight:800;color:var(--ag-main);background:var(--ag-main-light);padding:1px 6px;border-radius:var(--ag-r-full);vertical-align:middle;margin-left:4px}
+.add-tag{display:inline-block;font-size:11px;font-weight:800;color:var(--ag-main);background:var(--ag-main-light);padding:1px 6px;border-radius:var(--ag-r-full);vertical-align:middle;margin-left:4px}
 .legend-add{font-size:12px;color:var(--ag-c-8);margin:0}
 .legend-add i{display:inline-block;width:14px;height:10px;outline:1.5px dashed #b9a5ff;border-radius:3px;margin-right:4px;vertical-align:-1px}
 

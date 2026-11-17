@@ -9,7 +9,7 @@
 	--ag-fl-line-soft:#f1f1f4;   /* 표 안 줄 사이 */
 	--ag-fl-hover:#f7f7f9;       /* 줄 올림 */
 	--ag-fl-sub:#6b7280;         /* 보조 글자 */
-	--ag-fl-faint:#9ca3af;       /* 흐린 글자 */
+	--ag-fl-faint:#6b7280;   /* [11-17 시안성] */       /* 흐린 글자 */
 	--ag-fl-head:#fafafb;        /* 표 머리 · 묶음 머리 */
 	--ag-fl-pop:0 4px 16px rgba(0,0,0,.08);   /* 그림자는 떠 있는 것에만 */
 }

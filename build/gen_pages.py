@@ -136,6 +136,7 @@ def page(title, active, body, panel, extra_style="", js="pages.js"):
 {extra_style}
 <link rel="stylesheet" href="css/bridge/shell.css">
 {FLAT if active not in ADV_KEYS else ""}
+<link rel="stylesheet" href="css/bridge/legible.css"><!-- [2026-11-17] 시안성 층 -->
 </head>
 <body>
 <!-- [2026-11-10] 대행사 {title} 시안 {G.VERSION}. build/gen_pages.py 로 생성(직접 수정 금지)

@@ -10,7 +10,7 @@
 .st-green{background:var(--ag-success-light);color:#00744d}
 .st-gray{background:var(--ag-c-2);color:var(--ag-c-9)}
 .st-red{background:var(--ag-danger-light);color:var(--ag-danger)}
-.rnd{font-size:11px;font-weight:700;color:var(--ag-c-8);background:var(--ag-c-2);padding:1px 7px;border-radius:var(--ag-r-full)}
+.rnd{font-size:12px;font-weight:700;color:var(--ag-c-9);background:var(--ag-c-2);padding:1px 7px;border-radius:var(--ag-r-full)}
 .ag-plus{color:#00744d}
 .ag-minus{color:var(--ag-c-14)}
 .bad{color:var(--ag-danger);font-weight:700}

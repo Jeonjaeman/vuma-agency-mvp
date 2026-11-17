@@ -14,7 +14,7 @@
 .st-gray{background:var(--ag-c-2);color:var(--ag-c-9)}
 .st-red{background:var(--ag-danger-light);color:var(--ag-danger)}
 .st + .st{margin-left:4px}
-.rnd{font-size:11px;font-weight:700;color:var(--ag-c-8);background:var(--ag-c-2);padding:1px 7px;border-radius:var(--ag-r-full)}
+.rnd{font-size:12px;font-weight:700;color:var(--ag-c-9);background:var(--ag-c-2);padding:1px 7px;border-radius:var(--ag-r-full)}
 
 /* ── 목록 ───────────────────────── */
 /* [2026-11-12] .camp-page{overflow:hidden} 지움 — 광고주 .cmp-layout 의 세로 스크롤(overflow-y:auto)을 막아 캠페인 리스트가 안 내려갔음 */
@@ -194,7 +194,7 @@
 .card-agency{margin:0 0 10px}
 .card-agency .who i{width:20px;height:20px;font-size:10px}
 .cd-agency{margin:0 0 16px;font-size:13px}
-.stage{font-size:11px;font-weight:700;color:var(--color-main);padding:1px 7px;border-radius:var(--ag-r-full);background:var(--color-main-light)}
+.stage{font-size:12px;font-weight:700;color:var(--color-main);padding:1px 7px;border-radius:var(--ag-r-full);background:var(--color-main-light)}
 .stage.late{color:#c0392b;background:#ffece9}
 .watch{margin-left:auto;display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:#0077e6;background:#e5f2ff;padding:4px 10px;border-radius:var(--ag-r-full)}
 .watch i{width:8px;height:8px;border-radius:50%;background:#0077e6;box-shadow:0 0 0 3px rgba(0,119,230,.2)}

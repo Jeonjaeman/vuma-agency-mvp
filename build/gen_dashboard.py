@@ -1029,6 +1029,7 @@ def build():
 <link rel="stylesheet" href="css/ag/agency.css">
 <link rel="stylesheet" href="css/bridge/shell.css">
 <link rel="stylesheet" href="css/ag/flat.css"><!-- [2026-11-13] 대행사 전용 화면 단순화 -->
+<link rel="stylesheet" href="css/bridge/legible.css"><!-- [2026-11-17] 시안성 층 -->
 </head>
 <body>
 <!-- [2026-11-10] 대행사 대시보드 시안 {VERSION} — 기획서 v0.5 6-3 · 6-11. gen_dashboard.py 로 생성(직접 수정 금지)
@@ -1041,7 +1042,13 @@ def build():
 	<div class="board-h">
 		<div>
 			<h1 id="board-title">대시보드</h1>
-			<p class="sub">{TODAY_LABEL} · 업체 {len(bizs)}곳 중 <b>{with_issue}곳</b>에 이슈 <b>{total_issue}건</b> · 기한 지남·오늘 <b class="hot-t">{hot}곳</b></p>
+			<p class="sub">{TODAY_LABEL} 기준</p>
+			<!-- [2026-11-17] 시안성 — 가장 먼저 볼 숫자를 크게(전엔 문장 속 13px) -->
+			<dl class="ag-kpi">
+				<div><dt>이슈</dt><dd><b>{total_issue}</b>건</dd></div>
+				<div><dt>이슈 있는 업체</dt><dd><b>{with_issue}</b>곳 <small>/ {len(bizs)}곳</small></dd></div>
+				<div class="is-hot-k"><dt>기한 지남 · 오늘</dt><dd><b>{hot}</b>곳</dd></div>
+			</dl>
 		</div>
 		<div class="vw-box">
 		<div class="seg" role="group" aria-label="보기 범위">
