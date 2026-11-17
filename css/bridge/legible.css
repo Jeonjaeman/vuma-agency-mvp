@@ -48,9 +48,10 @@
 /* 4) 캠페인 리스트 목록형(기본값) 촘촘하게 — 광고주 목록형은 사진 140px · 버튼 세로 5단이라 한 줄이 190px 넘음
    [11-17] 요청 "버튼들을 윗쪽으로 나란히" → 버튼 5개를 맨 윗줄(유형 태그 줄) 오른쪽에 한 줄로.
    글 칸(.card-content)을 display:contents 로 풀어 카드 한 장을 3열 격자로 놓는다
-     ┌사진┬ 유형·코드 ─────────── │ [보기][문의][추가모집][공유][수정] ┐
+     [11-17] 요청 "우측을 이런 순서로(1 신청/모집 · 2 업체 · 3 버튼)" → 오른쪽 위에서부터 숫자 → 업체 → 버튼
+     ┌사진┬ 유형·코드 ─────────── │                     신청 / 모집     ┐
      │    │ 제목                  │              업체 · 담당 · 단계     │
-     └────┴ 제공내용              │                     신청 / 모집     ┘ */
+     └────┴ 제공내용              │ [보기][문의][추가모집][공유][수정] ┘ */
 @media (min-width:769px){
 	.camp-page:has(#vw-list:checked) .cmp-card{display:grid;grid-template-columns:72px minmax(0,1fr) auto;column-gap:20px;row-gap:4px;align-items:center;padding:14px 0}
 	.camp-page:has(#vw-list:checked) .card-content{display:contents}
@@ -60,10 +61,10 @@
 	.camp-page:has(#vw-list:checked) .card-tags{grid-column:2;grid-row:1;margin:0}
 	.camp-page:has(#vw-list:checked) .card-title{grid-column:2;grid-row:2;margin:0;-webkit-line-clamp:1;line-clamp:1}
 	.camp-page:has(#vw-list:checked) .card-desc{grid-column:2;grid-row:3;margin:0}
-	.camp-page:has(#vw-list:checked) .card-actions{grid-column:3;grid-row:1;display:flex;flex-direction:row;flex-wrap:wrap;justify-content:flex-end;gap:4px;width:auto;border:0}   /* 좁으면 두 줄로 */
+	.camp-page:has(#vw-list:checked) .card-actions{grid-column:3;grid-row:3;display:flex;flex-direction:row;flex-wrap:wrap;justify-content:flex-end;gap:4px;width:auto;border:0}   /* 좁으면 두 줄로 */
 	.camp-page:has(#vw-list:checked) .card-btn{padding:4px 8px;font-size:12px;white-space:nowrap}
 	.camp-page:has(#vw-list:checked) .card-agency{grid-column:3;grid-row:2;justify-self:end;margin:0}
-	.camp-page:has(#vw-list:checked) .card-stats{grid-column:3;grid-row:3;justify-self:end;margin:0}
+	.camp-page:has(#vw-list:checked) .card-stats{grid-column:3;grid-row:1;justify-self:end;margin:0}
 }
 /* 목록형 좁은 화면(≤768): 광고주 규칙은 버튼 5개를 한 줄에 눌러 담아 글자가 세로로 깨짐 → 3열 격자 · 사진 72px */
 @media (max-width:768px){
