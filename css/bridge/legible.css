@@ -53,7 +53,8 @@
      │    │ 제목                  │              업체 · 담당 · 단계     │
      └────┴ 제공내용              │ [보기][문의][추가모집][공유][수정] ┘ */
 @media (min-width:769px){
-	.camp-page:has(#vw-list:checked) .cmp-card{display:grid;grid-template-columns:72px minmax(0,1fr) auto;column-gap:20px;row-gap:4px;align-items:center;padding:14px 0}
+	.camp-page:has(#vw-list:checked) .cmp-card{display:grid;grid-template-columns:72px minmax(0,1fr) auto;column-gap:20px;row-gap:8px;align-items:center;padding:16px 6px 16px 0}
+	/* ↑ [11-17] 요청 "각 간격과 우측 점선 잘림" — 오른쪽 세 줄 사이 4→8px, 카드가 overflow:hidden 이라 업체 줄 점선(.add outline 바깥 3.5px)이 오른쪽에서 잘림 → 오른쪽 여백 6px */
 	.camp-page:has(#vw-list:checked) .card-content{display:contents}
 	/* 사진 위 상태 띠는 72px 사진에 안 들어감 → 목록형에선 빼고(상태는 업체 줄의 단계 배지 · 상태 칩으로 보임) */
 	.camp-page:has(#vw-list:checked) .card-thumb{grid-column:1;grid-row:1 / span 3;width:72px;height:72px;align-self:center}
