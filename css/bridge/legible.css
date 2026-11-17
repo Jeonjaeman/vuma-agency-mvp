@@ -44,3 +44,31 @@
 .rev-history__toggle.is-empty,.rev-history__toggle.is-empty .rev-history__cnt{color:#5f5f5f}
 /* 쪽지 미리보기 · 홈 할 일 카드의 번호 · 작은 버튼 11px → 12px */
 .msg-snippet,.task-type-row .campaign-id,.task-actions .btn-tag{font-size:12px}
+
+/* 4) 캠페인 리스트 목록형(기본값) 촘촘하게 — 광고주 목록형은 사진 140px · 버튼 세로 5단이라 한 줄이 190px 넘음 */
+@media (min-width:769px){
+	.camp-page:has(#vw-list:checked) .cmp-card{padding:14px 0}
+		.camp-page:has(#vw-list:checked) .card-content{padding:0 20px}
+	.camp-page:has(#vw-list:checked) .card-title{margin-bottom:4px;-webkit-line-clamp:1;line-clamp:1}
+	.camp-page:has(#vw-list:checked) .card-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;width:330px}
+	.camp-page:has(#vw-list:checked) .card-btn{padding:5px 6px;font-size:12px;white-space:nowrap}
+	/* 사진 위 상태 띠는 72~88px 사진에 안 들어감 → 목록형에선 빼고(상태는 업체 줄의 단계 배지 · 상태 칩으로 보임) */
+	.camp-page:has(#vw-list:checked) .card-thumb{width:72px;height:72px}
+	.camp-page:has(#vw-list:checked) .card-badge-group{display:none}
+	/* 글 칸을 2열로: 왼쪽 = 유형·제목·제공내용, 오른쪽 = 업체·담당·단계 / 신청·모집 → 한 줄 높이 약 100px */
+	.camp-page:has(#vw-list:checked) .card-content{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:20px;row-gap:2px;align-items:center}
+	.camp-page:has(#vw-list:checked) .card-content > :is(.card-tags,.card-title,.card-desc){grid-column:1}
+	.camp-page:has(#vw-list:checked) .card-content > .card-agency{grid-column:2;grid-row:1 / span 2;align-self:end;margin:0}
+	.camp-page:has(#vw-list:checked) .card-content > .card-stats{grid-column:2;grid-row:3;justify-self:end}
+}
+/* 목록형 좁은 화면(≤768): 광고주 규칙은 버튼 5개를 한 줄에 눌러 담아 글자가 세로로 깨짐 → 3열 격자 · 사진 72px */
+@media (max-width:768px){
+	.camp-page:has(#vw-list:checked) .cmp-card{padding:14px 0;gap:10px 12px}
+	.camp-page:has(#vw-list:checked) .card-thumb{width:72px;height:72px}
+	.camp-page:has(#vw-list:checked) .card-badge-group{display:none}
+	.camp-page:has(#vw-list:checked) .card-content{padding:0;flex:1 1 calc(100% - 84px);min-width:0}
+	.camp-page:has(#vw-list:checked) .card-agency{max-width:100%;box-sizing:border-box}
+	.camp-page:has(#vw-list:checked) .card-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}
+	.camp-page:has(#vw-list:checked) .card-btn{padding:6px 4px;font-size:12px;white-space:nowrap}
+	.camp-page:has(#vw-list:checked) .card-btn .material-symbols-outlined{display:none}
+}

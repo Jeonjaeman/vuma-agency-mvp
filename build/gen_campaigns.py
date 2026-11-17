@@ -242,7 +242,7 @@ def list_view():
     i_new = {c["id"]: i for i, c in enumerate(by_new)}
     i_due = {c["id"]: i for i, c in enumerate(by_due)}
     cards = "".join(card(c, i_new[c["id"]], i_due[c["id"]]) for c in by_new)
-    return f'''{radios}<input type="radio" name="vw" id="vw-grid" class="vr" checked><input type="radio" name="vw" id="vw-list" class="vr">
+    return f'''{radios}<input type="radio" name="vw" id="vw-grid" class="vr"><input type="radio" name="vw" id="vw-list" class="vr" checked><!-- [2026-11-17] 목록형 기본(시안성 — 카드형은 한 화면 3건) -->
 	<div class="cmp-page-card clist">
 		<div class="cmp-page-header">
 			<h2 class="cmp-page-title">캠페인 리스트</h2>
